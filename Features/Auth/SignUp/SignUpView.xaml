@@ -1,0 +1,98 @@
+﻿<UserControl
+    x:Class="SignUpView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DSAShare"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+    <Grid>
+        <Border
+            Width="330"
+            Padding="{StaticResource Space-32}"
+            Background="{StaticResource BackgroundBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="16" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="16" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="16" />
+                    <RowDefinition />
+                    <RowDefinition Height="16" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <TextBlock
+                        Style="{StaticResource DisplayText}"
+                        Text="Register"
+                        TextAlignment="Center" />
+                    <TextBlock
+                        Style="{StaticResource BodyText}"
+                        Text="Start sharing today"
+                        TextAlignment="Center" />
+                    <TextBlock Text="{Binding LoginStatus, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <TextBox
+                        Grid.Row="0"
+                        Style="{StaticResource DefaultTextbox}"
+                        Tag="Full Name"
+                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Grid.Row="2"
+                        Style="{StaticResource DefaultTextbox}"
+                        Tag="Username"
+                        Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Grid.Row="4"
+                        Style="{StaticResource DefaultTextbox}"
+                        Tag="Password"
+                        Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Grid.Row="6"
+                        Style="{StaticResource DefaultTextbox}"
+                        Tag="Re-Password"
+                        Text="{Binding RePassword, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <Button
+                    Grid.Row="4"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding SignUpCommand}"
+                    Content="Sign Up"
+                    Style="{StaticResource DefaultButton}" />
+                <Rectangle
+                    Grid.Row="6"
+                    VerticalAlignment="Center"
+                    Stroke="{StaticResource SecondaryBrush}" />
+                <Grid Grid.Row="8" HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Have an account?" />
+                    <Button
+                        Grid.Column="2"
+                        Command="{Binding SignInCommand}"
+                        Content="Sign In"
+                        Style="{StaticResource EmptyButton}" />
+                </Grid>
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,111 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <RootNamespace>DSAShare</RootNamespace>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Features\Dashboard\Pages\Shared\**" />
+    <EmbeddedResource Remove="Features\Dashboard\Pages\Shared\**" />
+    <None Remove="Features\Dashboard\Pages\Shared\**" />
+    <Page Remove="Features\Dashboard\Pages\Shared\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Components\FontFamily\Inter-Black.ttf" />
+    <None Remove="Components\FontFamily\Inter-BlackItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-Bold.ttf" />
+    <None Remove="Components\FontFamily\Inter-BoldItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-ExtraBold.ttf" />
+    <None Remove="Components\FontFamily\Inter-ExtraBoldItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-ExtraLight.ttf" />
+    <None Remove="Components\FontFamily\Inter-ExtraLightItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-italic.ttf" />
+    <None Remove="Components\FontFamily\Inter-Light.ttf" />
+    <None Remove="Components\FontFamily\Inter-LightItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-Medium.ttf" />
+    <None Remove="Components\FontFamily\Inter-MediumItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-Regular.ttf" />
+    <None Remove="Components\FontFamily\Inter-roman.ttf" />
+    <None Remove="Components\FontFamily\Inter-SemiBold.ttf" />
+    <None Remove="Components\FontFamily\Inter-SemiBoldItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-Thin.ttf" />
+    <None Remove="Components\FontFamily\Inter-ThinItalic.ttf" />
+    <None Remove="Components\FontFamily\Inter-V.ttf" />
+    <None Remove="Components\FontFamily\Inter.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Components\DefaultStyle.xaml" />
+    <Page Remove="Components\TextblockStyle.xaml" />
+    <Page Remove="Components\UI\ButtonStyle.xaml" />
+    <Page Remove="Components\UI\TextboxStyle.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Import Include="System.Windows" />
+    <Import Include="System.Windows.Controls" />
+    <Import Include="System.Windows.Data" />
+    <Import Include="System.Windows.Documents" />
+    <Import Include="System.Windows.Input" />
+    <Import Include="System.Windows.Media" />
+    <Import Include="System.Windows.Media.Imaging" />
+    <Import Include="System.Windows.Navigation" />
+    <Import Include="System.Windows.Shapes" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Dashboard\Pages\AccessedFiles\Services\" />
+    <Folder Include="Features\Dashboard\Pages\Account\Services\" />
+    <Folder Include="Features\Dashboard\Pages\ManageFiles\Services\" />
+    <Folder Include="Features\Dashboard\Pages\ManageUsers\Services\" />
+    <Folder Include="Features\Dashboard\Pages\PublicFIles\Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageReference Include="Prism.Core" Version="9.0.537" />
+    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <PackageReference Include="Prism.Wpf" Version="9.0.537" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Components\UI\TextblockStyle.xaml" />
+    <Resource Include="Components\DefaultStyle.xaml" />
+    <Resource Include="Components\FontFamily\Inter-Black.ttf" />
+    <Resource Include="Components\FontFamily\Inter-BlackItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-Bold.ttf" />
+    <Resource Include="Components\FontFamily\Inter-BoldItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-ExtraBold.ttf" />
+    <Resource Include="Components\FontFamily\Inter-ExtraBoldItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-ExtraLight.ttf" />
+    <Resource Include="Components\FontFamily\Inter-ExtraLightItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-italic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-Light.ttf" />
+    <Resource Include="Components\FontFamily\Inter-LightItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-Medium.ttf" />
+    <Resource Include="Components\FontFamily\Inter-MediumItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-Regular.ttf" />
+    <Resource Include="Components\FontFamily\Inter-roman.ttf" />
+    <Resource Include="Components\FontFamily\Inter-SemiBold.ttf" />
+    <Resource Include="Components\FontFamily\Inter-SemiBoldItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-Thin.ttf" />
+    <Resource Include="Components\FontFamily\Inter-ThinItalic.ttf" />
+    <Resource Include="Components\FontFamily\Inter-V.ttf" />
+    <Resource Include="Components\FontFamily\Inter.ttf" />
+    <Resource Include="Components\UI\ButtonStyle.xaml" />
+    <Resource Include="Components\UI\TextboxStyle.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Features\Shared\Dialog\ConfirmationDialog\ConfirmationView.xaml.vb">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>
