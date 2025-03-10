@@ -16,6 +16,7 @@ Public Class Bootstrapper
     Protected Overrides Sub RegisterTypes(containerRegistry As IContainerRegistry)
 
          ' Register the SessionManager as a singleton
+        containerRegistry.Register(Of ISessionManager, SessionManager)()
         containerRegistry.RegisterSingleton(Of SessionManager)()
 
         ' Register the Authentication
@@ -43,18 +44,23 @@ Public Class Bootstrapper
     <SupportedOSPlatform("windows10.0")>
     <SupportedOSPlatform("windows11.0")>
     Protected Overrides Sub OnInitialized()
-
-        ' Check if the server is open
         If Not _connection.TestConnection() Then
             MessageBox.Show("Cannot connect to the server", "Database Connection Error", MessageBoxButton.OK, MessageBoxImage.Error)
             Application.Current.Shutdown()
             Return
         End If
 
+        Dim sessionManager = Container.Resolve(Of ISessionManager)()
+        sessionManager.LoadSession()
+
         MyBase.OnInitialized()
-        ' Start with the AuthenticationView
-        Dim regionManager = ContainerLocator.Container.Resolve(Of IRegionManager)()
-        regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+
+        Dim regionManager = Container.Resolve(Of IRegionManager)()
+        If sessionManager.IsLoggedIn() Then
+            regionManager.RequestNavigate("MainRegion", "DashboardView")
+        Else
+            regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+        End If
     End Sub
 
     

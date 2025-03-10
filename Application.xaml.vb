@@ -1,7 +1,4 @@
-﻿Imports System.Windows
-Imports Prism.DryIoc
-
-Public Class Application
+﻿Public Class Application
     Protected Overrides Sub OnStartup(e As StartupEventArgs)
         MyBase.OnStartup(e)
 
