@@ -3,16 +3,25 @@ Imports Prism.Ioc
 Imports Prism.Navigation.Regions
 Imports System.Runtime.Versioning
 
-
+<SupportedOSPlatform("windows10.0")>
+<SupportedOSPlatform("windows11.0")>
 Public Class Bootstrapper
     Inherits PrismBootstrapper
 
-    Private ReadOnly _connection As New Connection() 
+    Private ReadOnly _connection As New Connection()
 
+    ''' <summary>
+    ''' Create the shell for the application.
+    ''' </summary>
+    ''' <returns></returns>
     Protected Overrides Function CreateShell() As DependencyObject
         Return Container.Resolve(Of MainWindow)()
     End Function
 
+    ''' <summary>
+    ''' Register the types for the application.
+    ''' </summary>
+    ''' <param name="containerRegistry"></param>
     Protected Overrides Sub RegisterTypes(containerRegistry As IContainerRegistry)
 
          ' Register the SessionManager as a singleton
@@ -28,6 +37,9 @@ Public Class Bootstrapper
 
         ' Register the Fallback
         containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
+
+        ' Register the Loading
+        containerRegistry.RegisterForNavigation(Of LoadingView)("LoadingView")
 
         ' Register the Authentication Pages
         containerRegistry.RegisterForNavigation(Of SignInView)("SignInView")
@@ -47,33 +59,44 @@ Public Class Bootstrapper
         containerRegistry.RegisterForNavigation(Of ManageFilesView)("ManageFilesView")
     End Sub
 
-    <SupportedOSPlatform("windows10.0")>
-    <SupportedOSPlatform("windows11.0")>
+    ''' <summary>
+    ''' Initialize the application.
+    ''' </summary>
     Protected Overrides Async Sub OnInitialized()
         MyBase.OnInitialized()
 
         Dim regionManager = Container.Resolve(Of IRegionManager)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
+        Dim dispatcher = Application.Current.Dispatcher
+        Dim loadingService = New LoadingService(regionManager, dispatcher)
 
         sessionManager.LoadSession()
-
+        loadingService.ShowLoading()
 
         Try
             If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(False) Then
-                regionManager.RequestNavigate("MainRegion", "FallBackView")
+                dispatcher.Invoke(Sub()
+                    regionManager.RequestNavigate("MainRegion", "FallBackView")
+                End Sub)
                 Return
             End If
 
             If sessionManager.IsLoggedIn() Then
-                regionManager.RequestNavigate("MainRegion", "DashboardView")
+                dispatcher.Invoke(Sub()
+                    regionManager.RequestNavigate("MainRegion", "DashboardView")
+                End Sub)
             Else
-                regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+                dispatcher.Invoke(Sub()
+                    regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+                End Sub)
             End If
 
         Catch ex As Exception
             MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)
         Finally
-
+            dispatcher.Invoke(Sub()
+                loadingService.HideLoading()
+            End Sub)
         End Try
     End Sub
 

@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows7.0</TargetFramework>
     <RootNamespace>DSAShare</RootNamespace>
     <UseWPF>true</UseWPF>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,6 +37,7 @@
     <None Remove="Components\FontFamily\Inter-ThinItalic.ttf" />
     <None Remove="Components\FontFamily\Inter-V.ttf" />
     <None Remove="Components\FontFamily\Inter.ttf" />
+    <None Remove="Components\Images\server-x.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,6 +77,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Components\Images\server-x.png" />
     <Resource Include="Components\UI\TextblockStyle.xaml" />
     <Resource Include="Components\DefaultStyle.xaml" />
     <Resource Include="Components\FontFamily\Inter-Black.ttf" />

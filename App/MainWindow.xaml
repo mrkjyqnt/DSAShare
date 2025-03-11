@@ -15,5 +15,7 @@
 
     <Grid>
         <ContentControl prism:RegionManager.RegionName="MainRegion" />
+
+        <ContentControl prism:RegionManager.RegionName="LoadingRegion" />
     </Grid>
 </Window>
