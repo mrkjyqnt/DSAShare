@@ -7,6 +7,10 @@ Public Class SessionManager
     Private _currentUser As Users
     Private Const SessionFilePath As String = "UserSession.json"
 
+    Sub New()
+        LoadSession
+    End Sub
+
     Public ReadOnly Property CurrentUser As Users Implements ISessionManager.CurrentUser
         Get
             Return _currentUser
@@ -36,7 +40,7 @@ Public Class SessionManager
             Dim jsonString As String = JsonSerializer.Serialize(_currentUser)
             File.WriteAllText(SessionFilePath, jsonString)
         Catch ex As Exception
-            ' Handle exceptions as needed
+            ErrorHandler.SetError(ex.Message)
         End Try
     End Sub
 
@@ -46,7 +50,7 @@ Public Class SessionManager
                 File.Delete(SessionFilePath)
             End If
         Catch ex As Exception
-            ' Handle exceptions as needed
+            ErrorHandler.SetError(ex.Message)
         End Try
     End Sub
 
@@ -57,7 +61,7 @@ Public Class SessionManager
                 _currentUser = JsonSerializer.Deserialize(Of Users)(jsonString)
             End If
         Catch ex As Exception
-            ' Handle exceptions as needed
+            ErrorHandler.SetError(ex.Message)
         End Try
     End Sub
 End Class

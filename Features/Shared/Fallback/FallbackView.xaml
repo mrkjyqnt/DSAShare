@@ -5,8 +5,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:DSAShare"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    xmlns:prism="http://prismlibrary.com/"
+    prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-    <Grid />
+    <StackPanel>
+        <TextBlock
+            Style="{StaticResource BodyText}"
+            Text="Cannot access the server"
+            TextAlignment="Center" />
+        <Button
+            HorizontalAlignment="Stretch"
+            Command="{Binding SignInCommand}"
+            Content="Sign In"
+            Style="{StaticResource DefaultButton}" />
+    </StackPanel>
 </UserControl>

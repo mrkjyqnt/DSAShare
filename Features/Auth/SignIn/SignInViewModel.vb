@@ -6,7 +6,7 @@ Imports Prism.Navigation.Regions
 Imports System.Threading.Tasks
 
 Public Partial Class SignInViewModel
-    Inherits ObservableObject
+    Inherits BindableBase
 
     Private ReadOnly _authenticationService As IAuthenticationService
     Private ReadOnly _sessionManager As ISessionManager
@@ -64,7 +64,8 @@ Public Partial Class SignInViewModel
 
         ' Authenticate the user asynchronously
         Try
-            If Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(False) Then
+            Dim isAuthenticated As Boolean = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(False)
+            If  isAuthenticated Then
                 Application.Current.Dispatcher.Invoke(Sub()
                     LoginStatus = "Login successful!"
                     _regionManager.RequestNavigate("MainRegion", "DashboardView")

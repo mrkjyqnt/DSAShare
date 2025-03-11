@@ -23,6 +23,9 @@ Public Class Bootstrapper
         containerRegistry.Register(Of IAuthenticationService, AuthenticationService)()
         containerRegistry.RegisterForNavigation(Of AuthenticationView)("AuthenticationView")
 
+        ' Register the Fallback
+        containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
+
         ' Register the Authentication Pages
         containerRegistry.RegisterForNavigation(Of SignInView)("SignInView")
         containerRegistry.RegisterForNavigation(Of SignUpView)("SignUpView")
@@ -44,18 +47,19 @@ Public Class Bootstrapper
     <SupportedOSPlatform("windows10.0")>
     <SupportedOSPlatform("windows11.0")>
     Protected Overrides Sub OnInitialized()
+        Dim regionManager = Container.Resolve(Of IRegionManager)()
+        Dim sessionManager = Container.Resolve(Of ISessionManager)()
+
         If Not _connection.TestConnection() Then
             MessageBox.Show("Cannot connect to the server", "Database Connection Error", MessageBoxButton.OK, MessageBoxImage.Error)
-            Application.Current.Shutdown()
+            regionManager.RequestNavigate("MainRegion", "FallBackView")
             Return
         End If
 
-        Dim sessionManager = Container.Resolve(Of ISessionManager)()
         sessionManager.LoadSession()
 
         MyBase.OnInitialized()
 
-        Dim regionManager = Container.Resolve(Of IRegionManager)()
         If sessionManager.IsLoggedIn() Then
             regionManager.RequestNavigate("MainRegion", "DashboardView")
         Else

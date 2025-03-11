@@ -2,7 +2,7 @@
     Implements IAuthenticationService
 
     Private ReadOnly _usersRepository As UsersRepository
-    Private ReadOnly _sessionManager As SessionManager
+    Private ReadOnly _sessionManager As ISessionManager
 
     Private _user As New Users
 
@@ -18,27 +18,18 @@
     ''' <param name="password">The password.</param>
     ''' <returns>True if authentication is successful; otherwise, False.</returns>
     Public Function Authenticate(username As String, password As String) As Boolean Implements IAuthenticationService.Authenticate
-        
         _user = New Users With {
             .Username = username,
-            .PasswordHash = password
+            .PasswordHash = PasswordHasher.HashPassword(password)
         }
         ' Authenticate the user
-        Dim user As Users = _usersRepository.GetByUsername(_user)
 
-        If user IsNot Nothing Then
-
-            If user.PasswordHash Is _user.PasswordHash then
-                ' Log the user in
-                _sessionManager.Login(user)
-                Return True
-            End If
-
-            Return False
-        Else
-            ' Authentication failed
-            Return False
+        If _usersRepository.Auth(_user) Then
+            _sessionManager.Login(_usersRepository.GetByUsername(_user))
+            Return True
         End If
+
+        Return False
     End Function
 
     ''' <summary>

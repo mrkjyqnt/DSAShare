@@ -6,6 +6,32 @@
     End Sub
 
     ''' <summary>
+    ''' Authenticates a user and logs them in.
+    ''' </summary>
+    ''' <param name="username"></param>
+    ''' <param name="password"></param>
+    ''' <returns></returns>
+    Public Function Auth(user As Users) As Boolean
+        _connection.Prepare("SELECT * 
+                            FROM users 
+                            WHERE username = @username AND password_hash = @password")
+        _connection.AddParam("@username", user.Username)
+        _connection.AddParam("@password", user.PasswordHash)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return False
+        End If
+
+        If _connection.HasRecord Then
+            Return True
+        End If
+
+        Return False
+    End Function
+
+    ''' <summary>
     ''' Reads a user by username.
     ''' </summary>
     ''' <param name="username">The username to search for.</param>
