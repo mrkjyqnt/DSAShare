@@ -19,6 +19,9 @@ Public Class Bootstrapper
         containerRegistry.Register(Of ISessionManager, SessionManager)()
         containerRegistry.RegisterSingleton(Of SessionManager)()
 
+        containerRegistry.Register(Of IFallbackService, FallbackService)()
+        containerRegistry.RegisterSingleton(Of FallbackService)()
+
         ' Register the Authentication
         containerRegistry.Register(Of IAuthenticationService, AuthenticationService)()
         containerRegistry.RegisterForNavigation(Of AuthenticationView)("AuthenticationView")
@@ -46,26 +49,34 @@ Public Class Bootstrapper
 
     <SupportedOSPlatform("windows10.0")>
     <SupportedOSPlatform("windows11.0")>
-    Protected Overrides Sub OnInitialized()
+    Protected Overrides Async Sub OnInitialized()
+        MyBase.OnInitialized()
+
         Dim regionManager = Container.Resolve(Of IRegionManager)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
 
-        If Not _connection.TestConnection() Then
-            MessageBox.Show("Cannot connect to the server", "Database Connection Error", MessageBoxButton.OK, MessageBoxImage.Error)
-            regionManager.RequestNavigate("MainRegion", "FallBackView")
-            Return
-        End If
-
         sessionManager.LoadSession()
 
-        MyBase.OnInitialized()
 
-        If sessionManager.IsLoggedIn() Then
-            regionManager.RequestNavigate("MainRegion", "DashboardView")
-        Else
-            regionManager.RequestNavigate("MainRegion", "AuthenticationView")
-        End If
+        Try
+            If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(False) Then
+                regionManager.RequestNavigate("MainRegion", "FallBackView")
+                Return
+            End If
+
+            If sessionManager.IsLoggedIn() Then
+                regionManager.RequestNavigate("MainRegion", "DashboardView")
+            Else
+                regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)
+        Finally
+
+        End Try
     End Sub
+
 
     
 End Class

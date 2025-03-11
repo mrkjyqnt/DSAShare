@@ -6,7 +6,7 @@
         <Setter Property="FontFamily" Value="{StaticResource FontFamily}" />
     </Style>
 
-    <!--  Button Style  -->
+    <!--  Default Style  -->
     <Style x:Key="DefaultButton" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource SecondaryBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />

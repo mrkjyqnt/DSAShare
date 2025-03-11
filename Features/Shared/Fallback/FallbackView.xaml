@@ -8,15 +8,27 @@
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-    <StackPanel>
-        <TextBlock
-            Style="{StaticResource BodyText}"
-            Text="Cannot access the server"
-            TextAlignment="Center" />
-        <Button
-            HorizontalAlignment="Stretch"
-            Command="{Binding SignInCommand}"
-            Content="Sign In"
-            Style="{StaticResource DefaultButton}" />
-    </StackPanel>
+    <Border Width="170">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Image Source="/Components/Images/server-x.png" Style="{StaticResource Logo}" />
+            <TextBlock
+                Grid.Row="2"
+                Style="{StaticResource BodyText}"
+                Text="Cannot access the server"
+                TextAlignment="Center" />
+            <Button
+                Grid.Row="4"
+                HorizontalAlignment="Stretch"
+                Command="{Binding RetryCommand}"
+                Content="Retry"
+                Style="{StaticResource DefaultButton}" />
+        </Grid>
+    </Border>
 </UserControl>

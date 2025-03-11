@@ -64,8 +64,7 @@ Public Partial Class SignInViewModel
 
         ' Authenticate the user asynchronously
         Try
-            Dim isAuthenticated As Boolean = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(False)
-            If  isAuthenticated Then
+            If  Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(False) Then
                 Application.Current.Dispatcher.Invoke(Sub()
                     LoginStatus = "Login successful!"
                     _regionManager.RequestNavigate("MainRegion", "DashboardView")
