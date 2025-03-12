@@ -37,7 +37,22 @@
     <None Remove="Components\FontFamily\Inter-ThinItalic.ttf" />
     <None Remove="Components\FontFamily\Inter-V.ttf" />
     <None Remove="Components\FontFamily\Inter.ttf" />
+    <None Remove="Components\Images\accessed-filled.png" />
+    <None Remove="Components\Images\accessed.png" />
+    <None Remove="Components\Images\account-filled.png" />
+    <None Remove="Components\Images\account.png" />
+    <None Remove="Components\Images\files-filled.png" />
+    <None Remove="Components\Images\files.png" />
+    <None Remove="Components\Images\home-filled.png" />
+    <None Remove="Components\Images\home.png" />
+    <None Remove="Components\Images\logo.png" />
+    <None Remove="Components\Images\public-filled.png" />
+    <None Remove="Components\Images\public.png" />
     <None Remove="Components\Images\server-x.png" />
+    <None Remove="Components\Images\shared-filled.png" />
+    <None Remove="Components\Images\shared.png" />
+    <None Remove="Components\Images\users-filled.png" />
+    <None Remove="Components\Images\users.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,7 +92,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Components\Images\accessed-filled.png" />
+    <Resource Include="Components\Images\accessed.png" />
+    <Resource Include="Components\Images\account-filled.png" />
+    <Resource Include="Components\Images\account.png" />
+    <Resource Include="Components\Images\files-filled.png" />
+    <Resource Include="Components\Images\files.png" />
+    <Resource Include="Components\Images\home-filled.png" />
+    <Resource Include="Components\Images\home.png" />
+    <Resource Include="Components\Images\logo.png" />
+    <Resource Include="Components\Images\public-filled.png" />
+    <Resource Include="Components\Images\public.png" />
     <Resource Include="Components\Images\server-x.png" />
+    <Resource Include="Components\Images\shared-filled.png" />
+    <Resource Include="Components\Images\shared.png" />
+    <Resource Include="Components\Images\users-filled.png" />
+    <Resource Include="Components\Images\users.png" />
     <Resource Include="Components\UI\TextblockStyle.xaml" />
     <Resource Include="Components\DefaultStyle.xaml" />
     <Resource Include="Components\FontFamily\Inter-Black.ttf" />

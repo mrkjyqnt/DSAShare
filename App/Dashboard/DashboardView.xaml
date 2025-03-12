@@ -11,7 +11,7 @@
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
     <DockPanel>
-        <DockPanel DockPanel.Dock="Left">
+        <DockPanel Width="334" DockPanel.Dock="Left">
             <ContentControl prism:RegionManager.RegionName="NavigationRegion" />
         </DockPanel>
         <DockPanel DockPanel.Dock="Right">

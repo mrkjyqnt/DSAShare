@@ -6,11 +6,12 @@
     xmlns:local="clr-namespace:DSAShare"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
-    Title="MainWindow"
+    Title="DSAShare"
     Width="800"
     Height="450"
     prism:ViewModelLocator.AutoWireViewModel="True"
     Background="{StaticResource SecondaryBackgroundBrush}"
+    Icon="/Components/Images/logo.png"
     mc:Ignorable="d">
 
     <Grid>
