@@ -20,7 +20,7 @@
     Public Function Authenticate(username As String, password As String) As Boolean Implements IAuthenticationService.Authenticate
         _user = New Users With {
             .Username = username,
-            .PasswordHash = PasswordHasher.HashPassword(password)
+            .PasswordHash = HashPassword(password)
         }
         ' Authenticate the user
 

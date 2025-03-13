@@ -56,16 +56,16 @@
                         Style="{StaticResource DefaultTextbox}"
                         Tag="Username"
                         Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox
+                    <PasswordBox
                         Grid.Row="4"
-                        Style="{StaticResource DefaultTextbox}"
-                        Tag="Password"
-                        Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox
+                        local:PasswordBoxHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource DefaultPasswordBox}"
+                        Tag="Password" />
+                    <PasswordBox
                         Grid.Row="6"
-                        Style="{StaticResource DefaultTextbox}"
-                        Tag="Re-Password"
-                        Text="{Binding RePassword, UpdateSourceTrigger=PropertyChanged}" />
+                        local:PasswordBoxHelper.Password="{Binding RePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource DefaultPasswordBox}"
+                        Tag="Re-Password" />
                 </Grid>
 
                 <Button

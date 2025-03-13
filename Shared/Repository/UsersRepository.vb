@@ -117,7 +117,7 @@
         _connection.Prepare("INSERT INTO users (username, password_hash, role, status, created_at) VALUES (@username, @password, @role, @status, @createdAt)")
         
         _connection.AddParam("@username", user.Username)
-        _connection.AddParam("@password", PasswordHasher.HashPassword(user.PasswordHash))
+        _connection.AddParam("@password", HashPassword(user.PasswordHash))
         _connection.AddParam("@role", user.Role)
         _connection.AddParam("@status", user.Status)
         _connection.AddParam("@createdAt", DateTime.Now)
@@ -152,7 +152,7 @@
         ' Update the user
         _connection.Prepare("UPDATE users SET username = @username, password_hash = @password, role = @role, status = @status WHERE id = @id")
         _connection.AddParam("@username", user.Username)
-        _connection.AddParam("@password", PasswordHasher.HashPassword(user.PasswordHash))
+        _connection.AddParam("@password", HashPassword(user.PasswordHash))
         _connection.AddParam("@role", user.Role)
         _connection.AddParam("@status", user.Status)
         _connection.AddParam("@id", user.Id)

@@ -20,23 +20,52 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border
-                        x:Name="Border"
-                        Padding="{TemplateBinding Padding}"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{StaticResource BorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{StaticResource SmallRadius}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
+                    <Grid>
+                        <Border
+                            x:Name="Shadow"
+                            Background="{StaticResource BlackBrush}"
+                            BorderBrush="{StaticResource BlackBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource SmallRadius}"
+                            Opacity="0.6"
+                            RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <TranslateTransform X="0" Y="0" />
+                            </Border.RenderTransform>
+                        </Border>
+
+                        <Border
+                            x:Name="ButtonBorder"
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource SmallRadius}"
+                            RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <TranslateTransform X="0" Y="0" />
+                            </Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderThickness" Value="2" />
+                            <Setter TargetName="ButtonBorder" Property="RenderTransform">
+                                <Setter.Value>
+                                    <TranslateTransform X="-3" Y="-3" />
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
+
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{StaticResource BlackBrush}" />
-                            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                            <Setter TargetName="ButtonBorder" Property="RenderTransform">
+                                <Setter.Value>
+                                    <TranslateTransform X="0" Y="0" />
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
+
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Background" Value="#FFBDBDBD" />
                             <Setter Property="Foreground" Value="#FF757575" />
@@ -62,20 +91,31 @@
                 <ControlTemplate TargetType="Button">
                     <Border
                         x:Name="Border"
-                        Margin="0"
                         Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
-                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="0"
                         CornerRadius="{StaticResource SmallRadius}">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="Bottom" />
+                        <ContentPresenter
+                            x:Name="contentPresenter"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            RecognizesAccessKey="True">
+                            <ContentPresenter.Content>
+                                <TextBlock
+                                    x:Name="textBlock"
+                                    FontFamily="{TemplateBinding FontFamily}"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    Text="{TemplateBinding Content}" />
+                            </ContentPresenter.Content>
+                        </ContentPresenter>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+                            <Setter TargetName="textBlock" Property="TextDecorations" Value="Underline" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="FontFamily" Value="{StaticResource InterSemiBold}" />
+                            <Setter TargetName="textBlock" Property="FontFamily" Value="{StaticResource InterSemiBold}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -83,70 +123,81 @@
         </Setter>
     </Style>
 
+
     <Style x:Key="NavButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="Black" />
-        <Setter Property="BorderThickness" Value="2" />
-        <Setter Property="BorderBrush" Value="Gray" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="Padding" Value="10" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="FontSize" Value="14" />
-
+        <Setter Property="FontSize" Value="{StaticResource BodySize}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border
-                        Padding="5"
+                        x:Name="MainBorder"
                         Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="5">
+                        BorderBrush="Transparent"
+                        BorderThickness="0">
+                        <!--  Default thickness  -->
 
-                        <StackPanel Orientation="Horizontal">
-                            <Image
-                                Width="24"
-                                Height="24"
-                                Margin="0,0,10,0">
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Setter Property="Source" Value="{Binding Icon}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="Source" Value="{Binding IconFilled}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
+                        <Grid>
+                            <!--  Left border  -->
+                            <Border
+                                x:Name="LeftBorder"
+                                Width="8"
+                                HorizontalAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="1" />
 
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                Foreground="{TemplateBinding Foreground}"
-                                Text="{Binding Title}" />
-                        </StackPanel>
+                            <!--  Main content  -->
+                            <Border
+                                x:Name="ContentBorder"
+                                Padding="16"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image
+                                        Width="20"
+                                        Height="20"
+                                        Margin="0,0,10,0"
+                                        RenderOptions.EdgeMode="Aliased">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Source" Value="{Binding Icon}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Source" Value="{Binding IconFilled}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+
+                                    <TextBlock
+                                        x:Name="ButtonTitle"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{StaticResource InterRegular}"
+                                        Foreground="{TemplateBinding Foreground}"
+                                        Text="{Binding Title}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
                     </Border>
+
+                    <!--  Triggers for selection  -->
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter TargetName="LeftBorder" Property="Background" Value="{StaticResource BackgroundBrush}" />
+                            <Setter TargetName="MainBorder" Property="BorderThickness" Value="8,0,0,0" />
+                            <Setter TargetName="ButtonTitle" Property="FontFamily" Value="{StaticResource InterMedium}" />
+                            <Setter TargetName="MainBorder" Property="BorderBrush" Value="{StaticResource SecondaryBorderBrush}" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-
-        <!--  Hover Effect  -->
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="LightGray" />
-                <Setter Property="BorderBrush" Value="DarkGray" />
-            </Trigger>
-        </Style.Triggers>
     </Style>
 
-
-
-    <Style
-        x:Key="SelectedNavButtonStyle"
-        BasedOn="{StaticResource NavButtonStyle}"
-        TargetType="Button">
-        <Setter Property="Background" Value="Blue" />
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="FontWeight" Value="Bold" />
-    </Style>
 
 </ResourceDictionary>

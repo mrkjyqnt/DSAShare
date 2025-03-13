@@ -11,7 +11,9 @@
     Height="450"
     prism:ViewModelLocator.AutoWireViewModel="True"
     Background="{StaticResource SecondaryBackgroundBrush}"
+    BorderBrush="{DynamicResource BorderBrush}"
     Icon="/Components/Images/logo.png"
+    UseLayoutRounding="True"
     mc:Ignorable="d">
 
     <Grid>

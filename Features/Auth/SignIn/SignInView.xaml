@@ -7,114 +7,121 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
+    UseLayoutRounding="True"
     mc:Ignorable="d">
-    <Grid>
-        <Border
-            Width="330"
-            Padding="{StaticResource Space-32}"
-            Background="{StaticResource BackgroundBrush}">
-            <Grid>
+    <Border
+        Width="330"
+        Padding="{StaticResource Space-32}"
+        Background="{StaticResource BackgroundBrush}"
+        BorderBrush="{StaticResource BorderBrush}"
+        BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
+                <Image
+                    Width="32"
+                    Height="32"
+                    RenderOptions.EdgeMode="Aliased"
+                    Source="/Components/Images/logo.png" />
+                <TextBlock
+                    Style="{StaticResource DisplayText}"
+                    Text="DSA Share"
+                    TextAlignment="Center" />
+                <TextBlock
+                    Style="{StaticResource BodyText}"
+                    Text="Access, Download, and Share"
+                    TextAlignment="Center" />
+                <TextBlock
+                    Foreground="{StaticResource SecondaryBrush}"
+                    Style="{StaticResource BodyText}"
+                    Text="{Binding LoginStatus, UpdateSourceTrigger=PropertyChanged}"
+                    TextAlignment="Center" />
+            </StackPanel>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <TextBox
+                    Grid.Row="0"
+                    Style="{StaticResource DefaultTextbox}"
+                    Tag="Username"
+                    Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+                <PasswordBox
+                    Grid.Row="2"
+                    local:PasswordBoxHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource DefaultPasswordBox}"
+                    Tag="Password" />
+
+
+            </Grid>
+
+            <Grid Grid.Row="4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="16" />
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="16" />
                     <RowDefinition Height="auto" />
-                    <RowDefinition Height="16" />
-                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0">
-                    <TextBlock
-                        Style="{StaticResource DisplayText}"
-                        Text="DSA Share"
-                        TextAlignment="Center" />
-                    <TextBlock
-                        Style="{StaticResource BodyText}"
-                        Text="Access, Download, and Share"
-                        TextAlignment="Center" />
-                    <TextBlock
-                        Foreground="red"
-                        Style="{StaticResource BodyText}"
-                        Text="{Binding LoginStatus, UpdateSourceTrigger=PropertyChanged}"
-                        TextAlignment="Center" />
-                </StackPanel>
+                <Button
+                    Grid.Row="0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding SignInCommand}"
+                    Content="Sign In"
+                    Style="{StaticResource DefaultButton}" />
                 <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="8" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-                    <TextBox
-                        Grid.Row="0"
-                        Style="{StaticResource DefaultTextbox}"
-                        Tag="Username"
-                        Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox
-                        Grid.Row="2"
-                        Style="{StaticResource DefaultTextbox}"
-                        Tag="Password"
-                        Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" />
-                </Grid>
-
-                <Grid Grid.Row="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="16" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="16" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-                    <Button
-                        Grid.Row="0"
-                        HorizontalAlignment="Stretch"
-                        Command="{Binding SignInCommand}"
-                        Content="Sign In"
-                        Style="{StaticResource DefaultButton}" />
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="8" />
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="8" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Rectangle
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Stroke="{StaticResource SecondaryBrush}" />
-                        <TextBlock
-                            Grid.Column="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{StaticResource SecondaryBrush}"
-                            Text="or" />
-                        <Rectangle
-                            Grid.Column="4"
-                            VerticalAlignment="Center"
-                            Stroke="{StaticResource SecondaryBrush}" />
-                    </Grid>
-                    <Button
-                        Grid.Row="4"
-                        HorizontalAlignment="Stretch"
-                        Command="{Binding GuestLoginCommand}"
-                        Content="Continue as Guest"
-                        Style="{StaticResource DefaultButton}" />
-                </Grid>
-                <Grid Grid.Row="6" HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition />
                         <ColumnDefinition Width="8" />
                         <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Don't have an account?" />
-                    <Button
+                    <Rectangle
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Stroke="{StaticResource SecondaryBrush}" />
+                    <TextBlock
                         Grid.Column="2"
-                        Command="{Binding SignUpCommand}"
-                        Content="Sign Up"
-                        Style="{StaticResource EmptyButton}" />
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource SecondaryBrush}"
+                        Text="or" />
+                    <Rectangle
+                        Grid.Column="4"
+                        VerticalAlignment="Center"
+                        Stroke="{StaticResource SecondaryBrush}" />
                 </Grid>
+                <Button
+                    Grid.Row="4"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding GuestLoginCommand}"
+                    Content="Continue as Guest"
+                    Style="{StaticResource DefaultButton}" />
             </Grid>
-        </Border>
-
-    </Grid>
+            <Grid Grid.Row="6" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Don't have an account?" />
+                <Button
+                    Grid.Column="2"
+                    Command="{Binding SignUpCommand}"
+                    Content="Sign Up"
+                    Style="{StaticResource EmptyButton}" />
+            </Grid>
+        </Grid>
+    </Border>
 </UserControl>

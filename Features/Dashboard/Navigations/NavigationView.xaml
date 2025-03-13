@@ -7,75 +7,77 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
+    UseLayoutRounding="True"
     mc:Ignorable="d">
-    <StackPanel>
+    <Border
+        Background="{StaticResource BackgroundBrush}"
+        BorderBrush="{StaticResource BorderBrush}"
+        BorderThickness="0,0,1,0">
         <Grid>
+            <Grid VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Padding="32">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image
+                            Grid.Column="0"
+                            Width="32"
+                            Height="32"
+                            RenderOptions.EdgeMode="Aliased"
+                            Source="/Components/Images/logo.png" />
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource InterBold}"
+                            FontSize="20"
+                            Text="DSAShare" />
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                    </Grid>
+                </Border>
+                <Border
+                    Grid.Row="2"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,1,0,0">
+                    <ItemsControl ItemsSource="{Binding MenuItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Black" BorderThickness="0,0,0,1">
+                                    <Button
+                                        Command="{Binding DataContext.NavSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource NavButtonStyle}" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
 
-            <ItemsControl Grid.Row="0" ItemsSource="{Binding MenuItems}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Command="{Binding DataContext.NavSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="Background" Value="Blue" />
-                                            <Setter Property="Foreground" Value="White" />
-                                            <Setter Property="FontWeight" Value="Bold" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <Image
-                                    Width="24"
-                                    Height="24"
-                                    Margin="0,0,10,0"
-                                    Source="{Binding Icon}" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Title}" />
-                            </StackPanel>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                <Grid Grid.Row="3" HorizontalAlignment="Stretch" />
 
-            <!--  Spacer  -->
-            <Grid Grid.Row="1" />
-
-            <!--  Account Button  -->
-            <Button
-                Grid.Row="2"
-                Command="{Binding DataContext.NavSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                CommandParameter="{Binding}">
-                <Button.DataContext>
-                    <Binding Path="LastMenuItem" />
-                </Button.DataContext>
-                <Button.Style>
-                    <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                <Setter Property="Background" Value="Blue" />
-                                <Setter Property="Foreground" Value="White" />
-                                <Setter Property="FontWeight" Value="Bold" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <StackPanel Orientation="Horizontal">
-                    <Image
-                        Width="24"
-                        Height="24"
-                        Margin="0,0,10,0"
-                        Source="{Binding Icon}" />
-                    <TextBlock VerticalAlignment="Center" Text="{Binding Title}" />
-                </StackPanel>
-            </Button>
+                <Border
+                    Grid.Row="4"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,1,0,0">
+                    <Button
+                        Command="{Binding DataContext.NavSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        Style="{StaticResource NavButtonStyle}">
+                        <Button.DataContext>
+                            <Binding Path="LastMenuItem" />
+                        </Button.DataContext>
+                    </Button>
+                </Border>
+            </Grid>
         </Grid>
-    </StackPanel>
+    </Border>
 </UserControl>

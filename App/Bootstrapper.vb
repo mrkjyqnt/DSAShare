@@ -3,6 +3,7 @@ Imports Prism.Ioc
 Imports Prism.Navigation.Regions
 Imports System.Runtime.Versioning
 
+<SupportedOSPlatform("windows7.0")>
 <SupportedOSPlatform("windows10.0")>
 <SupportedOSPlatform("windows11.0")>
 Public Class Bootstrapper

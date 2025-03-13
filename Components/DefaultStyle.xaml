@@ -20,6 +20,7 @@
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource BlackColor}" />
     <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource BlackColor}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BlackColor}" />
+    <SolidColorBrush x:Key="SecondaryBorderBrush" Color="{StaticResource SecondaryColor}" />
     <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}" />
 
     <!--  Default Font Family  -->
