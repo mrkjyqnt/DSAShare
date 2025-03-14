@@ -19,10 +19,7 @@
                     <RowDefinition Height="8" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <Image
-                    RenderOptions.EdgeMode="Aliased"
-                    Source="/Components/Images/server-x.png"
-                    Style="{StaticResource Logo}" />
+                <Image Source="/Components/Images/server-x.png" Style="{StaticResource Logo}" />
                 <TextBlock
                     Grid.Row="2"
                     Style="{StaticResource BodyText}"

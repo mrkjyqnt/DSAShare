@@ -87,7 +87,10 @@ Public Class Connection
     Private Sub Query(ByVal command_query As String)
         ' Reset error state
         HasError = False
+        HasChanges = Nothing
         ErrorMessage = String.Empty
+        DataCount = 0
+        HasRecord = False
 
         Try
             Open()

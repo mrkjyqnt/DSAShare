@@ -67,8 +67,7 @@
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" Value="#FFBDBDBD" />
-                            <Setter Property="Foreground" Value="#FF757575" />
+                            <Setter Property="Opacity" Value="0.5" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -138,18 +137,14 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="Transparent"
                         BorderThickness="0">
-                        <!--  Default thickness  -->
 
                         <Grid>
-                            <!--  Left border  -->
                             <Border
                                 x:Name="LeftBorder"
                                 Width="8"
                                 HorizontalAlignment="Left"
                                 Background="Transparent"
                                 BorderThickness="1" />
-
-                            <!--  Main content  -->
                             <Border
                                 x:Name="ContentBorder"
                                 Padding="16"
@@ -185,7 +180,6 @@
                         </Grid>
                     </Border>
 
-                    <!--  Triggers for selection  -->
                     <ControlTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <Setter TargetName="LeftBorder" Property="Background" Value="{StaticResource BackgroundBrush}" />

@@ -34,6 +34,7 @@ Public Class Bootstrapper
 
         ' Register the Authentication
         containerRegistry.Register(Of IAuthenticationService, AuthenticationService)()
+        containerRegistry.Register(Of IRegistrationService, RegistrationService)()
         containerRegistry.RegisterForNavigation(Of AuthenticationView)("AuthenticationView")
 
         ' Register the Fallback

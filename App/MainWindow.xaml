@@ -7,14 +7,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     Title="DSAShare"
-    Width="800"
-    Height="450"
+    MinWidth="1000"
+    MinHeight="700"
     prism:ViewModelLocator.AutoWireViewModel="True"
     Background="{StaticResource SecondaryBackgroundBrush}"
     BorderBrush="{DynamicResource BorderBrush}"
     Icon="/Components/Images/logo.png"
     UseLayoutRounding="True"
-    mc:Ignorable="d">
+    mc:Ignorable="d" WindowStartupLocation="CenterScreen">
 
     <Grid>
         <ContentControl prism:RegionManager.RegionName="MainRegion" />

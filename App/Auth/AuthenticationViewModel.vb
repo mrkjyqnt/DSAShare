@@ -1,6 +1,4 @@
-﻿Imports System.ComponentModel
-Imports Prism.Commands
-Imports Prism.Mvvm
+﻿Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
 ''' <summary>
@@ -12,7 +10,7 @@ Public Class AuthenticationViewModel
     Private ReadOnly _regionManager As IRegionManager
 
     Public Sub New(regionManager As IRegionManager)
-        
+
         _regionManager = regionManager
 
         ' Navigate to SignInView when the ViewModel is created

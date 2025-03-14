@@ -12,7 +12,9 @@
         <Border
             Width="330"
             Padding="{StaticResource Space-32}"
-            Background="{StaticResource BackgroundBrush}">
+            Background="{StaticResource BackgroundBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -34,7 +36,6 @@
                         Style="{StaticResource BodyText}"
                         Text="Start sharing today"
                         TextAlignment="Center" />
-                    <TextBlock Text="{Binding LoginStatus, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
@@ -68,12 +69,19 @@
                         Tag="Re-Password" />
                 </Grid>
 
-                <Button
-                    Grid.Row="4"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding SignUpCommand}"
-                    Content="Sign Up"
-                    Style="{StaticResource DefaultButton}" />
+                <StackPanel Grid.Row="4">
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding SignUpCommand}"
+                        Content="Sign Up"
+                        Style="{StaticResource DefaultButton}" />
+                    <TextBlock
+                        Foreground="{StaticResource DangerBrush}"
+                        Style="{StaticResource LabelText}"
+                        Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+                </StackPanel>
                 <Rectangle
                     Grid.Row="6"
                     VerticalAlignment="Center"

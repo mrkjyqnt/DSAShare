@@ -7,10 +7,11 @@ Public Class FallbackViewModel
     Inherits BindableBase
 
     Private ReadOnly _regionManager As IRegionManager
-    Private ReadOnly _fallBackService As IFallbackService
     Private ReadOnly _loadingService As ILoadingService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _dispatcher As Dispatcher
+
+    Private ReadOnly _fallBackService As IFallbackService
 
     Public ReadOnly Property RetryCommand As IAsyncRelayCommand
 

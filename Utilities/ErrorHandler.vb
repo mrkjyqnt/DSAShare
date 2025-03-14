@@ -2,6 +2,12 @@
     Private Shared _hasError As Boolean = False
     Private Shared _errorMessage As String = String.Empty
 
+    Sub New()
+        If ErrorMessage IsNot Nothing Then
+            Console.WriteLine(ErrorMessage)
+        End If
+    End Sub
+
     ''' <summary>
     ''' Indicates whether an error has occurred.
     ''' </summary>

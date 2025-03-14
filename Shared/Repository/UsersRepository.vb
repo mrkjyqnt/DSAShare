@@ -98,9 +98,8 @@
     ''' </summary>
     ''' <param name="user">The Users object containing user data.</param>
     Public Function Insert(user As Users) As Boolean
-        _connection.Prepare("SELECT * 
-                            FROM users 
-                            WHERE username = @username")
+        ' Check if the username already exists
+        _connection.Prepare("SELECT * FROM users WHERE username = @username")
         _connection.AddParam("@username", user.Username)
         _connection.Execute()
 
@@ -114,21 +113,18 @@
         End If
 
         ' Insert the new user
-        _connection.Prepare("INSERT INTO users (username, password_hash, role, status, created_at) VALUES (@username, @password, @role, @status, @createdAt)")
+        _connection.Prepare("INSERT INTO users (name, username, password_hash, role, status, created_at) VALUES (@name, @username, @password, @role, @status, @createdAt)")
         
+        _connection.AddParam("@name", user.Username)
         _connection.AddParam("@username", user.Username)
-        _connection.AddParam("@password", HashPassword(user.PasswordHash))
+        _connection.AddParam("@password", user.PasswordHash)
         _connection.AddParam("@role", user.Role)
         _connection.AddParam("@status", user.Status)
         _connection.AddParam("@createdAt", DateTime.Now)
 
         _connection.Execute()
 
-        If _connection.HasChanges Then
-            Return True
-        Else
-            Return False
-        End If
+        Return _connection.HasChanges
     End Function
 
     ''' <summary>

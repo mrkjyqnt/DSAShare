@@ -1,13 +1,12 @@
-﻿Imports System
-Imports System.Collections.Generic
-
+﻿
 Public Class Users
-    Public Property Id As Integer
+    Public Property Id As Integer? = Nothing
+    Public Property Name As String
     Public Property Username As String
     Public Property PasswordHash As String
     Public Property Role As String
     Public Property Status As String
-    Public Property CreatedAt As DateTime
+    Public Property CreatedAt As DateTime? = Nothing
 
     ''' <summary>
     ''' Validates the table data before saving to the database.
@@ -15,10 +14,12 @@ Public Class Users
     ''' <returns>True if the data is valid; otherwise, False.</returns>
     Public Function Validate() As Boolean
         ' Validate required fields
-        Return Not String.IsNullOrEmpty(Username) AndAlso
+        Return Not String.IsNullOrEmpty(Name) AndAlso
+               Not String.IsNullOrEmpty(Username) AndAlso
                Not String.IsNullOrEmpty(PasswordHash) AndAlso
                Not String.IsNullOrEmpty(Role) AndAlso
-               Not String.IsNullOrEmpty(Status)
+               Not String.IsNullOrEmpty(Status) AndAlso
+               Not String.IsNullOrEmpty(CreatedAt)
     End Function
 
     ''' <summary>

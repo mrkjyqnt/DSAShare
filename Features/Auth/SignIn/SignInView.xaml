@@ -15,7 +15,7 @@
         Background="{StaticResource BackgroundBrush}"
         BorderBrush="{StaticResource BorderBrush}"
         BorderThickness="1">
-        <Grid>
+        <Grid ClipToBounds="False">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="16" />
@@ -40,9 +40,9 @@
                     Text="Access, Download, and Share"
                     TextAlignment="Center" />
                 <TextBlock
-                    Foreground="{StaticResource SecondaryBrush}"
+                    Foreground="{StaticResource DangerBrush}"
                     Style="{StaticResource BodyText}"
-                    Text="{Binding LoginStatus, UpdateSourceTrigger=PropertyChanged}"
+                    Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
                     TextAlignment="Center" />
             </StackPanel>
             <Grid Grid.Row="2">

@@ -31,19 +31,4 @@
 
         Return False
     End Function
-
-    ''' <summary>
-    ''' Logs out the current user.
-    ''' </summary>
-    Public Sub Logout() Implements IAuthenticationService.Logout
-        _sessionManager.Logout()
-    End Sub
-
-    ''' <summary>
-    ''' Checks if a user is logged in.
-    ''' </summary>
-    ''' <returns>True if a user is logged in; otherwise, False.</returns>
-    Public Function IsAuthenticated() As Boolean Implements IAuthenticationService.IsAuthenticated
-        Return _sessionManager.IsLoggedIn()
-    End Function
 End Class

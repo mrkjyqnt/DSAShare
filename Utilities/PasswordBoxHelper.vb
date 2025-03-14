@@ -1,6 +1,4 @@
-﻿Imports System.Windows
-Imports System.Windows.Controls
-
+﻿
 Public Class PasswordBoxHelper
     ' DependencyProperty for binding Password
     Public Shared ReadOnly PasswordProperty As DependencyProperty =
