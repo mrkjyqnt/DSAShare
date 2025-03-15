@@ -13,6 +13,8 @@
                 <ResourceDictionary Source="/Components/UI/PasswordboxStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/ImagesStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/ProgressBarStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/RadioButtonStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/CheckBoxStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

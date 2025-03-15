@@ -6,15 +6,24 @@ Imports Prism.Navigation.Regions
 
 Public Partial Class SignInViewModel
     Inherits BindableBase
+    Implements IRegionMemberLifetime
 
     Private ReadOnly _authenticationService As IAuthenticationService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _regionManager As IRegionManager
+    Private ReadOnly _popupService As IPopupService
+    Private ReadOnly _loadingService As ILoadingService
     Private ReadOnly _dispatcher As Dispatcher
 
     Public ReadOnly Property SignInCommand As IAsyncRelayCommand
     Public ReadOnly Property SignUpCommand As DelegateCommand
     Public ReadOnly Property GuestLoginCommand As DelegateCommand
+
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Return False ' View will not be kept alive
+        End Get
+    End Property
 
     Private _username As String
     Public Property Username As String
@@ -46,29 +55,43 @@ Public Partial Class SignInViewModel
         End Set
     End Property
 
-    Public Sub New(authenticationService As IAuthenticationService, sessionManager As ISessionManager, regionManager As IRegionManager)
+    Public Sub New(authenticationService As IAuthenticationService,
+                   sessionManager As ISessionManager, 
+                   regionManager As IRegionManager, 
+                   popupService As IPopupService,
+                   loadingService As ILoadingService)
+
         _authenticationService = authenticationService
         _sessionManager = sessionManager
         _regionManager = regionManager
+        _popupService = popupService
+        _loadingService = loadingService
+
         _dispatcher = Application.Current.Dispatcher
 
         SignInCommand = New AsyncRelayCommand(AddressOf OnSignInAsync)
         SignUpCommand = New DelegateCommand(AddressOf OnSignUp)
         GuestLoginCommand = New DelegateCommand(AddressOf OnGuestLogin)
+
     End Sub
 
     Private Async Function OnSignInAsync() As Task
-        ' Validate input
+
         If String.IsNullOrEmpty(Username) OrElse String.IsNullOrEmpty(Password) Then
-            Status = "Username and password are required."
+            _popupService.ShowPopUp(
+                New InformationPopUpView,
+                New InformationPopUpViewModel("Failed", "Please fill the Username and Password"))
             Return
         End If
 
-        ' Authenticate the user asynchronously
         Try
+            _loadingService.Show(New LoadingView)
+
             If Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(False) Then
                 _dispatcher.Invoke(Sub()
-                                       Status = "Login successful!"
+                                        _popupService.ShowPopUp(
+                                        New InformationPopUpView,
+                                        New InformationPopUpViewModel("Success", "Login Success"))
                                        _regionManager.RequestNavigate("MainRegion", "DashboardView")
                                    End Sub)
             Else
@@ -76,21 +99,23 @@ Public Partial Class SignInViewModel
                                        Status = "Invalid credentials."
                                    End Sub)
             End If
+
         Catch ex As Exception
-            Status = "An error occurred during login."
-            ErrorHandler.SetError(ex.Message)
+            _popupService.ShowPopUp(
+                New InformationPopUpView,
+                New InformationPopUpViewModel("Error", ex.Message))
+        Finally
+            _loadingService.Hide()
         End Try
     End Function
 
     Private Sub OnGuestLogin()
-        ' Log in as a guest
         Dim guestUser As New Users() With {
             .Username = "Guest",
             .Role = "Guest",
             .Status = "Active"
         }
 
-        ' Log the guest user in
         _sessionManager.Login(guestUser)
         Status = "Logged in as Guest."
         _regionManager.RequestNavigate("MainRegion", "DashboardView")

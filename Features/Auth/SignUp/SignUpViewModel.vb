@@ -9,12 +9,18 @@ Public Class SignUpViewModel
     Implements IRegionMemberLifetime
 
     Private ReadOnly _regionManager As IRegionManager
-    Private ReadOnly _dispatcher As Dispatcher
     Private ReadOnly _registrationService As IRegistrationService
     Private ReadOnly _loadingService As ILoadingService
+    Private ReadOnly _dispatcher As Dispatcher
 
     Public ReadOnly Property SignUpCommand As IAsyncRelayCommand
     Public ReadOnly Property SignInCommand As ICommand
+
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Return False ' View will not be kept alive
+        End Get
+    End Property
 
     Private _name As String
     Public Property Name As String
@@ -66,30 +72,28 @@ Public Class SignUpViewModel
         End Set
     End Property
 
-    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
-        Get
-            Return False ' View will not be kept alive
-        End Get
-    End Property
-
     ''' <summary>
     ''' Initializes a new instance of the <see cref="SignUpViewModel"/> class.
     ''' </summary>
     ''' <param name="regionManager"></param>
     ''' <param name="sessionManager"></param>
-    Public Sub New(regionManager As IRegionManager, sessionManager As ISessionManager, registrationService As IRegistrationService)
+    Public Sub New(regionManager As IRegionManager, 
+                   sessionManager As ISessionManager, 
+                   registrationService As IRegistrationService,
+                   loadingService As ILoadingService)
+
         _regionManager = regionManager
         _registrationService = registrationService
+        _loadingService = loadingService
         
         _dispatcher = Application.Current.Dispatcher
-        _loadingService = New LoadingService(regionManager, _dispatcher)
 
         SignUpCommand = New AsyncRelayCommand(AddressOf OnSignUp)
         SignInCommand = New DelegateCommand(AddressOf OnSignIn)
     End Sub
 
     Private Async Function OnSignUp() As Task
-        _loadingService.ShowLoading
+        _loadingService.Show(New LoadingView)
         Status = ""
 
         If String.IsNullOrEmpty(Name) OrElse String.IsNullOrEmpty(Username) OrElse String.IsNullOrEmpty(Password) OrElse String.IsNullOrEmpty(RePassword) Then
@@ -123,7 +127,7 @@ Public Class SignUpViewModel
             ErrorHandler.SetError(ex.Message)
         Finally
             _dispatcher.Invoke(Sub()
-                _loadingService.HideLoading()
+                _loadingService.Hide()
             End Sub)
         End Try
 

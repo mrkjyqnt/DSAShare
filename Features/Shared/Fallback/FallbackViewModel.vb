@@ -15,13 +15,17 @@ Public Class FallbackViewModel
 
     Public ReadOnly Property RetryCommand As IAsyncRelayCommand
 
-    Sub New(regionManager As IRegionManager, fallbackService As IFallbackService, sessionManager As ISessionManager)
+    Sub New(regionManager As IRegionManager, 
+            fallbackService As IFallbackService, 
+            sessionManager As ISessionManager, 
+            loadingService As ILoadingService)
+
         _regionManager = regionManager
         _fallBackService = fallbackService
         _sessionManager = sessionManager
+        _loadingService = loadingService
 
         _dispatcher = Application.Current.Dispatcher
-        _loadingService = New LoadingService(_regionManager, _dispatcher)
 
         RetryCommand = New AsyncRelayCommand(AddressOf OnRetryCommand)
     End Sub
@@ -29,7 +33,7 @@ Public Class FallbackViewModel
     Private Async Function OnRetryCommand() As Task
         Debug.WriteLine("Retry Command Clicked")
         Try
-            _loadingService.ShowLoading
+            _loadingService.Show(New LoadingView)
 
             If Await Task.Run(Function() _fallBackService.Retry()).ConfigureAwait(False) Then
 
@@ -49,7 +53,7 @@ Public Class FallbackViewModel
             ErrorHandler.SetError(ex.Message)
         Finally
             _dispatcher.Invoke(Sub()
-                                   _loadingService.HideLoading()
+                                   _loadingService.Hide()
                                End Sub)
         End Try
     End Function

@@ -1,4 +1,4 @@
 ﻿Public Interface ILoadingService
-    Sub ShowLoading() 
-    Sub HideLoading()
+    Sub Show(View As Object) 
+    Sub Hide()
 End Interface

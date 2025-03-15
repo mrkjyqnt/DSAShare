@@ -25,12 +25,20 @@ Public Class Bootstrapper
     ''' <param name="containerRegistry"></param>
     Protected Overrides Sub RegisterTypes(containerRegistry As IContainerRegistry)
 
-         ' Register the SessionManager as a singleton
+        ' Register the SessionManager as a singleton
         containerRegistry.Register(Of ISessionManager, SessionManager)()
         containerRegistry.RegisterSingleton(Of SessionManager)()
 
         containerRegistry.Register(Of IFallbackService, FallbackService)()
         containerRegistry.RegisterSingleton(Of FallbackService)()
+        
+        ' Register the PopUp Service and Views
+        containerRegistry.Register(Of IPopupService, PopupService)
+        containerRegistry.RegisterSingleton(Of PopupService)
+
+        ' Register the Loading
+        containerRegistry.Register(Of ILoadingService, LoadingService)
+        containerRegistry.RegisterSingleton(Of LoadingService)
 
         ' Register the Authentication
         containerRegistry.Register(Of IAuthenticationService, AuthenticationService)()
@@ -39,8 +47,6 @@ Public Class Bootstrapper
 
         ' Register the Fallback
         containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
-
-        ' Register the Loading
         containerRegistry.RegisterForNavigation(Of LoadingView)("LoadingView")
 
         ' Register the Authentication Pages
@@ -69,11 +75,11 @@ Public Class Bootstrapper
 
         Dim regionManager = Container.Resolve(Of IRegionManager)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
+        Dim loadingService = Container.Resolve(Of ILoadingService)()
         Dim dispatcher = Application.Current.Dispatcher
-        Dim loadingService = New LoadingService(regionManager, dispatcher)
 
         sessionManager.LoadSession()
-        loadingService.ShowLoading()
+        loadingService.Show(New StartupLoadingView)
 
         Try
             If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(False) Then
@@ -97,7 +103,7 @@ Public Class Bootstrapper
             MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)
         Finally
             dispatcher.Invoke(Sub()
-                loadingService.HideLoading()
+                loadingService.Hide
             End Sub)
         End Try
     End Sub

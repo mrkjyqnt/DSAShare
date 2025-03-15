@@ -41,6 +41,8 @@
     <None Remove="Components\Images\accessed.png" />
     <None Remove="Components\Images\account-filled.png" />
     <None Remove="Components\Images\account.png" />
+    <None Remove="Components\Images\check-filled.png" />
+    <None Remove="Components\Images\check.png" />
     <None Remove="Components\Images\files-filled.png" />
     <None Remove="Components\Images\files.png" />
     <None Remove="Components\Images\home-filled.png" />
@@ -48,6 +50,8 @@
     <None Remove="Components\Images\logo.png" />
     <None Remove="Components\Images\public-filled.png" />
     <None Remove="Components\Images\public.png" />
+    <None Remove="Components\Images\radio-filled.png" />
+    <None Remove="Components\Images\radio.png" />
     <None Remove="Components\Images\server-x.png" />
     <None Remove="Components\Images\shared-filled.png" />
     <None Remove="Components\Images\shared.png" />
@@ -80,6 +84,7 @@
     <Folder Include="Features\Dashboard\Pages\ManageFiles\Services\" />
     <Folder Include="Features\Dashboard\Pages\ManageUsers\Services\" />
     <Folder Include="Features\Dashboard\Pages\PublicFIles\Services\" />
+    <Folder Include="Features\Shared\PopUp\Confirmation\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -96,6 +101,8 @@
     <Resource Include="Components\Images\accessed.png" />
     <Resource Include="Components\Images\account-filled.png" />
     <Resource Include="Components\Images\account.png" />
+    <Resource Include="Components\Images\check-filled.png" />
+    <Resource Include="Components\Images\check.png" />
     <Resource Include="Components\Images\files-filled.png" />
     <Resource Include="Components\Images\files.png" />
     <Resource Include="Components\Images\home-filled.png" />
@@ -103,6 +110,8 @@
     <Resource Include="Components\Images\logo.png" />
     <Resource Include="Components\Images\public-filled.png" />
     <Resource Include="Components\Images\public.png" />
+    <Resource Include="Components\Images\radio-filled.png" />
+    <Resource Include="Components\Images\radio.png" />
     <Resource Include="Components\Images\server-x.png" />
     <Resource Include="Components\Images\shared-filled.png" />
     <Resource Include="Components\Images\shared.png" />
@@ -133,12 +142,6 @@
     <Resource Include="Components\FontFamily\Inter.ttf" />
     <Resource Include="Components\UI\ButtonStyle.xaml" />
     <Resource Include="Components\UI\TextboxStyle.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Features\Shared\Dialog\ConfirmationDialog\ConfirmationView.xaml.vb">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 
 </Project>

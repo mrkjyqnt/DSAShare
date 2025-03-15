@@ -14,11 +14,32 @@
     BorderBrush="{DynamicResource BorderBrush}"
     Icon="/Components/Images/logo.png"
     UseLayoutRounding="True"
-    mc:Ignorable="d" WindowStartupLocation="CenterScreen">
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
 
     <Grid>
         <ContentControl prism:RegionManager.RegionName="MainRegion" />
 
-        <ContentControl prism:RegionManager.RegionName="LoadingRegion" />
+        <Grid
+            x:Name="Loading"
+            Panel.ZIndex="1"
+            Visibility="Collapsed">
+            <Border Background="#E5FFFFFF" />
+            <ContentControl
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                prism:RegionManager.RegionName="LoadingRegion" />
+        </Grid>
+
+        <Grid
+            x:Name="PopUp"
+            Panel.ZIndex="1"
+            Visibility="Collapsed">
+            <Border Background="#E5FFFFFF" />
+            <ContentControl
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                prism:RegionManager.RegionName="PopUpRegion" />
+        </Grid>
     </Grid>
 </Window>

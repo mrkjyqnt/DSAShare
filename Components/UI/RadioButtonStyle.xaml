@@ -1,0 +1,37 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <BitmapImage x:Key="UnselectedIcon" UriSource="/Components/Images/radio.png" />
+    <BitmapImage x:Key="SelectedIcon" UriSource="/Components/Images/radio-filled.png" />
+
+    <Style x:Key="DefaultRadioButton" TargetType="RadioButton">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource BodySize}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
+                        <Image
+                            x:Name="RadioIcon"
+                            Grid.Column="2"
+                            Width="20"
+                            Height="20"
+                            Source="{StaticResource UnselectedIcon}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!--  Change icon when selected  -->
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="RadioIcon" Property="Source" Value="{StaticResource SelectedIcon}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
