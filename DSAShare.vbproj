@@ -84,7 +84,6 @@
     <Folder Include="Features\Dashboard\Pages\ManageFiles\Services\" />
     <Folder Include="Features\Dashboard\Pages\ManageUsers\Services\" />
     <Folder Include="Features\Dashboard\Pages\PublicFIles\Services\" />
-    <Folder Include="Features\Shared\PopUp\Confirmation\" />
   </ItemGroup>
 
   <ItemGroup>

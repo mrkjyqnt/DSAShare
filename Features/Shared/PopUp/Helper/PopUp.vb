@@ -28,4 +28,16 @@ Public Class PopUp
 
         Return Await tcs.Task ' Wait for the popup to close and return the result
     End Function
+
+    Public Shared Async Function Confirmation() As Task(Of PopupResult)
+        Dim tcs As New TaskCompletionSource(Of PopupResult)()
+        Dim selectionPopupViewModel As New SelectionPopUpViewModel()
+
+        _popupService.ShowPopUp(New SelectionPopUpView(), selectionPopupViewModel,
+                               Sub(result)
+                                   tcs.TrySetResult(result)
+                               End Sub)
+
+        Return Await tcs.Task ' Wait for the popup to close and return the result
+    End Function
 End Class
