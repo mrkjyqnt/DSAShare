@@ -11,9 +11,6 @@ Public Partial Class SignInViewModel
     Private ReadOnly _authenticationService As IAuthenticationService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _regionManager As IRegionManager
-    Private ReadOnly _popupService As IPopupService
-    Private ReadOnly _loadingService As ILoadingService
-    Private ReadOnly _dispatcher As Dispatcher
 
     Public ReadOnly Property SignInCommand As IAsyncRelayCommand
     Public ReadOnly Property SignUpCommand As DelegateCommand
@@ -45,29 +42,13 @@ Public Partial Class SignInViewModel
         End Set
     End Property
 
-    Private _status As String
-    Public Property Status As String
-        Get
-            Return _status
-        End Get
-        Set(value As String)
-            SetProperty(_status, value)
-        End Set
-    End Property
-
     Public Sub New(authenticationService As IAuthenticationService,
                    sessionManager As ISessionManager, 
-                   regionManager As IRegionManager, 
-                   popupService As IPopupService,
-                   loadingService As ILoadingService)
+                   regionManager As IRegionManager)
 
         _authenticationService = authenticationService
         _sessionManager = sessionManager
         _regionManager = regionManager
-        _popupService = popupService
-        _loadingService = loadingService
-
-        _dispatcher = Application.Current.Dispatcher
 
         SignInCommand = New AsyncRelayCommand(AddressOf OnSignInAsync)
         SignUpCommand = New DelegateCommand(AddressOf OnSignUp)
@@ -78,34 +59,25 @@ Public Partial Class SignInViewModel
     Private Async Function OnSignInAsync() As Task
 
         If String.IsNullOrEmpty(Username) OrElse String.IsNullOrEmpty(Password) Then
-            _popupService.ShowPopUp(
-                New InformationPopUpView,
-                New InformationPopUpViewModel("Failed", "Please fill the Username and Password"))
+             PopUp.Information("Failed", "Please fill the Username and Password")
             Return
         End If
 
         Try
-            _loadingService.Show(New LoadingView)
+            Loading.Show()
 
-            If Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(False) Then
-                _dispatcher.Invoke(Sub()
-                                        _popupService.ShowPopUp(
-                                        New InformationPopUpView,
-                                        New InformationPopUpViewModel("Success", "Login Success"))
-                                       _regionManager.RequestNavigate("MainRegion", "DashboardView")
-                                   End Sub)
+            If Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True) Then
+                PopUp.Information("Success", "Login Success")
+
+                _regionManager.RequestNavigate("MainRegion", "DashboardView")
             Else
-                _dispatcher.Invoke(Sub()
-                                       Status = "Invalid credentials."
-                                   End Sub)
+                PopUp.Information("Failed", "Invalid credentials.")
             End If
 
         Catch ex As Exception
-            _popupService.ShowPopUp(
-                New InformationPopUpView,
-                New InformationPopUpViewModel("Error", ex.Message))
+            PopUp.Information("Error", ex.Message)
         Finally
-            _loadingService.Hide()
+            Loading.Hide()
         End Try
     End Function
 
@@ -117,7 +89,7 @@ Public Partial Class SignInViewModel
         }
 
         _sessionManager.Login(guestUser)
-        Status = "Logged in as Guest."
+        PopUp.Information("Success", "Logged in as Guest.")
         _regionManager.RequestNavigate("MainRegion", "DashboardView")
     End Sub
 

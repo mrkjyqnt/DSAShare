@@ -24,6 +24,7 @@ Public Class Bootstrapper
     ''' </summary>
     ''' <param name="containerRegistry"></param>
     Protected Overrides Sub RegisterTypes(containerRegistry As IContainerRegistry)
+        containerRegistry.RegisterSingleton(Of IRegionManager, RegionManager)()
 
         ' Register the SessionManager as a singleton
         containerRegistry.Register(Of ISessionManager, SessionManager)()
@@ -75,36 +76,26 @@ Public Class Bootstrapper
 
         Dim regionManager = Container.Resolve(Of IRegionManager)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
-        Dim loadingService = Container.Resolve(Of ILoadingService)()
-        Dim dispatcher = Application.Current.Dispatcher
 
         sessionManager.LoadSession()
-        loadingService.Show(New StartupLoadingView)
 
         Try
-            If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(False) Then
-                dispatcher.Invoke(Sub()
-                    regionManager.RequestNavigate("MainRegion", "FallBackView")
-                End Sub)
+            Loading.StartUp()
+            If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(True) Then
+                regionManager.RequestNavigate("MainRegion", "FallBackView")
                 Return
             End If
 
             If sessionManager.IsLoggedIn() Then
-                dispatcher.Invoke(Sub()
-                    regionManager.RequestNavigate("MainRegion", "DashboardView")
-                End Sub)
+                regionManager.RequestNavigate("MainRegion", "DashboardView")
             Else
-                dispatcher.Invoke(Sub()
-                    regionManager.RequestNavigate("MainRegion", "AuthenticationView")
-                End Sub)
+                regionManager.RequestNavigate("MainRegion", "AuthenticationView")
             End If
 
         Catch ex As Exception
-            MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)
+            PopUp.Information("Error", ex.Message)
         Finally
-            dispatcher.Invoke(Sub()
-                loadingService.Hide
-            End Sub)
+            Loading.Hide
         End Try
     End Sub
 

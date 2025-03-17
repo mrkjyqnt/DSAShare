@@ -10,7 +10,7 @@ Module Tools
         Return $"pack://application:,,,/Components/Images/{image}"
     End Function
 
-    Public  Function HashPassword(password As String) As String
+    Public Function HashPassword(password As String) As String
         Using sha256 As SHA256 = SHA256.Create()
             Dim passwordBytes As Byte() = Encoding.UTF8.GetBytes(password)
             Dim hashBytes As Byte() = sha256.ComputeHash(passwordBytes)
@@ -22,4 +22,8 @@ Module Tools
                     Return stringBuilder.ToString()
             End Using
       End Function
+
+    Public Sub Dispatch(action As Action)
+        Application.Current.Dispatcher.Invoke(action)
+    End Sub
 End Module

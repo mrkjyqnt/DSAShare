@@ -21,11 +21,10 @@ Public Class LoadingService
     End Sub
 
     Public Sub Hide() Implements ILoadingService.Hide
-        Application.Current.Dispatcher.Invoke(Sub()
-                                                  _regionManager.Regions("LoadingRegion").RemoveAll()
-                                                    Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
-                                                    mainWindow.Loading.Visibility = Visibility.Collapsed
-                                              End Sub)
+        _regionManager.Regions("LoadingRegion").RemoveAll()
+
+        Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
+        mainWindow.Loading.Visibility = Visibility.Collapsed
     End Sub
 
 End Class

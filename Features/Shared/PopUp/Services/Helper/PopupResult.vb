@@ -1,7 +1,7 @@
 ﻿Imports System.Dynamic
 
 Public Class PopupResult
-   Inherits DynamicObject
+    Inherits DynamicObject
 
     Private ReadOnly _properties As New Dictionary(Of String, Object)
 

@@ -8,9 +8,16 @@ Imports Prism.Navigation.Regions
 ''' </summary>
 Public Class DashboardViewModel
     Inherits BindableBase
+    Implements IRegionMemberLifetime
 
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _sessionManager As ISessionManager
+
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Throw New NotImplementedException()
+        End Get
+    End Property
 
     Public Sub New(regionManager As IRegionManager, sessionManager As ISessionManager)
 
@@ -19,12 +26,5 @@ Public Class DashboardViewModel
 
         _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
         _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
-
-        If _sessionManager.CurrentUser IsNot Nothing Then
-            MsgBox("Hello " & _sessionManager.CurrentUser.Role)
-        Else
-            MsgBox("No user session found!")
-        End If
-
     End Sub
 End Class

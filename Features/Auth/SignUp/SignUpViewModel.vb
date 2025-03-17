@@ -10,15 +10,13 @@ Public Class SignUpViewModel
 
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _registrationService As IRegistrationService
-    Private ReadOnly _loadingService As ILoadingService
-    Private ReadOnly _dispatcher As Dispatcher
 
     Public ReadOnly Property SignUpCommand As IAsyncRelayCommand
     Public ReadOnly Property SignInCommand As ICommand
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
-            Return False ' View will not be kept alive
+            Return False
         End Get
     End Property
 
@@ -80,55 +78,47 @@ Public Class SignUpViewModel
     Public Sub New(regionManager As IRegionManager, 
                    sessionManager As ISessionManager, 
                    registrationService As IRegistrationService,
-                   loadingService As ILoadingService)
+                   popupService As IPopupService)
 
         _regionManager = regionManager
         _registrationService = registrationService
-        _loadingService = loadingService
-        
-        _dispatcher = Application.Current.Dispatcher
-
+       
         SignUpCommand = New AsyncRelayCommand(AddressOf OnSignUp)
         SignInCommand = New DelegateCommand(AddressOf OnSignIn)
     End Sub
 
     Private Async Function OnSignUp() As Task
-        _loadingService.Show(New LoadingView)
-        Status = ""
-
         If String.IsNullOrEmpty(Name) OrElse String.IsNullOrEmpty(Username) OrElse String.IsNullOrEmpty(Password) OrElse String.IsNullOrEmpty(RePassword) Then
-            Status = "Username, password and re-enter password are required."
+            PopUp.Information("Failed", "Please fill all the boxes")
             Return
         End If
 
         If Password <> RePassword Then
-            Status = "Password and re-enter password do not match."
+            PopUp.Information("Failed", "Password and re-enter password do not match.")
             Return
         End If
 
         Try
-            If Await Task.Run(Function() _registrationService.CheckUsername(Username)).ConfigureAwait(False) Then
-                Status = "Username already exists."
+            Loading.Show()            
+
+            If Await Task.Run(Function() _registrationService.CheckUsername(Username)).ConfigureAwait(True) Then
+                PopUp.Information("Failed", "Username already exists.")
                 Return
             End If
 
-            If Await Task.Run(Function() _registrationService.Register(Name, Username, Password)).ConfigureAwait(False) Then
-                Status = "Registration successful."
-                _dispatcher.Invoke(Sub()
-                                       _regionManager.RequestNavigate("AuthenticationRegion", "SignInView")
-                                       _regionManager.Regions("AuthenticationRegion").Remove("SignUpView")
-                                   End Sub)
+            If Await Task.Run(Function() _registrationService.Register(Name, Username, Password)).ConfigureAwait(True) Then
+                PopUp.Information("Success", "Registration successful.")
+                _regionManager.RequestNavigate("AuthenticationRegion", "SignInView")
+                _regionManager.Regions("AuthenticationRegion").Remove("SignUpView")
                 Return
             Else
-                Status = "An error occurred during login."
+                PopUp.Information("Error", "An error occurred during login.")
             End If
         Catch ex As Exception
-            Status = "An error occurred during login."
+            PopUp.Information("Error", "An error occurred during login.")
             ErrorHandler.SetError(ex.Message)
         Finally
-            _dispatcher.Invoke(Sub()
-                _loadingService.Hide()
-            End Sub)
+            Loading.Hide()
         End Try
 
     End Function

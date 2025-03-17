@@ -6,6 +6,13 @@ Imports Prism.Navigation.Regions
 ''' </summary>
 Public Class AuthenticationViewModel
     Inherits BindableBase
+    Implements IRegionMemberLifetime
+
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Throw New NotImplementedException()
+        End Get
+    End Property
 
     Private ReadOnly _regionManager As IRegionManager
 
@@ -16,4 +23,6 @@ Public Class AuthenticationViewModel
         ' Navigate to SignInView when the ViewModel is created
         _regionManager.RegisterViewWithRegion(Of SignInView)("AuthenticationRegion")
     End Sub
+
+
 End Class
