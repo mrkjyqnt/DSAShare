@@ -1,4 +1,5 @@
 ﻿Imports Prism.DryIoc
+Imports Prism.Events
 Imports Prism.Ioc
 Imports Prism.Navigation.Regions
 Imports System.Runtime.Versioning
@@ -24,16 +25,25 @@ Public Class Bootstrapper
     ''' </summary>
     ''' <param name="containerRegistry"></param>
     Protected Overrides Sub RegisterTypes(containerRegistry As IContainerRegistry)
+        ' PACKED '
         containerRegistry.RegisterSingleton(Of IRegionManager, RegionManager)()
+        containerRegistry.RegisterSingleton(Of IEventAggregator, EventAggregator)()
 
-        ' Register the SessionManager as a singleton
+
+        ' SHARED '
+        ' Register the SessionManager
         containerRegistry.Register(Of ISessionManager, SessionManager)()
         containerRegistry.RegisterSingleton(Of SessionManager)()
 
+        ' Register the Navigation
+        containerRegistry.Register(Of INavigationService, NavigationService)()
+        containerRegistry.RegisterSingleton(Of NavigationService)
+
+        ' Register the Fallback 
         containerRegistry.Register(Of IFallbackService, FallbackService)()
         containerRegistry.RegisterSingleton(Of FallbackService)()
-        
-        ' Register the PopUp Service and Views
+
+        ' Register the PopUp
         containerRegistry.Register(Of IPopupService, PopupService)
         containerRegistry.RegisterSingleton(Of PopupService)
 
@@ -41,31 +51,60 @@ Public Class Bootstrapper
         containerRegistry.Register(Of ILoadingService, LoadingService)
         containerRegistry.RegisterSingleton(Of LoadingService)
 
-        ' Register the Authentication
+        ' Register the Fallback View
+        containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
+
+        ' Register the Loading View
+        containerRegistry.RegisterForNavigation(Of LoadingView)("LoadingView")
+        containerRegistry.RegisterForNavigation(Of StartupLoadingView)("StartupLoadingView")
+
+
+        ' AUTHENTICATION '
+        ' Register the Authentication Services
         containerRegistry.Register(Of IAuthenticationService, AuthenticationService)()
         containerRegistry.Register(Of IRegistrationService, RegistrationService)()
         containerRegistry.RegisterForNavigation(Of AuthenticationView)("AuthenticationView")
-
-        ' Register the Fallback
-        containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
-        containerRegistry.RegisterForNavigation(Of LoadingView)("LoadingView")
 
         ' Register the Authentication Pages
         containerRegistry.RegisterForNavigation(Of SignInView)("SignInView")
         containerRegistry.RegisterForNavigation(Of SignUpView)("SignUpView")
 
+
+        ' DASHBOARD '
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
+        containerRegistry.Register(Of DashboardViewModel)()
         containerRegistry.RegisterForNavigation(Of NavigationView)("NavigationView")
+        containerRegistry.Register(Of NavigationViewModel)()
 
-         ' Register the Dashboard Pages
+        ' Register the Dashboard Services
+        containerRegistry.Register(Of IFileDataService, FileDataService)
+        containerRegistry.Register(Of IFileDownloadService, FileDownloadService)
+        containerRegistry.Register(Of IFileUploadService, FileUploadService)
+        containerRegistry.RegisterSingleton(Of FileDataService)
+        containerRegistry.RegisterSingleton(Of FileDownloadService)
+        containerRegistry.RegisterSingleton(Of FileUploadService)
+
+        ' Register the Dashboard Pages
         containerRegistry.RegisterForNavigation(Of HomeView)("HomeView")
+        containerRegistry.Register(Of HomeViewModel)()
         containerRegistry.RegisterForNavigation(Of AccountView)("AccountView")
+        'containerRegistry.Register(Of AccountViewModel)()
         containerRegistry.RegisterForNavigation(Of PublicFilesView)("PublicFilesView")
+        'containerRegistry.Register(Of PublicFilesViewModel)()
+
         containerRegistry.RegisterForNavigation(Of SharedFilesView)("SharedFilesView")
+        'containerRegistry.Register(Of SharedFilesViewModel)()
+            containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
+            containerRegistry.Register(Of ShareFilesViewModel)()
+
+
         containerRegistry.RegisterForNavigation(Of AccessedFilesView)("AccessedFilesView")
+        'containerRegistry.Register(Of AccessedFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageUsersView)("ManageUsersView")
+        'containerRegistry.Register(Of ManageUsersViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageFilesView)("ManageFilesView")
+        'containerRegistry.Register(Of ManageFilesViewModel)()
     End Sub
 
     ''' <summary>
@@ -100,5 +139,5 @@ Public Class Bootstrapper
     End Sub
 
 
-    
+
 End Class

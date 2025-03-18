@@ -1,4 +1,4 @@
-﻿Imports System.IO
+﻿Imports System.Data
 
 Public Class FileAccessedRepository
     Private ReadOnly _connection As Connection
@@ -7,11 +7,16 @@ Public Class FileAccessedRepository
         _connection = connection
     End Sub
 
-    Public Function GetByUserId(filesAccessed As FilesAccessed) As FilesAccessed
+    ''' <summary>
+    ''' Get datas by User ID
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
+    Public Function GetByUserId(filesAccessed As FilesAccessed) As List(Of FilesAccessed)
+        Dim accessList As New List(Of FilesAccessed)()
 
         _connection.Prepare("SELECT * FROM files_accessed WHERE user_id = @user_id")
         _connection.AddParam("@user_id", filesAccessed.UserId)
-        _connection.AddParam("@file_id", filesAccessed.FileId)
         _connection.Execute()
 
         If _connection.HasError Then
@@ -19,20 +24,29 @@ Public Class FileAccessedRepository
             Return Nothing
         End If
 
-        If _connection.HasRecord Then
-            Return New FilesAccessed() With {
-                .Id = _connection.DataRow("id"),
-                .UserId = _connection.DataRow("user_id"),
-                .FileId = _connection.DataRow("file_id"),
-                .AccessType = _connection.DataRow("access_type").ToString(),
-                .AccessedAt = _connection.DataRow("accessed_at")
-            }
-        End If
+        Dim records = _connection.FetchAll()
 
-        Return Nothing
+        For Each record As DataRow In records
+            Dim access As New FilesAccessed() With {
+                .Id = record("id"),
+                .UserId = record("user_id"),
+                .FileId = record("file_id"),
+                .AccessType = record("access_type").ToString(),
+                .AccessedAt = record("accessed_at")
+            }
+
+            accessList.Add(access)
+        Next
+
+        Return accessList
     End Function
 
-    Public Function Read(filesAccessed As FilesAccessed) As FilesAccessed
+    ''' <summary>
+    ''' Read all Accessed File Data
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Read() As List(Of FilesAccessed)
+        Dim accessList As New List(Of FilesAccessed)()
 
         _connection.Prepare("SELECT * FROM files_accessed")
         _connection.Execute()
@@ -42,19 +56,29 @@ Public Class FileAccessedRepository
             Return Nothing
         End If
 
-        If _connection.HasRecord Then
-            Return New FilesAccessed() With {
-                .Id = _connection.DataRow("id"),
-                .UserId = _connection.DataRow("user_id"),
-                .FileId = _connection.DataRow("file_id"),
-                .AccessType = _connection.DataRow("access_type").ToString(),
-                .AccessedAt = _connection.DataRow("accessed_at")
-            }
-        End If
+        Dim records = _connection.FetchAll()
 
-        Return Nothing
+        For Each record As DataRow In records
+            Dim access As New FilesAccessed() With {
+                .Id = record("id"),
+                .UserId = record("user_id"),
+                .FileId = record("file_id"),
+                .AccessType = record("access_type").ToString(),
+                .AccessedAt = record("accessed_at")
+            }
+
+            accessList.Add(access)
+        Next
+
+        Return accessList
     End Function
 
+
+    ''' <summary>
+    ''' Insert Accessed Files for recording
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
     Public Function Insert(filesAccessed As FilesAccessed) As Boolean
 
         _connection.Prepare("SELECT * FROM files_accessed WHERE user_id = @user_id AND file_id = @file_id")
@@ -86,6 +110,11 @@ Public Class FileAccessedRepository
         Return False
     End Function
 
+    ''' <summary>
+    ''' Update Access Data
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
     Public Function Update(filesAccessed As FilesAccessed) As Boolean
 
         _connection.Prepare("SELECT * FROM files_accessed WHERE id = @id")
@@ -117,6 +146,11 @@ Public Class FileAccessedRepository
         Return False
     End Function
 
+    ''' <summary>
+    ''' Remove Accessed for certain data
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
     Public Function Delete(filesAccessed As FilesAccessed) As Boolean
 
         _connection.Prepare("SELECT * FROM files_accessed WHERE id = @id")

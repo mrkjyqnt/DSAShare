@@ -29,7 +29,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
                     <TextBlock
-                        Style="{StaticResource DisplayText}"
+                        Style="{StaticResource Logo}"
                         Text="Register"
                         TextAlignment="Center" />
                     <TextBlock
@@ -69,19 +69,12 @@
                         Tag="Re-Password" />
                 </Grid>
 
-                <StackPanel Grid.Row="4">
-                    <Button
-                        HorizontalAlignment="Stretch"
-                        Command="{Binding SignUpCommand}"
-                        Content="Sign Up"
-                        Style="{StaticResource DefaultButton}" />
-                    <TextBlock
-                        Foreground="{StaticResource DangerBrush}"
-                        Style="{StaticResource LabelText}"
-                        Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
-                </StackPanel>
+                <Button
+                    Grid.Row="4"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding SignUpCommand}"
+                    Content="Sign Up"
+                    Style="{StaticResource DefaultButton}" />
                 <Rectangle
                     Grid.Row="6"
                     VerticalAlignment="Center"

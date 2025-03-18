@@ -8,14 +8,21 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
-                    <StackPanel Orientation="Horizontal">
-                        <ContentPresenter VerticalAlignment="Center" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
                         <Image
                             x:Name="CheckBoxIcon"
+                            Grid.Column="2"
                             Width="20"
                             Height="20"
+                            Cursor="Hand"
                             Source="{StaticResource UnselectedIcon}" />
-                    </StackPanel>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <!--  Change icon when checked  -->
                         <Trigger Property="IsChecked" Value="True">

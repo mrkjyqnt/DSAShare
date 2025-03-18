@@ -16,16 +16,22 @@
     </Style>
 
     <!--  Named Font Styles  -->
-    <!--  Display  -->
-    <Style x:Key="DisplayText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource DisplaySize}" />
+    <!--  Headings Text  -->
+    <Style x:Key="HeadingText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Headings}" />
+        <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+    </Style>
+
+    <!--  Logo Text  -->
+    <Style x:Key="LogoText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TitleSize}" />
         <Setter Property="FontFamily" Value="{StaticResource InterBold}" />
     </Style>
 
     <!--  Title  -->
     <Style x:Key="TitleText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TitleSize}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+        <Setter Property="FontSize" Value="{StaticResource SubHeadings}" />
+        <Setter Property="FontFamily" Value="{StaticResource InterSemiBold}" />
     </Style>
 
     <!--  SubTitle  -->

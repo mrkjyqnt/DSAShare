@@ -15,6 +15,8 @@
                 <ResourceDictionary Source="/Components/UI/ProgressBarStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/RadioButtonStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/CheckBoxStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/BorderStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/CalendarPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

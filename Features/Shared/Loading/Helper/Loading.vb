@@ -15,7 +15,7 @@ Public Class Loading
     End Sub
 
     Public Shared Sub StartUp()
-        _loadingService.Show(New LoadingView)
+        _loadingService.Show(New StartupLoadingView)
     End Sub
 
     Public Shared Sub Hide()

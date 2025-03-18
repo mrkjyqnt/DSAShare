@@ -21,6 +21,7 @@
                             Grid.Column="2"
                             Width="20"
                             Height="20"
+                            Cursor="Hand"
                             Source="{StaticResource UnselectedIcon}" />
                     </Grid>
                     <ControlTemplate.Triggers>

@@ -3,6 +3,7 @@
     <Style x:Key="DefaultTextbox" TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
         <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="0" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="Padding" Value="{StaticResource Space-16}" />
         <Setter Property="FontSize" Value="{StaticResource BodySize}" />
@@ -12,21 +13,23 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Grid VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Stretch">
                         <Border
                             x:Name="Border"
+                            Margin="{TemplateBinding Margin}"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{StaticResource SmallRadius}" />
-                        <TextBlock
-                            x:Name="PlaceholderText"
-                            Margin="16,0,0,0"
-                            VerticalAlignment="Center"
-                            Foreground="{StaticResource SecondaryBrush}"
-                            IsHitTestVisible="False"
-                            Text="{TemplateBinding Tag}"
-                            Visibility="Collapsed" />
+                        <Border Padding="{StaticResource Space-16}" VerticalAlignment="Top">
+                            <TextBlock
+                                x:Name="PlaceholderText"
+                                VerticalAlignment="Center"
+                                Foreground="{StaticResource SecondaryBrush}"
+                                IsHitTestVisible="False"
+                                Text="{TemplateBinding Tag}"
+                                Visibility="Collapsed" />
+                        </Border>
                         <ScrollViewer x:Name="PART_ContentHost" />
                     </Grid>
                     <ControlTemplate.Triggers>

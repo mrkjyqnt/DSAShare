@@ -22,7 +22,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Padding="32">
+                <Border Padding="{StaticResource Space-32}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -38,8 +38,8 @@
                         <TextBlock
                             Grid.Column="2"
                             VerticalAlignment="Center"
-                            FontFamily="{StaticResource InterBold}"
-                            FontSize="20"
+                            FontSize="{StaticResource TitleSize}"
+                            Style="{StaticResource LogoText}"
                             Text="DSAShare" />
 
                     </Grid>

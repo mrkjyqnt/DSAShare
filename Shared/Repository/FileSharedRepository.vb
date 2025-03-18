@@ -28,19 +28,66 @@ Public Class FileSharedRepository
         If _connection.HasRecord Then
             Return New FilesShared() With {
                 .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
+                .FileSize = _connection.DataRow("file_size"),
+                .FileType = _connection.DataRow("file_type").ToString(),
                 .UploadedBy = _connection.DataRow("uploaded_by"),
                 .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareCode = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
+                .ShareValue = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
-                .CreatedAt = _connection.DataRow("created_at")
+                .CreatedAt = _connection.DataRow("created_at"),
+                .UpdatedAt = _connection.DataRow("updated_at")
             }
         End If
 
         Return Nothing
+    End Function
+
+    ''' <summary>
+    ''' Retrieve FileShared Datas by Privacy
+    ''' </summary>
+    ''' <param name="fileShared"></param>
+    ''' <returns></returns>
+    Public Function GetByPrivacy(fileShared As FilesShared) As List(Of FilesShared)
+        Dim filesList As New List(Of FilesShared)()
+
+        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy")
+        _connection.AddParam("@privacy", fileShared.Privacy)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return Nothing
+        End If
+
+        Dim records = _connection.FetchAll()
+
+        For Each record As DataRow In records
+            Dim file As New FilesShared() With {
+                .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
+                .FileName = _connection.DataRow("file_name").ToString(),
+                .FilePath = _connection.DataRow("file_path").ToString(),
+                .FileSize = _connection.DataRow("file_size"),
+                .FileType = _connection.DataRow("file_type").ToString(),
+                .UploadedBy = _connection.DataRow("uploaded_by"),
+                .ShareType = _connection.DataRow("share_type").ToString(),
+                .ShareValue = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
+                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
+                .Privacy = _connection.DataRow("privacy").ToString(),
+                .DownloadCount = _connection.DataRow("download_count"),
+                .CreatedAt = _connection.DataRow("created_at"),
+                .UpdatedAt = _connection.DataRow("updated_at")
+            }
+
+            filesList.Add(file)
+        Next
+
+        Return filesList
     End Function
 
 
@@ -49,7 +96,8 @@ Public Class FileSharedRepository
     ''' </summary>
     ''' <param name="filesShared">The FilesShared object containing updated data.</param>
     ''' <returns></returns>
-    Public Function Read(fileShared As FilesShared) As FilesShared
+    Public Function Read() As List(Of FilesShared)
+        Dim filesList As New List(Of FilesShared)()
 
         _connection.Prepare("SELECT * FROM files_shared")
         _connection.Execute()
@@ -59,23 +107,34 @@ Public Class FileSharedRepository
             Return Nothing
         End If
 
-        If _connection.HasRecord Then
-            Return New FilesShared() With {
+        ' Use FetchAll() to get all records
+        Dim records = _connection.FetchAll()
+
+        ' Iterate through each record using For Each
+        For Each record As DataRow In records
+            Dim file As New FilesShared() With {
                 .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
+                .FileSize = _connection.DataRow("file_size"),
+                .FileType = _connection.DataRow("file_type").ToString(),
                 .UploadedBy = _connection.DataRow("uploaded_by"),
                 .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareCode = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
+                .ShareValue = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
-                .CreatedAt = _connection.DataRow("created_at")
+                .CreatedAt = _connection.DataRow("created_at"),
+                .UpdatedAt = _connection.DataRow("updated_at")
             }
-        End If
 
-        Return Nothing
+            filesList.Add(file)
+        Next
+
+        Return filesList
     End Function
+
 
 
     ''' <summary>
@@ -83,17 +142,21 @@ Public Class FileSharedRepository
     ''' </summary>
     ''' <param name="filesShared">The FilesShared object containing file data.</param>
     Public Function Insert(filesShared As FilesShared) As Boolean
-        _connection.Prepare("INSERT INTO files_shared (file_name, file_path, uploaded_by, share_type, share_code, expiry_date, privacy, download_count, created_at) " &
-                              "VALUES (@file_name, @file_path, @uploaded_by, @share_type, @share_code, @expiry_date, @privacy, @download_count, @created_at)")
+        _connection.Prepare("INSERT INTO files_shared (name, file_name, file_path, file_size, file_type, uploaded_by, share_type, share_value, expiry_date, privacy, download_count, created_at, updated_at) " &
+                              "VALUES (@name, @file_name, @file_path, @file_size, @file_type, @uploaded_by, @share_type, @share_value, @expiry_date, @privacy, @download_count, @created_at, @updated_at)")
+        _connection.AddParam("@name", filesShared.Name)
         _connection.AddParam("@file_name", filesShared.FileName)
         _connection.AddParam("@file_path", filesShared.FilePath)
+        _connection.AddParam("@file_size", filesShared.FileSize)
+        _connection.AddParam("@file_type", filesShared.FileType)
         _connection.AddParam("@uploaded_by", filesShared.UploadedBy)
         _connection.AddParam("@share_type", filesShared.ShareType)
-        _connection.AddParam("@share_code", filesShared.ShareCode)
+        _connection.AddParam("@share_value", filesShared.ShareValue)
         _connection.AddParam("@expiry_date", filesShared.ExpiryDate)
         _connection.AddParam("@privacy", filesShared.Privacy)
         _connection.AddParam("@download_count", filesShared.DownloadCount)
         _connection.AddParam("@created_at", filesShared.CreatedAt)
+        _connection.AddParam("@updated_at", filesShared.UpdatedAt)
         _connection.Execute()
 
         If _connection.HasError Then
@@ -132,25 +195,33 @@ Public Class FileSharedRepository
         End If
 
         _connection.Prepare("UPDATE files_shared 
-                            SET file_name = @file_name, 
+                            SET name = @name
+                                file_name = @file_name, 
                                 file_path = @file_path, 
+                                file_size = @file_size, 
+                                file_type = @file_type, 
                                 uploaded_by = @uploaded_by,
                                 share_type = @share_type, 
-                                share_code = @share_code, 
+                                share_value = @share_value, 
                                 expiry_date = @expiry_date, 
                                 privacy = @privacy, 
                                 download_count = @download_count, 
-    q                           created_at = @created_at 
+    q                           created_at = @created_at,
+    q                           updated_at = @updated_at 
                             WHERE id = @file_id")
+        _connection.AddParam("@name", filesShared.Name)
         _connection.AddParam("@file_name", filesShared.FileName)
         _connection.AddParam("@file_path", filesShared.FilePath)
+        _connection.AddParam("@file_size", filesShared.FileSize)
+        _connection.AddParam("@file_type", filesShared.FileType)
         _connection.AddParam("@uploaded_by", filesShared.UploadedBy)
         _connection.AddParam("@share_type", filesShared.ShareType)
-        _connection.AddParam("@share_code", filesShared.ShareCode)
+        _connection.AddParam("@share_value", filesShared.ShareValue)
         _connection.AddParam("@expiry_date", filesShared.ExpiryDate)
         _connection.AddParam("@privacy", filesShared.Privacy)
         _connection.AddParam("@download_count", filesShared.DownloadCount)
         _connection.AddParam("@created_at", filesShared.CreatedAt)
+        _connection.AddParam("@updated_at", filesShared.UpdatedAt)
         _connection.Execute()
 
         If _connection.HasChanges Then

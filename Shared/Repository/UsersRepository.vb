@@ -1,4 +1,6 @@
-﻿Public Class UsersRepository
+﻿Imports System.Data
+
+Public Class UsersRepository
     Private ReadOnly _connection As Connection
 
     Public Sub New(connection As Connection)
@@ -68,9 +70,9 @@
     ''' </summary>
     ''' <param name="id">The ID to search for.</param>
     ''' <returns>A Users object if found; otherwise, Nothing.</returns>
-    Public Function Read(user As Users) As Users
-        _connection.Prepare("SELECT * 
-                            FROM users")
+    Public Function Read() As List(Of Users)
+        Dim usersList As New List(Of Users)()
+        _connection.Prepare("SELECT * FROM users")
         _connection.Execute()
 
         If _connection.HasError Then
@@ -78,19 +80,19 @@
             Return Nothing
         End If
 
-        If _connection.HasRecord Then
-            Return New Users() With {
-                .Id = _connection.DataRow("id"),
-                .Username = _connection.DataRow("username").ToString(),
-                .PasswordHash = _connection.DataRow("password_hash").ToString(),
-                .Role = _connection.DataRow("role").ToString(),
-                .Status = _connection.DataRow("status").ToString(),
-                .CreatedAt = _connection.DataRow("created_at")
-            }
-        End If
+        For Each record As DataRow In _connection.FetchAll()
+            Dim user As New Users() With {
+                .Id = record("id"),
+                .Username = record("username").ToString(),
+                .PasswordHash = record("password_hash").ToString(),
+                .Role = record("role").ToString(),
+                .Status = record("status").ToString(),
+                .CreatedAt = record("created_at")
+                }
+                usersList.Add(user)
+        Next
 
-        ' User not found
-        Return Nothing
+        Return usersList
     End Function
 
     ''' <summary>

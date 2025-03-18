@@ -1,12 +1,14 @@
 ﻿Imports Prism.Commands
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
+Imports Prism.Events
 
 Public Class NavigationViewModel
     Inherits BindableBase
 
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As NavigationService
+    Private ReadOnly _eventAggregator As IEventAggregator
     Private _menuItems As List(Of NavigationItemModel)
     Private _lastMenuItem As NavigationItemModel
     Private _navSelectionCommand As DelegateCommand(Of NavigationItemModel)
@@ -41,9 +43,10 @@ Public Class NavigationViewModel
         End Set
     End Property
 
-    Public Sub New(regionManager As IRegionManager, menuNavigationService As NavigationService)
+    Public Sub New(regionManager As IRegionManager, menuNavigationService As NavigationService, eventAggregator As IEventAggregator)
         _regionManager = regionManager
         _navigationService = menuNavigationService
+        _eventAggregator = eventAggregator
 
         ' Initialize the navigation command
         NavSelectionCommand = New DelegateCommand(Of NavigationItemModel)(AddressOf OnNavigationSelection)
@@ -52,12 +55,14 @@ Public Class NavigationViewModel
         MenuItems = _navigationService.GetNavigationItems()
         LastMenuItem = _navigationService.GetLastNavigationItem()
 
-        ' Debugging: Check LastMenuItem properties
-        Debug.WriteLine($"LastMenuItem Title: {LastMenuItem?.Title}")
-        Debug.WriteLine($"LastMenuItem Icon: {LastMenuItem?.Icon}")
-        Debug.WriteLine($"LastMenuItem IsSelected: {LastMenuItem?.IsSelected}")
-    End Sub
+        ' Select the first menu item by default
+        If MenuItems IsNot Nothing AndAlso MenuItems.Count > 0 Then
+            MenuItems(0).IsSelected = True
+        End If
 
+        ' Subscribe to the NavigationSelectionEvent
+        _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Subscribe(AddressOf SetSelection)
+    End Sub
 
     Private Sub OnNavigationSelection(selectedItem As NavigationItemModel)
         If selectedItem Is Nothing Then Exit Sub
@@ -73,6 +78,28 @@ Public Class NavigationViewModel
 
         ' Navigate to the selected view
         _regionManager.RequestNavigate("PageRegion", selectedItem.NavigationPath)
+
+        ' Notify UI of property changes
+        RaisePropertyChanged(NameOf(MenuItems))
+        RaisePropertyChanged(NameOf(LastMenuItem))
+    End Sub
+
+    Public Sub SetSelection(itemTitle As String)
+        ' Deselect all items first
+        For Each item In MenuItems
+            item.IsSelected = False
+        Next
+        LastMenuItem.IsSelected = False
+
+        ' Find the item to select by Title
+        If itemTitle = LastMenuItem.Title Then
+            LastMenuItem.IsSelected = True
+        Else
+            Dim selectedItem = MenuItems.FirstOrDefault(Function(x) x.Title = itemTitle)
+            If selectedItem IsNot Nothing Then
+                selectedItem.IsSelected = True
+            End If
+        End If
 
         ' Notify UI of property changes
         RaisePropertyChanged(NameOf(MenuItems))

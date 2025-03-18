@@ -10,12 +10,12 @@
     d:DesignWidth="800"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-    <StackPanel VerticalAlignment="Stretch" Orientation="Horizontal">
-        <Border Width="334" DockPanel.Dock="Left">
-            <ContentControl prism:RegionManager.RegionName="NavigationRegion" />
-        </Border>
-        <DockPanel DockPanel.Dock="Right">
-            <ContentControl prism:RegionManager.RegionName="PageRegion" />
-        </DockPanel>
-    </StackPanel>
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="334" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ContentControl Grid.Column="0" prism:RegionManager.RegionName="NavigationRegion" />
+        <ContentControl Grid.Column="1" prism:RegionManager.RegionName="PageRegion" />
+    </Grid>
 </UserControl>

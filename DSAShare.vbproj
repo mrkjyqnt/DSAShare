@@ -41,6 +41,9 @@
     <None Remove="Components\Images\accessed.png" />
     <None Remove="Components\Images\account-filled.png" />
     <None Remove="Components\Images\account.png" />
+    <None Remove="Components\Images\back.png" />
+    <None Remove="Components\Images\calendar-filled.png" />
+    <None Remove="Components\Images\calendar.png" />
     <None Remove="Components\Images\check-filled.png" />
     <None Remove="Components\Images\check.png" />
     <None Remove="Components\Images\files-filled.png" />
@@ -84,12 +87,15 @@
     <Folder Include="Features\Dashboard\Pages\ManageFiles\Services\" />
     <Folder Include="Features\Dashboard\Pages\ManageUsers\Services\" />
     <Folder Include="Features\Dashboard\Pages\PublicFIles\Services\" />
+    <Folder Include="Features\Dashboard\Pages\SharedFiles\Pages\ViewSharedFiles\" />
+    <Folder Include="Shared\Secret\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Prism.Core" Version="9.0.537" />
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
     <PackageReference Include="Prism.Wpf" Version="9.0.537" />
@@ -100,6 +106,9 @@
     <Resource Include="Components\Images\accessed.png" />
     <Resource Include="Components\Images\account-filled.png" />
     <Resource Include="Components\Images\account.png" />
+    <Resource Include="Components\Images\back.png" />
+    <Resource Include="Components\Images\calendar-filled.png" />
+    <Resource Include="Components\Images\calendar.png" />
     <Resource Include="Components\Images\check-filled.png" />
     <Resource Include="Components\Images\check.png" />
     <Resource Include="Components\Images\files-filled.png" />

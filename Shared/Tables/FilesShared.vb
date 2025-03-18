@@ -5,16 +5,20 @@ Imports System.Collections.Generic
 ''' Represents the FilesShared table.
 ''' </summary>
 Public Class FilesShared
-    Public Property Id As Integer
+    Public Property Id As Integer? = Nothing
+    Public Property Name As String
     Public Property FileName As String
     Public Property FilePath As String
-    Public Property UploadedBy As Integer
+    Public Property FileSize As Double? = Nothing
+    Public Property FileType As String
+    Public Property UploadedBy As Integer? = Nothing
     Public Property ShareType As String
-    Public Property ShareCode As String
-    Public Property ExpiryDate As DateTime?
+    Public Property ShareValue As String
+    Public Property ExpiryDate As DateTime? = Nothing
     Public Property Privacy As String
-    Public Property DownloadCount As Integer
-    Public Property CreatedAt As DateTime
+    Public Property DownloadCount As Integer? = Nothing
+    Public Property CreatedAt As DateTime? = Nothing
+    Public Property UpdatedAt As DateTime? = Nothing
 
     ''' <summary>
     ''' Validates the table data before saving to the database.
@@ -39,7 +43,7 @@ Public Class FilesShared
             {"file_path", FilePath},
             {"uploaded_by", UploadedBy},
             {"share_type", ShareType},
-            {"share_code", ShareCode},
+            {"share_code", ShareValue},
             {"expiry_date", ExpiryDate},
             {"privacy", Privacy},
             {"download_count", DownloadCount},

@@ -32,7 +32,7 @@
                     RenderOptions.EdgeMode="Aliased"
                     Source="/Components/Images/logo.png" />
                 <TextBlock
-                    Style="{StaticResource DisplayText}"
+                    Style="{StaticResource LogoText}"
                     Text="DSA Share"
                     TextAlignment="Center" />
                 <TextBlock

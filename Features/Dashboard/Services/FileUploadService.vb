@@ -8,46 +8,45 @@ Public Class FileUploadService
     Public Sub New(fileSharedRepository As FileSharedRepository)
         _fileSharedRepository = fileSharedRepository
     End Sub
-
-    ''' <summary>
-    ''' Uploads a file to the shared folder and saves the file details to the database.
-    ''' </summary>
-    ''' <param name="filePath"></param>
-    ''' <param name="uploadedBy"></param>
-    ''' <param name="shareType"></param>
-    ''' <param name="shareCode"></param>
-    ''' <param name="expiryDate"></param>
-    ''' <param name="privacy"></param>
-    ''' <returns></returns>
-    Public Function UploadFile(filePath As String, uploadedBy As Integer, shareType As String, Optional shareCode As String = Nothing, Optional expiryDate As DateTime? = Nothing, Optional privacy As String = "Public") As Boolean Implements IFileUploadService.UploadFile
+    
+    Public Function UploadFile(filesShared As FilesShared) As Boolean Implements IFileUploadService.UploadFile
         Try
             ' Ensure the shared folder exists
-            Dim sharedFolderPath As String = "\\DSA-SERVER\SharedFiles\"
-            If Not Directory.Exists(sharedFolderPath) Then
-                Directory.CreateDirectory(sharedFolderPath)
+            Dim FolderPath As String = "\\192.168.8.10\Server Storage\"
+            If Not Directory.Exists(FolderPath) Then
+                Directory.CreateDirectory(FolderPath)
             End If
 
-            ' Get the file name and create the destination path
-            Dim fileName As String = Path.GetFileName(filePath)
-            Dim destinationPath As String = Path.Combine(sharedFolderPath, fileName)
+            ' Extract file name and extension
+            Dim fileNameWithoutExt As String = Path.GetFileNameWithoutExtension(filesShared.FileName)
+            Dim fileExtension As String = Path.GetExtension(filesShared.FileName)
+
+            ' Generate a unique filename with Date (MMddyy) and Author
+            Dim currentDate As String = DateTime.Now.ToString("MMddyy")
+            Dim safeAuthorName As String = filesShared.UploadedBy.ToString
+            Dim newFileName As String = $"{fileNameWithoutExt}_{currentDate}_{safeAuthorName}{fileExtension}"
+            Dim destinationPath As String = Path.Combine(FolderPath, newFileName)
 
             ' Copy the file to the shared folder
-            File.Copy(filePath, destinationPath, True)
+            File.Copy(filesShared.FilePath, destinationPath, False)
 
             ' Save the file details to the database using the repository
-            Dim filesShared As New FilesShared() With {
-                .FileName = fileName,
+            Dim _filesShared As New FilesShared() With {
+                .FileName = filesShared.FileName,
                 .FilePath = destinationPath,
-                .UploadedBy = uploadedBy,
-                .ShareType = shareType,
-                .ShareCode = shareCode,
-                .ExpiryDate = expiryDate,
-                .Privacy = privacy,
+                .FileSize = filesShared.FileSize,
+                .FileType = filesShared.FileType,
+                .UploadedBy = filesShared.UploadedBy,
+                .ShareType = filesShared.ShareType,
+                .ShareValue = filesShared.ShareValue,
+                .ExpiryDate = filesShared.ExpiryDate,
+                .Privacy = filesShared.Privacy,
                 .DownloadCount = 0,
-                .CreatedAt = DateTime.Now
+                .CreatedAt = DateTime.Now,
+                .UpdatedAt = filesShared.UpdatedAt
             }
 
-            Return _fileSharedRepository.Insert(filesShared)
+            Return _fileSharedRepository.Insert(_filesShared)
         Catch ex As Exception
             ' Log the error
             Console.WriteLine($"Error uploading file: {ex.Message}")

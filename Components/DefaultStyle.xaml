@@ -40,7 +40,8 @@
     <FontFamily x:Key="InterExtraBold">./FontFamily/#Inter Extra Bold</FontFamily>
 
     <!--  Default Font Sizes  -->
-    <sys:Double x:Key="DisplaySize">32</sys:Double>
+    <sys:Double x:Key="Headings">64</sys:Double>
+    <sys:Double x:Key="SubHeadings">32</sys:Double>
     <sys:Double x:Key="TitleSize">20</sys:Double>
     <sys:Double x:Key="SubTitleSize">16</sys:Double>
     <sys:Double x:Key="BodySize">14</sys:Double>

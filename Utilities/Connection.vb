@@ -132,6 +132,24 @@ Public Class Connection
     End Sub
 
     ''' <summary>
+    ''' Fetches all records from the last executed query.
+    ''' </summary>
+    ''' <returns>List of DataRow containing all records.</returns>
+    Public Function FetchAll() As List(Of DataRow)
+        Dim rows As New List(Of DataRow)()
+
+        ' Ensure data exists
+        If Data IsNot Nothing AndAlso Data.Tables.Count > 0 Then
+            For Each row As DataRow In Data.Tables(0).Rows
+                rows.Add(row)
+            Next
+        End If
+
+        Return rows
+    End Function
+
+
+    ''' <summary>
     ''' Tests the database connection.
     ''' </summary>
     ''' <returns>True if the connection is successful; otherwise, False.</returns>

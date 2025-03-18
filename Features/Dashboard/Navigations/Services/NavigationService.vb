@@ -1,15 +1,17 @@
-﻿Public Class NavigationService
-    Private ReadOnly _sessionManager As SessionManager
+﻿Imports Prism.Events
 
-    Public Sub New(sessionManager As SessionManager)
+Public Class NavigationService
+    Implements INavigationService
+
+    Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _eventAggregator As IEventAggregator
+
+    Public Sub New(sessionManager As ISessionManager, eventAggregator As IEventAggregator)
         _sessionManager = sessionManager
+        _eventAggregator = eventAggregator
     End Sub
 
-    ''' <summary>
-    ''' Gets the menu items based on the user's role.
-    ''' </summary>
-    ''' <returns>A list of menu items.</returns>
-    Public Function GetNavigationItems() As List(Of NavigationItemModel)
+    Public Function GetNavigationItems() As List(Of NavigationItemModel) Implements INavigationService.GetNavigationItems
         Dim menuItems As New List(Of NavigationItemModel)
 
         If _sessionManager.HasRole("Admin") Then
@@ -23,12 +25,12 @@
         Return menuItems
     End Function
 
-   Public Function GetLastNavigationItem() As NavigationItemModel
-        Dim lastItem = New NavigationItemModel("Account", "AccountView", IconSource("account.png"), IconSource("account-filled.png"))
-        ' Log the creation of the last navigation item
-        Debug.WriteLine($"Last navigation item created: {lastItem.Title}")
-        Return lastItem
+    Public Sub SetNavigation(Title As String) Implements INavigationService.SetNavigation
+        _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish(Title)
+    End Sub
 
+    Public Function GetLastNavigationItem() As NavigationItemModel Implements INavigationService.GetLastNavigationItem
+        Return New NavigationItemModel("Account", "AccountView", IconSource("account.png"), IconSource("account-filled.png"))
     End Function
 
     Private Function GetAdminNavItems() As List(Of NavigationItemModel)
