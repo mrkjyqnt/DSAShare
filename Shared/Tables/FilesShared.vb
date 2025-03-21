@@ -9,7 +9,7 @@ Public Class FilesShared
     Public Property Name As String
     Public Property FileName As String
     Public Property FilePath As String
-    Public Property FileSize As Double? = Nothing
+    Public Property FileSize As String
     Public Property FileType As String
     Public Property UploadedBy As Integer? = Nothing
     Public Property ShareType As String

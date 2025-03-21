@@ -4,6 +4,17 @@
     <Style TargetType="Button">
         <Setter Property="FontSize" Value="{StaticResource BodySize}" />
         <Setter Property="FontFamily" Value="{StaticResource FontFamily}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!--  Default Style  -->
@@ -64,10 +75,6 @@
                                     <TranslateTransform X="0" Y="0" />
                                 </Setter.Value>
                             </Setter>
-                        </Trigger>
-
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.5" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

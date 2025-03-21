@@ -31,11 +31,11 @@ Public Class FileSharedRepository
                 .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
-                .FileSize = _connection.DataRow("file_size"),
+                .FileSize = _connection.DataRow("file_size").ToString(),
                 .FileType = _connection.DataRow("file_type").ToString(),
                 .UploadedBy = _connection.DataRow("uploaded_by"),
                 .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareValue = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
+                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
@@ -55,8 +55,9 @@ Public Class FileSharedRepository
     Public Function GetByPrivacy(fileShared As FilesShared) As List(Of FilesShared)
         Dim filesList As New List(Of FilesShared)()
 
-        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy")
+        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy AND uploaded_by = @uploaded_by")
         _connection.AddParam("@privacy", fileShared.Privacy)
+        _connection.AddParam("@uploaded_by", fileShared.UploadedBy)
         _connection.Execute()
 
         If _connection.HasError Then
@@ -72,11 +73,54 @@ Public Class FileSharedRepository
                 .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
-                .FileSize = _connection.DataRow("file_size"),
+                .FileSize = _connection.DataRow("file_size").ToString(),
                 .FileType = _connection.DataRow("file_type").ToString(),
                 .UploadedBy = _connection.DataRow("uploaded_by"),
                 .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareValue = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
+                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
+                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
+                .Privacy = _connection.DataRow("privacy").ToString(),
+                .DownloadCount = _connection.DataRow("download_count"),
+                .CreatedAt = _connection.DataRow("created_at"),
+                .UpdatedAt = _connection.DataRow("updated_at")
+            }
+
+            filesList.Add(file)
+        Next
+
+        Return filesList
+    End Function
+
+        ''' <summary>
+    ''' Retrieve FileShared Datas by Privacy
+    ''' </summary>
+    ''' <param name="fileShared"></param>
+    ''' <returns></returns>
+    Public Function GetByUploader(fileShared As FilesShared) As List(Of FilesShared)
+        Dim filesList As New List(Of FilesShared)()
+
+        _connection.Prepare("SELECT * FROM files_shared WHERE uploaded_by = @uploaded_by")
+        _connection.AddParam("@uploaded_by", fileShared.UploadedBy)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return Nothing
+        End If
+
+        Dim records = _connection.FetchAll()
+
+        For Each record As DataRow In records
+            Dim file As New FilesShared() With {
+                .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
+                .FileName = _connection.DataRow("file_name").ToString(),
+                .FilePath = _connection.DataRow("file_path").ToString(),
+                .FileSize = _connection.DataRow("file_size").ToString(),
+                .FileType = _connection.DataRow("file_type").ToString(),
+                .UploadedBy = _connection.DataRow("uploaded_by"),
+                .ShareType = _connection.DataRow("share_type").ToString(),
+                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
@@ -117,11 +161,11 @@ Public Class FileSharedRepository
                 .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
-                .FileSize = _connection.DataRow("file_size"),
+                .FileSize = _connection.DataRow("file_size").ToString(),
                 .FileType = _connection.DataRow("file_type").ToString(),
-                .UploadedBy = _connection.DataRow("uploaded_by"),
+                .UploadedBy = _connection.DataRow("uploaded_by").ToString(),
                 .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareValue = If(_connection.DataRow.IsNull("share_code"), Nothing, _connection.DataRow("share_code").ToString()),
+                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
@@ -160,7 +204,7 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine(_connection.ErrorMessage)
             Return False
         End If
 

@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="/Components/UI/CheckBoxStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/BorderStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/CalendarPickerStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/GridStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

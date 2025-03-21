@@ -26,4 +26,17 @@ Module Tools
     Public Sub Dispatch(action As Action)
         Application.Current.Dispatcher.Invoke(action)
     End Sub
+
+    Public Function FormatFileSize(bytes As Long) As String
+        Dim sizes As String() = {"B", "KB", "MB", "GB", "TB"}
+        Dim len As Double = bytes
+        Dim order As Integer = 0
+
+        While len >= 1024 AndAlso order < sizes.Length - 1
+            order += 1
+            len /= 1024
+        End While
+
+        Return String.Format("{0:0.##} {1}", len, sizes(order))
+    End Function
 End Module

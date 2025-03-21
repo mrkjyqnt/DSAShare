@@ -20,7 +20,7 @@ Public Class SelectionPopUpViewModel
             Return _inputText
         End Get
         Set(value As String)
-        If ValidateInput(value, SelectedOption) Then
+            If ValidateInput(value, SelectedOption) Then
                 SetProperty(_inputText, value)
             End If
         End Set
@@ -52,8 +52,10 @@ Public Class SelectionPopUpViewModel
             Return _selectedOption
         End Get
         Private Set(value As String)
-            SetProperty(_selectedOption, value)
-            InputText = ""
+            If value IsNot _selectedOption Then
+                SetProperty(_selectedOption, value)
+                InputText = ""
+            End If
         End Set
     End Property
 

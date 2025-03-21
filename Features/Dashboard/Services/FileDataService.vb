@@ -61,7 +61,7 @@ Public Class FileDataService
         Dim _fileShared = New FilesShared With {
             .UploadedBy = users.Id}
         
-        Return _fileSharedRepository.GetByPrivacy(_fileShared)
+        Return _fileSharedRepository.GetByUploader(_fileShared)
     End Function
 
     Public Function GetAccessedFiles(users As Users) As List(Of FilesAccessed) Implements IFileDataService.GetAccessedFiles

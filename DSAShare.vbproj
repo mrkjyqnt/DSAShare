@@ -46,6 +46,7 @@
     <None Remove="Components\Images\calendar.png" />
     <None Remove="Components\Images\check-filled.png" />
     <None Remove="Components\Images\check.png" />
+    <None Remove="Components\Images\file.png" />
     <None Remove="Components\Images\files-filled.png" />
     <None Remove="Components\Images\files.png" />
     <None Remove="Components\Images\home-filled.png" />
@@ -111,6 +112,7 @@
     <Resource Include="Components\Images\calendar.png" />
     <Resource Include="Components\Images\check-filled.png" />
     <Resource Include="Components\Images\check.png" />
+    <Resource Include="Components\Images\file.png" />
     <Resource Include="Components\Images\files-filled.png" />
     <Resource Include="Components\Images\files.png" />
     <Resource Include="Components\Images\home-filled.png" />
