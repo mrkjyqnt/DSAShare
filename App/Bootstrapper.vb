@@ -73,17 +73,19 @@ Public Class Bootstrapper
         ' DASHBOARD '
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
-        containerRegistry.Register(Of DashboardViewModel)()
         containerRegistry.RegisterForNavigation(Of NavigationView)("NavigationView")
+        containerRegistry.Register(Of DashboardViewModel)()
         containerRegistry.Register(Of NavigationViewModel)()
 
         ' Register the Dashboard Services
         containerRegistry.Register(Of IFileDataService, FileDataService)
         containerRegistry.Register(Of IFileDownloadService, FileDownloadService)
         containerRegistry.Register(Of IFileUploadService, FileUploadService)
+        containerRegistry.Register(Of IFileInfoService, FileInfoService)
         containerRegistry.RegisterSingleton(Of FileDataService)
         containerRegistry.RegisterSingleton(Of FileDownloadService)
         containerRegistry.RegisterSingleton(Of FileUploadService)
+        containerRegistry.RegisterSingleton(Of FileInfoService)
 
         ' Register the Dashboard Pages
         containerRegistry.RegisterForNavigation(Of HomeView)("HomeView")

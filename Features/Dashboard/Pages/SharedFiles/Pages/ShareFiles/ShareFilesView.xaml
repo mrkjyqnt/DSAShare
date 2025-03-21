@@ -25,7 +25,7 @@
                 </Grid.ColumnDefinitions>
                 <Button
                     Grid.Column="0"
-                    Command="{Binding AccessFilesCommand}"
+                    Command="{Binding BackCommand}"
                     Style="{StaticResource IconButton}">
                     <Button.Content>
                         <Image Source="/Components/Images/back.png" />
@@ -38,7 +38,7 @@
                     Text="Share File" />
                 <Button
                     Grid.Column="4"
-                    Command="{Binding AccessFilesCommand}"
+                    Command="{Binding PublishFileCommand}"
                     Content="Publish"
                     Style="{StaticResource DefaultButton}" />
             </Grid>
@@ -85,13 +85,18 @@
                                         <RadioButton
                                             Grid.Row="2"
                                             Content="Public"
+                                            IsChecked="{Binding IsPublicSelected, UpdateSourceTrigger=PropertyChanged}"
                                             Style="{StaticResource DefaultRadioButton}" />
                                         <RadioButton
                                             Grid.Row="4"
                                             Content="Private"
+                                            IsChecked="{Binding IsPrivateSelected, UpdateSourceTrigger=PropertyChanged}"
                                             Style="{StaticResource DefaultRadioButton}" />
                                     </Grid>
-                                    <Grid Grid.Row="2">
+                                    <Grid
+                                        x:Name="EncryptionSection"
+                                        Grid.Row="2"
+                                        IsEnabled="{Binding EncryptionSection}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
                                             <RowDefinition Height="12" />
@@ -108,16 +113,19 @@
                                         <RadioButton
                                             Grid.Row="2"
                                             Content="Code"
+                                            IsChecked="{Binding IsCodeSelected, UpdateSourceTrigger=PropertyChanged}"
                                             Style="{StaticResource DefaultRadioButton}" />
                                         <RadioButton
                                             Grid.Row="4"
-                                            Content="SecretWord"
+                                            Content="Secret Word"
+                                            IsChecked="{Binding IsWordSelected, UpdateSourceTrigger=PropertyChanged}"
                                             Style="{StaticResource DefaultRadioButton}" />
                                         <TextBox
                                             Grid.Row="6"
                                             VerticalAlignment="Center"
                                             Style="{StaticResource DefaultTextbox}"
-                                            Tag="Type Here" />
+                                            Tag="Type Here"
+                                            Text="{Binding EncryptionInput, UpdateSourceTrigger=PropertyChanged}" />
                                     </Grid>
                                 </Grid>
                             </Border>
@@ -136,16 +144,20 @@
                                         Text="Expiration" />
                                     <CheckBox
                                         Grid.Row="2"
-                                        Content="Public"
+                                        Content="Enable"
+                                        IsChecked="{Binding IsExpirationEnabled}"
                                         Style="{StaticResource DefaultCheckBox}" />
-                                    <Grid Grid.Row="4">
+                                    <Grid Grid.Row="4" IsEnabled="{Binding ExpirationPicker, UpdateSourceTrigger=PropertyChanged}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="auto" />
                                             <RowDefinition Height="16" />
                                             <RowDefinition Height="auto" />
                                         </Grid.RowDefinitions>
                                         <TextBlock Grid.Row="0" Text="Available Before" />
-                                        <DatePicker Style="{StaticResource DefaultDatePicker}" />
+                                        <DatePicker
+                                            Grid.Row="2"
+                                            SelectedDate="{Binding SelectedDate}"
+                                            Style="{StaticResource DefaultDatePicker}" />
                                     </Grid>
                                 </Grid>
                             </Border>
@@ -163,20 +175,50 @@
                     <TextBox
                         Grid.Row="0"
                         Style="{StaticResource DefaultTextbox}"
-                        Tag="Name" />
+                        Tag="Name"
+                        Text="{Binding NameInput, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBox
                         Grid.Row="2"
                         MinHeight="200"
                         Style="{StaticResource DefaultTextbox}"
                         Tag="Description"
+                        Text="{Binding DescriptionInput, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap" />
-                    <Grid Grid.Row="4">
+                    <StackPanel Grid.Row="4">
                         <Button
                             HorizontalAlignment="Stretch"
-                            Command="{Binding AccessFilesCommand}"
+                            Command="{Binding AddFileCommand}"
                             Content="Add File"
-                            Style="{StaticResource DefaultButton}" />
-                    </Grid>
+                            Style="{StaticResource DefaultButton}"
+                            Visibility="{Binding AddFileButtonVisibility, UpdateSourceTrigger=PropertyChanged}" />
+                        <Grid HorizontalAlignment="Stretch" Visibility="{Binding AddedFileVisibility, UpdateSourceTrigger=PropertyChanged}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Column="0" Source="/Components/Images/file.png" />
+                            <TextBlock
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyText}"
+                                Text="{Binding FileName}" />
+                            <TextBlock
+                                Grid.Column="4"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyText}"
+                                Text="{Binding FileSize}" />
+                            <Button
+                                Grid.Column="6"
+                                Command="{Binding RemoveFileCommand}"
+                                Content="Remove"
+                                Style="{StaticResource DefaultButton}" />
+                        </Grid>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Border>

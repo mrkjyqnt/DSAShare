@@ -14,7 +14,7 @@ Public Class HomeViewModel
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -88,7 +88,7 @@ Public Class HomeViewModel
             SetProperty(_accessedText, accessedCount, "AccessedText")
 
         Catch ex As Exception
-            PopUp.Information("Error", "Theres an error fetching the File Counts")
+            PopUp.Information("Error", ex.Message)
         Finally
             Loading.Hide
         End Try

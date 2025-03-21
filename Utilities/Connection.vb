@@ -5,7 +5,7 @@ Imports System.Data
 ''' Connection class for database operations.
 ''' </summary>
 Public Class Connection
-    Public Connect As New SqlConnection("Data Source=192.168.8.10\SQLEXPRESS;Initial Catalog=dsa_share_database;User ID=member;Password=member;Trust Server Certificate=True") ' Connection injection
+    Public Connect As New SqlConnection("Data Source=192.168.8.10\SQLEXPRESS;Initial Catalog=dsa_share_database;User ID=member;Password=member;Trust Server Certificate=True")
     Public Command As New SqlCommand
     Public CommandString As String
     Public Parameters As New List(Of SqlParameter)
