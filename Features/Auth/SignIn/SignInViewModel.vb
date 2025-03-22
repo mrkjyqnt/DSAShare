@@ -57,19 +57,24 @@ Public Partial Class SignInViewModel
     End Sub
 
     Private Async Function OnSignInAsync() As Task
-
         If String.IsNullOrEmpty(Username) OrElse String.IsNullOrEmpty(Password) Then
-             PopUp.Information("Failed", "Please fill the Username and Password")
+            PopUp.Information("Failed", "Please fill the Username and Password")
             Return
         End If
 
         Try
             Loading.Show()
 
-            If Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True) Then
+            Dim isAuthenticated = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True)
+
+            If isAuthenticated Then
                 PopUp.Information("Success", "Login Success")
 
-                _regionManager.RequestNavigate("MainRegion", "DashboardView")
+                Try
+                    _regionManager.RequestNavigate("MainRegion", "DashboardView")
+                Catch ex As Exception
+                    PopUp.Information("Navigation Error", ex.Message)
+                End Try
             Else
                 PopUp.Information("Failed", "Invalid credentials.")
             End If

@@ -8,6 +8,7 @@ Public Class ShareFilesViewModel
     Implements IRegionMemberLifetime
 
     Private ReadOnly _regionManager As IRegionManager
+    Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _fileInfoService As IFileInfoService
     Private ReadOnly _fileUploadService As IFileUploadService
     Private ReadOnly _sessionManager As ISessionManager
@@ -153,6 +154,7 @@ Public Class ShareFilesViewModel
         Set(value As Boolean)
             If value Then
                 ExpirationPicker = True
+                SelectedDate = Nothing
             Else
                 ExpirationPicker = False
             End If
@@ -221,10 +223,12 @@ Public Class ShareFilesViewModel
     End Property
 
     Public Sub New(regionManager As IRegionManager, 
+                   navigationService As INavigationService,
                    fileInfoService As IFileInfoService, 
                    fileUploadService As IFileUploadService,
                    sessionManager As ISessionManager)
         _regionManager = regionManager
+        _navigationService = navigationService
         _fileInfoService = fileInfoService
         _fileUploadService = fileUploadService
         _sessionManager = sessionManager
@@ -249,23 +253,30 @@ Public Class ShareFilesViewModel
         Try
             Loading.Show()
 
-            If NameInput Is Nothing Then
+            If NameInput = "" OrElse NameInput Is Nothing Then
                 PopUp.Information("Failed", "Please add a name")
                 Return
             End If
 
-            If DescriptionInput Is Nothing Then
+            If DescriptionInput = "" OrElse DescriptionInput Is Nothing Then
                 PopUp.Information("Failed", "Please add a description")
                 Return
             End If
 
-            If FilePath Is Nothing Then
+            If FilePath = "" OrElse FilePath Is Nothing Then
                 PopUp.Information("Failed", "Please add a file")
                 Return
             End If
 
             If Privacy = "Private" Then
-                If EncryptionInput Is Nothing Then
+                If EncryptionInput = "" OrElse EncryptionInput Is Nothing Then
+                    PopUp.Information("Failed", "Please add an encryption")
+                    Return
+                End If
+            End If
+
+            If IsExpirationEnabled Then
+                If SelectedDate Is Nothing Then
                     PopUp.Information("Failed", "Please add an encryption")
                     Return
                 End If
@@ -273,7 +284,8 @@ Public Class ShareFilesViewModel
 
             Dim file = New FilesShared With {
                 .Name = If(NameInput, ""),
-                .FileName = FileName & "." & _fileInfoService.Type,
+                .FileName = If(FileName, ""),
+                .FileDescription = DescriptionInput,
                 .FilePath = If(FilePath, ""),
                 .FileSize = If(FileSize, ""),
                 .FileType = If(_fileInfoService.Type, ""),
@@ -306,7 +318,7 @@ Public Class ShareFilesViewModel
         End Try
     End Function
     Private Sub OnBack()
-
+        _navigationService.GoBack()
     End Sub
 
     Private Sub OnAddFile()

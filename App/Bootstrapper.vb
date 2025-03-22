@@ -29,27 +29,22 @@ Public Class Bootstrapper
         containerRegistry.RegisterSingleton(Of IRegionManager, RegionManager)()
         containerRegistry.RegisterSingleton(Of IEventAggregator, EventAggregator)()
 
-
         ' SHARED '
         ' Register the SessionManager
-        containerRegistry.Register(Of ISessionManager, SessionManager)()
-        containerRegistry.RegisterSingleton(Of SessionManager)()
+        containerRegistry.RegisterSingleton(Of ISessionManager, SessionManager)()
 
         ' Register the Navigation
-        containerRegistry.Register(Of INavigationService, NavigationService)()
-        containerRegistry.RegisterSingleton(Of NavigationService)
+        containerRegistry.RegisterSingleton(Of INavigationService, NavigationService)()
+        containerRegistry.RegisterSingleton(Of INavigationHistoryService, NavigationHistoryService)()
 
         ' Register the Fallback 
-        containerRegistry.Register(Of IFallbackService, FallbackService)()
-        containerRegistry.RegisterSingleton(Of FallbackService)()
+        containerRegistry.RegisterSingleton(Of IFallbackService, FallbackService)()
 
         ' Register the PopUp
-        containerRegistry.Register(Of IPopupService, PopupService)
-        containerRegistry.RegisterSingleton(Of PopupService)
+        containerRegistry.RegisterSingleton(Of IPopupService, PopupService)
 
         ' Register the Loading
-        containerRegistry.Register(Of ILoadingService, LoadingService)
-        containerRegistry.RegisterSingleton(Of LoadingService)
+        containerRegistry.RegisterSingleton(Of ILoadingService, LoadingService)
 
         ' Register the Fallback View
         containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
@@ -61,8 +56,8 @@ Public Class Bootstrapper
 
         ' AUTHENTICATION '
         ' Register the Authentication Services
-        containerRegistry.Register(Of IAuthenticationService, AuthenticationService)()
-        containerRegistry.Register(Of IRegistrationService, RegistrationService)()
+        containerRegistry.RegisterSingleton(Of IAuthenticationService, AuthenticationService)()
+        containerRegistry.RegisterSingleton(Of IRegistrationService, RegistrationService)()
         containerRegistry.RegisterForNavigation(Of AuthenticationView)("AuthenticationView")
 
         ' Register the Authentication Pages
@@ -78,14 +73,10 @@ Public Class Bootstrapper
         containerRegistry.Register(Of NavigationViewModel)()
 
         ' Register the Dashboard Services
-        containerRegistry.Register(Of IFileDataService, FileDataService)
-        containerRegistry.Register(Of IFileDownloadService, FileDownloadService)
-        containerRegistry.Register(Of IFileUploadService, FileUploadService)
-        containerRegistry.Register(Of IFileInfoService, FileInfoService)
-        containerRegistry.RegisterSingleton(Of FileDataService)
-        containerRegistry.RegisterSingleton(Of FileDownloadService)
-        containerRegistry.RegisterSingleton(Of FileUploadService)
-        containerRegistry.RegisterSingleton(Of FileInfoService)
+        containerRegistry.RegisterSingleton(Of IFileDataService, FileDataService)()
+        containerRegistry.RegisterSingleton(Of IFileDownloadService, FileDownloadService)
+        containerRegistry.RegisterSingleton(Of IFileUploadService, FileUploadService)
+        containerRegistry.RegisterSingleton(Of IFileInfoService, FileInfoService)
 
         ' Register the Dashboard Pages
         containerRegistry.RegisterForNavigation(Of HomeView)("HomeView")

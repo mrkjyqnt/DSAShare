@@ -7,7 +7,7 @@ Public Class NavigationViewModel
     Inherits BindableBase
 
     Private ReadOnly _regionManager As IRegionManager
-    Private ReadOnly _navigationService As NavigationService
+    Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _eventAggregator As IEventAggregator
     Private _menuItems As List(Of NavigationItemModel)
     Private _lastMenuItem As NavigationItemModel
@@ -43,7 +43,7 @@ Public Class NavigationViewModel
         End Set
     End Property
 
-    Public Sub New(regionManager As IRegionManager, menuNavigationService As NavigationService, eventAggregator As IEventAggregator)
+    Public Sub New(regionManager As IRegionManager, menuNavigationService As INavigationService, eventAggregator As IEventAggregator)
         _regionManager = regionManager
         _navigationService = menuNavigationService
         _eventAggregator = eventAggregator
@@ -51,17 +51,23 @@ Public Class NavigationViewModel
         ' Initialize the navigation command
         NavSelectionCommand = New DelegateCommand(Of NavigationItemModel)(AddressOf OnNavigationSelection)
 
-        ' Load the menu items based on the user's role
-        MenuItems = _navigationService.GetNavigationItems()
-        LastMenuItem = _navigationService.GetLastNavigationItem()
-
-        ' Select the first menu item by default
-        If MenuItems IsNot Nothing AndAlso MenuItems.Count > 0 Then
-            MenuItems(0).IsSelected = True
-        End If
+        Load()
 
         ' Subscribe to the NavigationSelectionEvent
         _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Subscribe(AddressOf SetSelection)
+    End Sub
+
+    Private Async Sub Load()
+        Try
+            Await Task.Run(Sub() MenuItems = _navigationService.GetNavigationItems()).ConfigureAwait(False)
+            Await Task.Run(Sub() LastMenuItem = _navigationService.GetLastNavigationItem()).ConfigureAwait(False)
+
+            If MenuItems IsNot Nothing AndAlso MenuItems.Count > 0 Then
+                MenuItems(0).IsSelected = True
+            End If
+        Catch ex As Exception
+            Debug.WriteLine(ex.Message)
+        End Try
     End Sub
 
     Private Sub OnNavigationSelection(selectedItem As NavigationItemModel)

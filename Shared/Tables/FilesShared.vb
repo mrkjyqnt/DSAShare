@@ -8,6 +8,7 @@ Public Class FilesShared
     Public Property Id As Integer? = Nothing
     Public Property Name As String
     Public Property FileName As String
+    Public Property FileDescription As String
     Public Property FilePath As String
     Public Property FileSize As String
     Public Property FileType As String
