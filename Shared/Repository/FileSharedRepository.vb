@@ -115,6 +115,7 @@ Public Class FileSharedRepository
                 .Id = _connection.DataRow("id"),
                 .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
+                .FileDescription = _connection.DataRow("file_description").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
                 .FileSize = _connection.DataRow("file_size").ToString(),
                 .FileType = _connection.DataRow("file_type").ToString(),
@@ -160,6 +161,7 @@ Public Class FileSharedRepository
                 .Id = _connection.DataRow("id"),
                 .Name = _connection.DataRow("name").ToString(),
                 .FileName = _connection.DataRow("file_name").ToString(),
+                .FileDescription = _connection.DataRow("file_description").ToString(),
                 .FilePath = _connection.DataRow("file_path").ToString(),
                 .FileSize = _connection.DataRow("file_size").ToString(),
                 .FileType = _connection.DataRow("file_type").ToString(),
@@ -186,10 +188,11 @@ Public Class FileSharedRepository
     ''' </summary>
     ''' <param name="filesShared">The FilesShared object containing file data.</param>
     Public Function Insert(filesShared As FilesShared) As Boolean
-        _connection.Prepare("INSERT INTO files_shared (name, file_name, file_path, file_size, file_type, uploaded_by, share_type, share_value, expiry_date, privacy, download_count, created_at, updated_at) " &
-                              "VALUES (@name, @file_name, @file_path, @file_size, @file_type, @uploaded_by, @share_type, @share_value, @expiry_date, @privacy, @download_count, @created_at, @updated_at)")
+        _connection.Prepare("INSERT INTO files_shared (name, file_name, file_description, file_path, file_size, file_type, uploaded_by, share_type, share_value, expiry_date, privacy, download_count, created_at, updated_at) " &
+                              "VALUES (@name, @file_name, @file_description, @file_path, @file_size, @file_type, @uploaded_by, @share_type, @share_value, @expiry_date, @privacy, @download_count, @created_at, @updated_at)")
         _connection.AddParam("@name", filesShared.Name)
         _connection.AddParam("@file_name", filesShared.FileName)
+        _connection.AddParam("@file_description", filesShared.FileDescription)
         _connection.AddParam("@file_path", filesShared.FilePath)
         _connection.AddParam("@file_size", filesShared.FileSize)
         _connection.AddParam("@file_type", filesShared.FileType)
@@ -241,6 +244,7 @@ Public Class FileSharedRepository
         _connection.Prepare("UPDATE files_shared 
                             SET name = @name
                                 file_name = @file_name, 
+                                file_description = @file_description, 
                                 file_path = @file_path, 
                                 file_size = @file_size, 
                                 file_type = @file_type, 
@@ -255,6 +259,7 @@ Public Class FileSharedRepository
                             WHERE id = @file_id")
         _connection.AddParam("@name", filesShared.Name)
         _connection.AddParam("@file_name", filesShared.FileName)
+        _connection.AddParam("@file_description", filesShared.FileDescription)
         _connection.AddParam("@file_path", filesShared.FilePath)
         _connection.AddParam("@file_size", filesShared.FileSize)
         _connection.AddParam("@file_type", filesShared.FileType)

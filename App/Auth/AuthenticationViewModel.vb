@@ -10,7 +10,7 @@ Public Class AuthenticationViewModel
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
-            Throw New NotImplementedException()
+            Return False
         End Get
     End Property
 

@@ -1,30 +1,30 @@
-﻿Imports System.ComponentModel
-Imports Prism.Commands
-Imports Prism.Mvvm
+﻿Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
-''' <summary>
-''' ViewModel for the Dashboard.
-''' </summary>
 Public Class DashboardViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
     Private ReadOnly _regionManager As IRegionManager
+    Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _sessionManager As ISessionManager
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
-            Throw New NotImplementedException()
+            Return False
         End Get
     End Property
 
-    Public Sub New(regionManager As IRegionManager, sessionManager As ISessionManager)
-
+    Public Sub New(regionManager As IRegionManager, navigationService As INavigationService, sessionManager As ISessionManager)
         _regionManager = regionManager
-        _sessionManager = sessionManager
-
-        _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
-        _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
+        _navigationService = navigationService
+        _sessionManager = sessionManager   
+        Try
+            _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
+            _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
+            _navigationService.Start("PageRegion", "HomeView", "Home")
+        Catch ex As Exception
+            Debug.WriteLine($"[ERROR] Theres an error occured: {ex.Message}")
+        End Try
     End Sub
 End Class

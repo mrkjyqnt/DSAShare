@@ -29,7 +29,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
                     <TextBlock
-                        Style="{StaticResource Logo}"
+                        Style="{StaticResource LogoText}"
                         Text="Register"
                         TextAlignment="Center" />
                     <TextBlock

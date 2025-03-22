@@ -16,7 +16,7 @@ Public Class FileDataService
             Return PublicFilesCount
         End Get
         Set(value As Integer)
-            PublicFilesCount = Value
+            PublicFilesCount = value
         End Set
     End Property
 
@@ -25,7 +25,7 @@ Public Class FileDataService
             Return SharedFilesCount
         End Get
         Set(value As Integer)
-            SharedFilesCount = Value
+            SharedFilesCount = value
         End Set
     End Property
 
@@ -34,7 +34,7 @@ Public Class FileDataService
             Return AccessedFilesCount
         End Get
         Set(value As Integer)
-            AccessedFilesCount = Value
+            AccessedFilesCount = value
         End Set
     End Property
 
@@ -45,29 +45,62 @@ Public Class FileDataService
     End Sub
 
     Public Sub GetAllCount() Implements IFileDataService.GetAllCount
-        PublicFilesCount = GetPublicFiles().Count
-        SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser).Count
-        AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser).Count
+        Try
+            PublicFilesCount = GetPublicFiles().Count
+            SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser).Count
+            AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser).Count
+        Catch ex As Exception
+            PublicFilesCount = 0
+            SharedFilesCount = 0
+            AccessedFilesCount = 0
+        End Try
     End Sub
 
     Public Function GetPublicFiles() As List(Of FilesShared) Implements IFileDataService.GetPublicFiles
-        Dim _fileShared = New FilesShared With {
-            .Privacy = "Public"}
-        
-        Return _fileSharedRepository.GetByPrivacy(_fileShared)
+        Try
+            Dim _fileShared = New FilesShared With {
+                .Privacy = "Public"
+            }
+            Return _fileSharedRepository.GetByPrivacy(_fileShared)
+        Catch ex As Exception
+            PopUp.Information("Error", "Failed to retrieve public files. " & ex.Message)
+            Return New List(Of FilesShared)() ' Return empty list instead of Nothing
+        End Try
     End Function
 
     Public Function GetSharedFiles(users As Users) As List(Of FilesShared) Implements IFileDataService.GetSharedFiles
-        Dim _fileShared = New FilesShared With {
-            .UploadedBy = users.Id}
-        
-        Return _fileSharedRepository.GetByUploader(_fileShared)
+        Try
+            If users Is Nothing Then
+                PopUp.Information("Error", "User information is missing.")
+                Return New List(Of FilesShared)()
+            End If
+
+            Dim _fileShared = New FilesShared With {
+                .UploadedBy = users.Id
+            }
+
+            Return _fileSharedRepository.GetByUploader(_fileShared)
+        Catch ex As Exception
+            PopUp.Information("Error", "Failed to retrieve shared files. " & ex.Message)
+            Return New List(Of FilesShared)()
+        End Try
     End Function
 
     Public Function GetAccessedFiles(users As Users) As List(Of FilesAccessed) Implements IFileDataService.GetAccessedFiles
-        Dim usersAccessed = New FilesAccessed With {
-            .UserId = users.Id}
-        
-        Return _fileAccessedRepository.GetByUserId(usersAccessed)
+        Try
+            If users Is Nothing Then
+                PopUp.Information("Error", "User information is missing.")
+                Return New List(Of FilesAccessed)()
+            End If
+
+            Dim usersAccessed = New FilesAccessed With {
+                .UserId = users.Id
+            }
+
+            Return _fileAccessedRepository.GetByUserId(usersAccessed)
+        Catch ex As Exception
+            PopUp.Information("Error", "Failed to retrieve accessed files. " & ex.Message)
+            Return New List(Of FilesAccessed)()
+        End Try
     End Function
 End Class

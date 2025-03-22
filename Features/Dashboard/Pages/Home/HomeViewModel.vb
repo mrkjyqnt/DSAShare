@@ -1,4 +1,5 @@
-﻿Imports Prism.Commands
+﻿Imports System.Windows.Threading
+Imports Prism.Commands
 Imports Prism.Events
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
@@ -7,8 +8,6 @@ Public Class HomeViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
-    Private ReadOnly _sessionManager As ISessionManager
-    Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _navigationService As INavigationService
 
@@ -44,7 +43,7 @@ Public Class HomeViewModel
             Return _accessedText
         End Get
         Set(value As String)
-            SetProperty(_accessedText, value)
+             SetProperty(_accessedText, value)
         End Set
     End Property
 
@@ -57,36 +56,31 @@ Public Class HomeViewModel
     ''' <param name="sessionManager"></param>
     ''' <param name="regionManager"></param>
     ''' <param name="fileDataService"></param>
-    Public Sub New(sessionManager As ISessionManager, 
-                   regionManager As IRegionManager, 
-                   fileDataService As IFileDataService, 
+    Public Sub New(fileDataService As IFileDataService, 
                    navigationService As INavigationService)
 
-        _sessionManager = sessionManager
-        _regionManager = regionManager
         _fileDataService = fileDataService
         _navigationService = navigationService
 
         ShareFilesCommand = New DelegateCommand(AddressOf OnShareFilesCommand)
         AccessFilesCommand = New DelegateCommand(AddressOf OnAccessFilesCommand)
 
+        _publicText = "0"
+        _accessedText = "0"
+        _sharedText = "0"
+
         Load()
     End Sub
 
     Private Async Sub Load()
         Try
-            Loading.Show()
+            Loading.Show
 
             Await Task.Run(Sub() _fileDataService.GetAllCount()).ConfigureAwait(True)
 
-            Dim publicCount = Await Task.Run(Function() _fileDataService.PublicFilesCount.ToString).ConfigureAwait(True)
-            Dim sharedCount = Await Task.Run(Function() _fileDataService.SharedFilesCount.ToString).ConfigureAwait(True)
-            Dim accessedCount = Await Task.Run(Function() _fileDataService.AccessedFilesCount.ToString).ConfigureAwait(True)
-
-            SetProperty(_publicText, publicCount, "PublicText")
-            SetProperty(_sharedText, sharedCount, "SharedText")
-            SetProperty(_accessedText, accessedCount, "AccessedText")
-
+            PublicText = _fileDataService.PublicFilesCount.ToString()
+            SharedText = _fileDataService.SharedFilesCount.ToString()
+            AccessedText = _fileDataService.AccessedFilesCount.ToString()
         Catch ex As Exception
             PopUp.Information("Error", ex.Message)
         Finally
@@ -95,12 +89,11 @@ Public Class HomeViewModel
     End Sub
 
     Private Sub OnShareFilesCommand()
-        _navigationService.SetNavigation("Shared Files")
-        _regionManager.RequestNavigate("PageRegion", "ShareFilesView")
+        _navigationService.Go("PageRegion", "ShareFilesView", "Shared Files")
     End Sub
 
     Private Sub OnAccessFilesCommand()
-        _navigationService.SetNavigation("Accessed Files")
+        _navigationService.Go("PageRegion", "AccessFilesView", "Accessed Files")
     End Sub
 
 End Class
