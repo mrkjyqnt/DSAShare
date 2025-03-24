@@ -55,7 +55,7 @@ Public Class FileSharedRepository
     Public Function GetByPrivacy(fileShared As FilesShared) As List(Of FilesShared)
         Dim filesList As New List(Of FilesShared)()
 
-        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy AND uploaded_by = @uploaded_by")
+        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy")
         _connection.AddParam("@privacy", fileShared.Privacy)
         _connection.AddParam("@uploaded_by", fileShared.UploadedBy)
         _connection.Execute()

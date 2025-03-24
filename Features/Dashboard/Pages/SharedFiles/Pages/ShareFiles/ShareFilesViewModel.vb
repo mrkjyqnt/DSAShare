@@ -307,7 +307,7 @@ Public Class ShareFilesViewModel
 
             If Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True) Then
                 PopUp.Information("Success", "File has been uploaded to server")
-                _regionManager.RequestNavigate("PageRegion", "SharedFilesView")
+                _navigationService.GoBack()
             End If
 
         Catch ex As Exception
@@ -322,33 +322,35 @@ Public Class ShareFilesViewModel
     End Sub
 
     Private Sub OnAddFile()
-        Loading.Show()
+        Try
+            Loading.Show()
 
-        Dim openFileDialog As New Microsoft.Win32.OpenFileDialog()
+            Dim openFileDialog As New Microsoft.Win32.OpenFileDialog()
 
-        openFileDialog.Filter = "All Files (*.*)|*.*"
-        openFileDialog.DefaultExt = ".*"
+            openFileDialog.Filter = "All Files (*.*)|*.*"
+            openFileDialog.DefaultExt = ".*"
 
-        Dim result As Boolean = openFileDialog.ShowDialog()
+            Dim result As Boolean = openFileDialog.ShowDialog()
 
-        If result Then
-            _filePath = openFileDialog.FileName
+            If result Then
+                _filePath = openFileDialog.FileName
 
-            FilePath = _filePath
-            _fileInfoService.Extract(FilePath)
+                FilePath = _filePath
+                _fileInfoService.Extract(FilePath)
 
-            FileName = _fileInfoService.Name
-            FileSize = _fileInfoService.Size
-            Loading.Hide()
-        Else
-            PopUp.Information("Failed", "No file was selected")
-            Loading.Hide()
-            Return
-        End If
+                FileName = _fileInfoService.Name
+                FileSize = _fileInfoService.Size
+            Else
+                PopUp.Information("Failed", "No file was selected")
+                Return
+            End If
 
-        AddFileButtonVisibility = Visibility.Collapsed
-        AddedFileVisibility = Visibility.Visible
-
+            AddFileButtonVisibility = Visibility.Collapsed
+            AddedFileVisibility = Visibility.Visible
+        Catch ex As Exception
+        Finally
+            Loading.Hide
+        End Try
     End Sub
 
     Private Sub OnRemoveFile()
