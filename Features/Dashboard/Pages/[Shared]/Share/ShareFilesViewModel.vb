@@ -10,8 +10,10 @@ Public Class ShareFilesViewModel
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _fileInfoService As IFileInfoService
+    Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _fileUploadService As IFileUploadService
     Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _activityService As IActivityService
 
     Private _encryptionInput As String
     Private _nameInput As String
@@ -147,7 +149,7 @@ Public Class ShareFilesViewModel
         End Set
     End Property
 
-    Public Property IsExpirationEnabled As Boolean 
+    Public Property IsExpirationEnabled As Boolean
         Get
             Return _isExpirationEnabled
         End Get
@@ -222,16 +224,20 @@ Public Class ShareFilesViewModel
         End Get
     End Property
 
-    Public Sub New(regionManager As IRegionManager, 
+    Public Sub New(regionManager As IRegionManager,
                    navigationService As INavigationService,
-                   fileInfoService As IFileInfoService, 
+                   fileInfoService As IFileInfoService,
+                   fileDataService As IFileDataService,
                    fileUploadService As IFileUploadService,
-                   sessionManager As ISessionManager)
+                   ActivityService As IActivityService,
+                   SessionManager As ISessionManager)
         _regionManager = regionManager
         _navigationService = navigationService
         _fileInfoService = fileInfoService
         _fileUploadService = fileUploadService
-        _sessionManager = sessionManager
+        _activityService = ActivityService
+        _sessionManager = SessionManager
+        _fileDataService = fileDataService
 
         SelectedOption = "Code"
         EncryptionInput = ""
@@ -307,12 +313,30 @@ Public Class ShareFilesViewModel
 
             If Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True) Then
                 PopUp.Information("Success", "File has been uploaded to server")
+            Else
+                PopUp.Information("Failed", $"{file.FileName}{file.FileType} uploaded already")
+                Return
+            End If
+
+            file.Id = Await Task.Run(Function() _fileDataService.GetSharedFileInfo(file)?.Id).ConfigureAwait(True)
+
+            PopUp.Information("Error", file.Id.ToString)
+
+            Dim activity = New Activities With {
+                .Action = "Shared a file",
+                .ActionIn = "Shared Files",
+                .ActionAt = Date.Now,
+                .FileId = file.Id,
+                .UserId = _sessionManager.CurrentUser.Id
+            }
+
+            If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then
                 _navigationService.GoBack()
             End If
 
         Catch ex As Exception
-            Debug.WriteLine($"Error uploading file: {ex.Message}")
-            Debug.WriteLine($"Stack Trace: {ex.StackTrace}")
+            Debug.WriteLine($"[DEBUG] Error uploading file: {ex.Message}")
+            Debug.WriteLine($"[DEBUG] Stack Trace: {ex.StackTrace}")
         Finally
             Loading.Hide()
         End Try
@@ -349,7 +373,7 @@ Public Class ShareFilesViewModel
             AddedFileVisibility = Visibility.Visible
         Catch ex As Exception
         Finally
-            Loading.Hide
+            Loading.Hide()
         End Try
     End Sub
 

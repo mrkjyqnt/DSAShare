@@ -39,4 +39,24 @@ Module Tools
 
         Return String.Format("{0:0.##} {1}", len, sizes(order))
     End Function
+
+    ''' <summary>
+    ''' Check if a list is null or empty
+    ''' </summary>
+    ''' <typeparam name="T"></typeparam>
+    ''' <param name="list"></param>
+    ''' <returns></returns>
+    Public Function IsNullOrEmpty(Of T)(list As IEnumerable(Of T)) As Boolean
+        Return list Is Nothing OrElse Not list.Any()
+    End Function
+
+    ''' <summary>
+    ''' Check if a string is null or empty
+    ''' </summary>
+    ''' <param name="value"></param>
+    ''' <returns></returns>
+    Public Function IsNullOrEmpty(value As String) As Boolean
+        Return String.IsNullOrEmpty(value)
+    End Function
+
 End Module

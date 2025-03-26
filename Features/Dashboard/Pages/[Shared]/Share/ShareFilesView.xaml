@@ -204,11 +204,14 @@
                             <Image Grid.Column="0" Source="/Components/Images/file.png" />
                             <TextBlock
                                 Grid.Column="2"
+                                MaxWidth="200"
                                 VerticalAlignment="Center"
                                 Style="{StaticResource BodyText}"
-                                Text="{Binding FileName}" />
+                                Text="{Binding FileName}"
+                                TextTrimming="CharacterEllipsis" />
                             <TextBlock
                                 Grid.Column="4"
+                                Width="Auto"
                                 VerticalAlignment="Center"
                                 Style="{StaticResource BodyText}"
                                 Text="{Binding FileSize}" />

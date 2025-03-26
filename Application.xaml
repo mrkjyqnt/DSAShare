@@ -18,6 +18,8 @@
                 <ResourceDictionary Source="/Components/UI/BorderStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/CalendarPickerStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/GridStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/DataGridStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/ToggleButtonStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -51,6 +51,7 @@ Public Class FileUploadService
             ' Insert file details into the database
             Return _fileSharedRepository.Insert(_filesShared)
         Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] an error happen: {ex.Message} ")
             Return False
         Finally
             ' Disconnect from the network share

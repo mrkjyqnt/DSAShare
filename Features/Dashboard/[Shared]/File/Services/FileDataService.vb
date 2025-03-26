@@ -97,10 +97,29 @@ Public Class FileDataService
                 .UserId = users.Id
             }
 
-            Return _fileAccessedRepository.GetByUserId(usersAccessed)
+            Return New List(Of FilesAccessed)()
         Catch ex As Exception
             PopUp.Information("Error", "Failed to retrieve accessed files. " & ex.Message)
             Return New List(Of FilesAccessed)()
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Get the shared file information.
+    ''' </summary>
+    ''' <param name="filesShared"></param>
+    ''' <returns></returns>
+    Public Function GetSharedFileInfo(filesShared As FilesShared) As FilesShared Implements IFileDataService.GetSharedFileInfo
+        Try
+            If filesShared Is Nothing Then
+                Debug.WriteLine("[DEBUG] User information is missing.")
+                Return Nothing
+            End If
+
+            Return _fileSharedRepository.GetByExact(filesShared)
+        Catch ex As Exception
+            Debug.WriteLine("[DEBUG] User information is missing.")
+            Return Nothing
         End Try
     End Function
 End Class

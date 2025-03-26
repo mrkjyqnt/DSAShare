@@ -15,7 +15,15 @@
             <ColumnDefinition Width="334" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <ContentControl Grid.Column="0" prism:RegionManager.RegionName="NavigationRegion" />
-        <ContentControl Grid.Column="1" prism:RegionManager.RegionName="PageRegion" />
+        <ContentControl
+            Grid.Column="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            prism:RegionManager.RegionName="NavigationRegion" />
+        <ContentControl
+            Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            prism:RegionManager.RegionName="PageRegion" />
     </Grid>
 </UserControl>

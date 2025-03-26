@@ -8,14 +8,44 @@ Public Class FileAccessedRepository
     End Sub
 
     ''' <summary>
-    ''' Get datas by User ID
+    ''' Get one access file by file ID
     ''' </summary>
     ''' <param name="filesAccessed"></param>
     ''' <returns></returns>
-    Public Function GetByUserId(filesAccessed As FilesAccessed) As List(Of FilesAccessed)
+    Public Function GetByFileId(filesAccessed As FilesAccessed) As FilesAccessed
         Dim accessList As New List(Of FilesAccessed)()
 
-        _connection.Prepare("SELECT * FROM files_accessed WHERE user_id = @user_id")
+        _connection.Prepare("SELECT * FROM files_accessed WHERE file_id = @file_id ORDER BY id DESC")
+        _connection.AddParam("@file_id", filesAccessed.FileId)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return Nothing
+        End If
+
+        If _connection.HasRecord
+            Return New FilesAccessed() With {
+            .Id = _connection.DataRow("id"),
+            .UserId = _connection.DataRow("user_id"),
+            .FileId = _connection.DataRow("file_id"),
+            .AccessType = _connection.DataRow("access_type").ToString(),
+            .AccessedAt = _connection.DataRow("accessed_at")
+        }
+        End If
+
+        Return Nothing
+    End Function
+
+    ''' <summary>
+    ''' Get all access files by User ID
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
+    Public Function GetAllByUserId(filesAccessed As FilesAccessed) As List(Of FilesAccessed)
+        Dim accessList As New List(Of FilesAccessed)()
+
+        _connection.Prepare("SELECT * FROM files_accessed WHERE user_id = @user_id ORDER BY id DESC")
         _connection.AddParam("@user_id", filesAccessed.UserId)
         _connection.Execute()
 
@@ -48,7 +78,7 @@ Public Class FileAccessedRepository
     Public Function Read() As List(Of FilesAccessed)
         Dim accessList As New List(Of FilesAccessed)()
 
-        _connection.Prepare("SELECT * FROM files_accessed")
+        _connection.Prepare("SELECT * FROM files_accessed ORDER BY id DESC")
         _connection.Execute()
 
         If _connection.HasError Then
