@@ -16,7 +16,7 @@ Public Class UsersRepository
     Public Function Auth(user As Users) As Boolean
         _connection.Prepare("SELECT * 
                             FROM users 
-                            WHERE username = @username AND password_hash = @password")
+                            WHERE username = @username AND password_hash = @password ORDER BY id DESC")
         _connection.AddParam("@username", user.Username)
         _connection.AddParam("@password", user.PasswordHash)
         _connection.Execute()
@@ -41,7 +41,7 @@ Public Class UsersRepository
     Public Function GetByUsername(user As Users) As Users
         _connection.Prepare("SELECT * 
                             FROM users 
-                            WHERE username = @username")
+                            WHERE username = @username ORDER BY id DESC")
         _connection.AddParam("@username", user.Username)
         _connection.Execute()
 
@@ -72,7 +72,7 @@ Public Class UsersRepository
     ''' <returns>A Users object if found; otherwise, Nothing.</returns>
     Public Function Read() As List(Of Users)
         Dim usersList As New List(Of Users)()
-        _connection.Prepare("SELECT * FROM users")
+        _connection.Prepare("SELECT * FROM users ORDER BY id DESC")
         _connection.Execute()
 
         If _connection.HasError Then
@@ -101,7 +101,7 @@ Public Class UsersRepository
     ''' <param name="user">The Users object containing user data.</param>
     Public Function Insert(user As Users) As Boolean
         ' Check if the username already exists
-        _connection.Prepare("SELECT * FROM users WHERE username = @username")
+        _connection.Prepare("SELECT * FROM users WHERE username = @username ORDER BY id DESC")
         _connection.AddParam("@username", user.Username)
         _connection.Execute()
 
@@ -134,7 +134,7 @@ Public Class UsersRepository
     ''' </summary>
     ''' <param name="user">The Users object containing updated user data.</param>
     Public Function Update(user As Users) As Boolean
-        _connection.Prepare("SELECT * FROM users WHERE username = @username")
+        _connection.Prepare("SELECT * FROM users WHERE username = @username ORDER BY id DESC")
         _connection.AddParam("@username", user.Username)
         _connection.Execute()
 

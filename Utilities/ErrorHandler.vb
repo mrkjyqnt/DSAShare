@@ -4,7 +4,7 @@
 
     Sub New()
         If ErrorMessage IsNot Nothing Then
-            Console.WriteLine(ErrorMessage)
+            Debug.WriteLine(ErrorMessage)
         End If
     End Sub
 
@@ -33,6 +33,8 @@
     Public Shared Sub SetError(message As String)
         _hasError = True
         _errorMessage = message
+
+        Debug.WriteLine(_errorMessage)
     End Sub
 
     ''' <summary>

@@ -7,7 +7,7 @@ Public Class NavigationViewModel
     Inherits BindableBase
 
     Private ReadOnly _regionManager As IRegionManager
-    Private ReadOnly _navigationService As INavigationService
+    Private ReadOnly _navigationListService As INavigationListService
     Private ReadOnly _eventAggregator As IEventAggregator
     Private _menuItems As List(Of NavigationItemModel)
     Private _lastMenuItem As NavigationItemModel
@@ -43,9 +43,9 @@ Public Class NavigationViewModel
         End Set
     End Property
 
-    Public Sub New(regionManager As IRegionManager, menuNavigationService As INavigationService, eventAggregator As IEventAggregator)
+    Public Sub New(regionManager As IRegionManager, navigationService As INavigationListService, eventAggregator As IEventAggregator)
         _regionManager = regionManager
-        _navigationService = menuNavigationService
+        _navigationListService = navigationService
         _eventAggregator = eventAggregator
 
         ' Initialize the navigation command
@@ -59,8 +59,8 @@ Public Class NavigationViewModel
 
     Private Async Sub Load()
         Try
-            Await Task.Run(Sub() MenuItems = _navigationService.GetNavigationItems()).ConfigureAwait(False)
-            Await Task.Run(Sub() LastMenuItem = _navigationService.GetLastNavigationItem()).ConfigureAwait(False)
+            Await Task.Run(Sub() MenuItems = _navigationListService.GetNavigationItems()).ConfigureAwait(False)
+            Await Task.Run(Sub() LastMenuItem = _navigationListService.GetLastNavigationItem()).ConfigureAwait(False)
 
             If MenuItems IsNot Nothing AndAlso MenuItems.Count > 0 Then
                 MenuItems(0).IsSelected = True

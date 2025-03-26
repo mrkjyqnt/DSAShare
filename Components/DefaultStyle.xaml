@@ -54,6 +54,6 @@
     <Thickness x:Key="Space-8">8</Thickness>
 
     <!--  Default Corner Redius Sizes  -->
-    <CornerRadius x:Key="FullRadius">1000</CornerRadius>
+    <CornerRadius x:Key="FullRadius">17</CornerRadius>
     <CornerRadius x:Key="SmallRadius">4</CornerRadius>
 </ResourceDictionary>

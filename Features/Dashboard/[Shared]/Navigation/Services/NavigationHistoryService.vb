@@ -1,10 +1,11 @@
-﻿Public Class NavigationHistoryService
+﻿Imports Prism.Navigation
+
+Public Class NavigationHistoryService
     Implements INavigationHistoryService
 
     Private ReadOnly ItemStack As New Stack(Of String)
     Private ReadOnly ViewStack As New Stack(Of String)
     Private ReadOnly RegionStack As New Stack(Of String)
-    Private _isInitialNavigation As Boolean = True
 
     Public Sub PushPage(Region As String, View As String, Item As String) Implements INavigationHistoryService.PushPage
         ItemStack.Push(Item)

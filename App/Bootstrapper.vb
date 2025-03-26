@@ -33,10 +33,6 @@ Public Class Bootstrapper
         ' Register the SessionManager
         containerRegistry.RegisterSingleton(Of ISessionManager, SessionManager)()
 
-        ' Register the Navigation
-        containerRegistry.RegisterSingleton(Of INavigationService, NavigationService)()
-        containerRegistry.RegisterSingleton(Of INavigationHistoryService, NavigationHistoryService)()
-
         ' Register the Fallback 
         containerRegistry.RegisterSingleton(Of IFallbackService, FallbackService)()
 
@@ -66,17 +62,30 @@ Public Class Bootstrapper
 
 
         ' DASHBOARD '
-        ' Register the Dashboard
-        containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
-        containerRegistry.RegisterForNavigation(Of NavigationView)("NavigationView")
-        containerRegistry.Register(Of DashboardViewModel)()
-        containerRegistry.Register(Of NavigationViewModel)()
+        ' Register the Navigation Services
+        containerRegistry.RegisterSingleton(Of INavigationService, NavigationService)()
+        containerRegistry.RegisterSingleton(Of INavigationHistoryService, NavigationHistoryService)()
 
-        ' Register the Dashboard Services
+        ' Register the File Services
         containerRegistry.RegisterSingleton(Of IFileDataService, FileDataService)()
         containerRegistry.RegisterSingleton(Of IFileDownloadService, FileDownloadService)
         containerRegistry.RegisterSingleton(Of IFileUploadService, FileUploadService)
         containerRegistry.RegisterSingleton(Of IFileInfoService, FileInfoService)
+        containerRegistry.RegisterSingleton(Of IActivityService, ActivityService)
+
+        containerRegistry.RegisterForNavigation(Of FileDetailsView)("FileDetailsView")
+        containerRegistry.Register(Of FileDetailsViewModel)()
+
+        ' Register the Dashboard
+        containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
+        containerRegistry.Register(Of DashboardViewModel)()
+
+
+        ' Register the Dashboard Navigation
+        containerRegistry.RegisterForNavigation(Of NavigationView)("NavigationView")
+        containerRegistry.Register(Of NavigationViewModel)()
+        containerRegistry.RegisterSingleton(Of INavigationListService, NavigationListService)()
+
 
         ' Register the Dashboard Pages
         containerRegistry.RegisterForNavigation(Of HomeView)("HomeView")
@@ -88,8 +97,8 @@ Public Class Bootstrapper
 
         containerRegistry.RegisterForNavigation(Of SharedFilesView)("SharedFilesView")
         'containerRegistry.Register(Of SharedFilesViewModel)()
-            containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
-            containerRegistry.Register(Of ShareFilesViewModel)()
+        containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
+        containerRegistry.Register(Of ShareFilesViewModel)()
 
 
         containerRegistry.RegisterForNavigation(Of AccessedFilesView)("AccessedFilesView")
@@ -127,7 +136,7 @@ Public Class Bootstrapper
         Catch ex As Exception
             PopUp.Information("Error", ex.Message)
         Finally
-            Loading.Hide
+            Loading.Hide()
         End Try
     End Sub
 

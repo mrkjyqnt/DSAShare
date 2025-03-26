@@ -10,14 +10,51 @@ Public Class FileSharedRepository
     End Sub
 
     ''' <summary>
-    ''' Updates the download count of a file shared record.
+    ''' Get all the shared files by fileId
     ''' </summary>
     ''' <param name="filesShared">The FilesShared object containing updated data.</param>
     ''' <returns></returns>
     Public Function GetById(fileShared As FilesShared) As FilesShared
 
-        _connection.Prepare("SELECT * FROM files_shared WHERE id = @file_id")
+        _connection.Prepare("SELECT * FROM files_shared WHERE id = @file_id ORDER BY id DESC")
         _connection.AddParam("@file_id", fileShared.Id)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return Nothing
+        End If
+
+        If _connection.HasRecord Then
+            Return New FilesShared() With {
+                .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
+                .FileName = _connection.DataRow("file_name").ToString(),
+                .FilePath = _connection.DataRow("file_path").ToString(),
+                .FileSize = _connection.DataRow("file_size").ToString(),
+                .FileType = _connection.DataRow("file_type").ToString(),
+                .UploadedBy = _connection.DataRow("uploaded_by"),
+                .ShareType = _connection.DataRow("share_type").ToString(),
+                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
+                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
+                .Privacy = _connection.DataRow("privacy").ToString(),
+                .DownloadCount = _connection.DataRow("download_count"),
+                .CreatedAt = _connection.DataRow("created_at"),
+                .UpdatedAt = _connection.DataRow("updated_at")
+            }
+        End If
+
+        Return Nothing
+    End Function
+
+    Public Function GetByExact(filesShared As FilesShared) As FilesShared
+        _connection.Prepare("SELECT * FROM files_shared WHERE name = @name AND file_name = @file_name AND file_size = @file_size AND file_type = @file_type AND uploaded_by = @uploaded_by ORDER BY id DESC")
+        _connection.AddParam("@name", filesShared.Name)
+        _connection.AddParam("@file_name", filesShared.FileName)
+        _connection.AddParam("@file_path", filesShared.FilePath)
+        _connection.AddParam("@file_size", filesShared.FileSize)
+        _connection.AddParam("@file_type", filesShared.FileType)
+        _connection.AddParam("@uploaded_by", filesShared.UploadedBy)
         _connection.Execute()
 
         If _connection.HasError Then
@@ -55,7 +92,7 @@ Public Class FileSharedRepository
     Public Function GetByPrivacy(fileShared As FilesShared) As List(Of FilesShared)
         Dim filesList As New List(Of FilesShared)()
 
-        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy")
+        _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy ORDER BY id DESC")
         _connection.AddParam("@privacy", fileShared.Privacy)
         _connection.AddParam("@uploaded_by", fileShared.UploadedBy)
         _connection.Execute()
@@ -91,7 +128,7 @@ Public Class FileSharedRepository
         Return filesList
     End Function
 
-        ''' <summary>
+    ''' <summary>
     ''' Retrieve FileShared Datas by Privacy
     ''' </summary>
     ''' <param name="fileShared"></param>
@@ -99,7 +136,7 @@ Public Class FileSharedRepository
     Public Function GetByUploader(fileShared As FilesShared) As List(Of FilesShared)
         Dim filesList As New List(Of FilesShared)()
 
-        _connection.Prepare("SELECT * FROM files_shared WHERE uploaded_by = @uploaded_by")
+        _connection.Prepare("SELECT * FROM files_shared WHERE uploaded_by = @uploaded_by ORDER BY id DESC")
         _connection.AddParam("@uploaded_by", fileShared.UploadedBy)
         _connection.Execute()
 
@@ -144,7 +181,7 @@ Public Class FileSharedRepository
     Public Function Read() As List(Of FilesShared)
         Dim filesList As New List(Of FilesShared)()
 
-        _connection.Prepare("SELECT * FROM files_shared")
+        _connection.Prepare("SELECT * FROM files_shared ORDER BY id DESC")
         _connection.Execute()
 
         If _connection.HasError Then
@@ -302,7 +339,7 @@ Public Class FileSharedRepository
         End If
 
         _connection.Prepare("DELETE FROM files_shared WHERE id = @file_id")
-        _connection.AddParam("@file_id", filesShared.Id)  
+        _connection.AddParam("@file_id", filesShared.Id)
         _connection.Execute()
 
         If _connection.HasChanges Then
