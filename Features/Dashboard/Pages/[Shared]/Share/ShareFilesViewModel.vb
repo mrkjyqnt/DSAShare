@@ -311,16 +311,19 @@ Public Class ShareFilesViewModel
                 file.ShareType = Nothing
             End If
 
-            If Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True) Then
+            Dim result = Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True)
+
+            If result.Success Then
                 PopUp.Information("Success", "File has been uploaded to server")
+            ElseIf result.FileExists Then
+                PopUp.Information("Failed", "The file already exists on the server")
+                Return
             Else
-                PopUp.Information("Failed", $"{file.FileName}{file.FileType} uploaded already")
+                PopUp.Information("Error", "Failed to upload file, please retry again")
                 Return
             End If
 
-            file.Id = Await Task.Run(Function() _fileDataService.GetSharedFileInfo(file)?.Id).ConfigureAwait(True)
-
-            PopUp.Information("Error", file.Id.ToString)
+            file.Id = Await Task.Run(Function() _fileDataService.GetFileInfo(file)?.Id).ConfigureAwait(True)
 
             Dim activity = New Activities With {
                 .Action = "Shared a file",

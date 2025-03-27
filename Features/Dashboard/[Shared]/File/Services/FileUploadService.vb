@@ -10,13 +10,15 @@ Public Class FileUploadService
     Private ReadOnly _fileInfoService As IFileInfoService
     Private ReadOnly _sessionManager As ISessionManager
 
+    Public Property Success As Boolean
+
     Public Sub New(fileSharedRepository As FileSharedRepository, fileInfoService As IFileInfoService, sessionManager As ISessionManager)
         _fileSharedRepository = fileSharedRepository
         _fileInfoService = fileInfoService
         _sessionManager = sessionManager
     End Sub
 
-    Public Function UploadFile(filesShared As FilesShared) As Boolean Implements IFileUploadService.UploadFile
+    Public Function UploadFile(filesShared As FilesShared) As UploadResult Implements IFileUploadService.UploadFile
         Try
             Dim FolderPath As String = ConfigurationModule.FolderPath
             Dim credentials As NetworkCredential = ConfigurationModule.NetworkCredential
@@ -33,6 +35,11 @@ Public Class FileUploadService
             Dim newFileName As String = $"{filesShared.FileName}_{_sessionManager.CurrentUser.Username}{_fileInfoService.Type}"
             Dim destinationPath As String = Path.Combine(FolderPath, newFileName)
 
+            ' Check if file exists first
+            If File.Exists(destinationPath) Then
+                Return New UploadResult With {.Success = False, .FileExists = True}
+            End If
+
             ' Copy the file to the shared folder
             File.Copy(filesShared.FilePath, destinationPath, False)
 
@@ -42,17 +49,16 @@ Public Class FileUploadService
 
             For Each prop As PropertyInfo In _filesShared.GetType().GetProperties()
                 Dim propName As String = prop.Name
-                    Dim propValue As Object = prop.GetValue(_filesShared, Nothing)
-
-                ' Display or process the property name and value
+                Dim propValue As Object = prop.GetValue(_filesShared, Nothing)
                 Debug.WriteLine($"{propName}: {propValue}")
             Next
 
             ' Insert file details into the database
-            Return _fileSharedRepository.Insert(_filesShared)
+            Dim insertSuccess = _fileSharedRepository.Insert(_filesShared)
+            Return New UploadResult With {.Success = insertSuccess, .FileExists = False}
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] an error happen: {ex.Message} ")
-            Return False
+            Return New UploadResult With {.Success = False, .FileExists = False}
         Finally
             ' Disconnect from the network share
             DisconnectFromNetworkShare(FolderPath)
