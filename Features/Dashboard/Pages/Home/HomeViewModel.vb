@@ -6,6 +6,7 @@ Imports Prism.Navigation.Regions
 Imports System.Collections.ObjectModel
 Imports DryIoc.FastExpressionCompiler.LightExpression
 Imports System.IO
+Imports Prism.Navigation
 
 Public Class HomeViewModel
     Inherits BindableBase
@@ -153,6 +154,8 @@ Public Class HomeViewModel
     ''' </summary>
     ''' <param name="selectedActivity"></param>
     Private Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
+        Dim parameters = New NavigationParameters()
+
         If selectedActivity.Action = "No recent" Then
             PopUp.Information("Failed", "No activity was selected")
             Return
@@ -164,11 +167,13 @@ Public Class HomeViewModel
         End If
 
         If selectedActivity.Action = "Accessed a file" Then
-            _navigationService.Go("PageRegion", "AccessFilesView", "Accessed Files")
+            parameters.Add("fileId", selectedActivity.FileId)
+            _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
         End If
 
         If selectedActivity.Action = "Shared a file" Then
-            _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files")
+            parameters.Add("fileId", selectedActivity.FileId)
+            _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
         End If
     End Sub
 

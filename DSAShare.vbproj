@@ -58,6 +58,7 @@
     <None Remove="Components\Images\account-filled.png" />
     <None Remove="Components\Images\account.png" />
     <None Remove="Components\Images\back.png" />
+    <None Remove="Components\Images\broken-image.png" />
     <None Remove="Components\Images\calendar-filled.png" />
     <None Remove="Components\Images\calendar.png" />
     <None Remove="Components\Images\check-filled.png" />
@@ -100,13 +101,17 @@
 
   <ItemGroup>
     <Folder Include="Features\Dashboard\Pages\SharedFiles\Pages\SearchFile\" />
-    <Folder Include="Features\Dashboard\Pages\[Shared]\FileDetails\Pages\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="FreeSpire.Office" Version="8.2.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
+    <PackageReference Include="Microsoft.Office.Interop.PowerPoint" Version="15.0.4420.1018" />
+    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Prism.Core" Version="9.0.537" />
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
@@ -119,6 +124,7 @@
     <Resource Include="Components\Images\account-filled.png" />
     <Resource Include="Components\Images\account.png" />
     <Resource Include="Components\Images\back.png" />
+    <Resource Include="Components\Images\broken-image.png" />
     <Resource Include="Components\Images\calendar-filled.png" />
     <Resource Include="Components\Images\calendar.png" />
     <Resource Include="Components\Images\check-filled.png" />

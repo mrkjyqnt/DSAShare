@@ -109,7 +109,7 @@ Public Class FileDataService
     ''' </summary>
     ''' <param name="filesShared"></param>
     ''' <returns></returns>
-    Public Function GetSharedFileInfo(filesShared As FilesShared) As FilesShared Implements IFileDataService.GetSharedFileInfo
+    Public Function GetFileInfo(filesShared As FilesShared) As FilesShared Implements IFileDataService.GetFileInfo
         Try
             If filesShared Is Nothing Then
                 Debug.WriteLine("[DEBUG] User information is missing.")
@@ -122,4 +122,23 @@ Public Class FileDataService
             Return Nothing
         End Try
     End Function
+
+    ''' <summary>
+    ''' Get the accessed file information.
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
+    Public Function GetFileById(fileShared As FilesShared) As FilesShared Implements IFileDataService.GetFileById
+        Try
+            If fileShared Is Nothing Then
+                Debug.WriteLine("[DEBUG] User information is missing.")
+                Return Nothing
+            End If
+            Return _fileSharedRepository.GetById(fileShared)
+        Catch ex As Exception
+            Debug.WriteLine("[DEBUG] User information is missing.")
+            Return Nothing
+        End Try
+    End Function
+
 End Class

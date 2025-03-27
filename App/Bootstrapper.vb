@@ -71,10 +71,14 @@ Public Class Bootstrapper
         containerRegistry.RegisterSingleton(Of IFileDownloadService, FileDownloadService)
         containerRegistry.RegisterSingleton(Of IFileUploadService, FileUploadService)
         containerRegistry.RegisterSingleton(Of IFileInfoService, FileInfoService)
+        containerRegistry.RegisterSingleton(Of IFilePreviewService, FilePreviewService)()
         containerRegistry.RegisterSingleton(Of IActivityService, ActivityService)
 
+        ' Shared
         containerRegistry.RegisterForNavigation(Of FileDetailsView)("FileDetailsView")
         containerRegistry.Register(Of FileDetailsViewModel)()
+        containerRegistry.RegisterForNavigation(Of FileDetailsContentView)("FileDetailsContentView")
+        containerRegistry.Register(Of FileDetailsContentViewModel)()
 
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
