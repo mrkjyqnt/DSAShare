@@ -91,6 +91,43 @@
                 BorderThickness="0,0,1,0">
                 <StackPanel local:StackPanelHelper.Spacing="32">
                     <TextBlock Style="{StaticResource SubTitleText}" Text="Details" />
+                    <StackPanel
+                        HorizontalAlignment="Stretch"
+                        local:StackPanelHelper.Spacing="16"
+                        Orientation="Vertical">
+                        <TextBlock FontFamily="{StaticResource InterMedium}" Text="Options" />
+                        <StackPanel HorizontalAlignment="Stretch">
+
+                            <Grid local:GridHelper.ColumnSpacing="16" Visibility="{Binding RemoveAccessButtonVisibility}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding RemoveAccessCommand}"
+                                    Content="Remove Access"
+                                    Style="{StaticResource DefaultButton}"
+                                    ToolTip="Remove your access" />
+                                <Button
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding DownloadCommand}"
+                                    Content="Download"
+                                    Style="{StaticResource DefaultButton}"
+                                    ToolTip="Download the file" />
+                            </Grid>
+                            <Button
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Command="{Binding DownloadCommand}"
+                                Content="Download"
+                                Style="{StaticResource DefaultButton}"
+                                ToolTip="Download the file"
+                                Visibility="{Binding DownloadButtonVisibility}" />
+                        </StackPanel>
+                    </StackPanel>
                     <StackPanel local:StackPanelHelper.Spacing="8" Orientation="Vertical">
                         <TextBlock FontFamily="{StaticResource InterMedium}" Text="Description" />
                         <TextBlock
@@ -98,27 +135,20 @@
                             Text="{Binding DescriptionText}"
                             TextWrapping="Wrap" />
                     </StackPanel>
-                    <Grid>
-                        <DataGrid
-                            AutoGenerateColumns="False"
-                            HorizontalScrollBarVisibility="Disabled"
-                            ItemsSource="{Binding DataGridFileDetails}"
-                            ScrollViewer.CanContentScroll="False"
-                            Style="{StaticResource DefaultDataGrid}"
-                            VerticalScrollBarVisibility="Disabled">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn
-                                    Width="*"
-                                    Binding="{Binding Key}"
-                                    FontFamily="{StaticResource InterMedium}" />
-                                <DataGridTextColumn Width="*" Binding="{Binding Value}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <Grid
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            Background="Transparent" />
-                    </Grid>
+                    <DataGrid
+                        local:ScrollHelper.BubbleScroll="True"
+                        AutoGenerateColumns="False"
+                        IsHitTestVisible="False"
+                        ItemsSource="{Binding DataGridFileDetails}"
+                        Style="{StaticResource DefaultDataGrid}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                                Width="*"
+                                Binding="{Binding Key}"
+                                FontFamily="{StaticResource InterMedium}" />
+                            <DataGridTextColumn Width="*" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </StackPanel>
             </Border>
         </ScrollViewer>

@@ -9,13 +9,12 @@
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--  Header  -->
         <Border
             Grid.Row="0"
             Padding="{StaticResource Space-32}"
@@ -24,18 +23,13 @@
             <TextBlock Style="{StaticResource TitleText}">Welcome to DSA Share</TextBlock>
         </Border>
 
-        <!--  Content  -->
-        <ScrollViewer
-            Grid.Row="1"
-            Padding="0"
-            HorizontalScrollBarVisibility="Disabled"
-            VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer Grid.Row="1">
             <Border
                 Padding="{StaticResource Space-32}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
 
-                <Grid VerticalAlignment="Stretch">
+                <Grid VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Hidden">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="32" />
@@ -61,13 +55,15 @@
                                 <Button
                                     Grid.Column="0"
                                     Command="{Binding ShareFilesCommand}"
-                                    Content="Share Files"
-                                    Style="{StaticResource DefaultButton}" />
+                                    Content="Share File"
+                                    Style="{StaticResource DefaultButton}"
+                                    ToolTip="Share a file" />
                                 <Button
                                     Grid.Column="2"
                                     Command="{Binding AccessFilesCommand}"
-                                    Content="Access Files"
-                                    Style="{StaticResource DefaultButton}" />
+                                    Content="Access File"
+                                    Style="{StaticResource DefaultButton}"
+                                    ToolTip="Access a file" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -90,7 +86,10 @@
                                 <ColumnDefinition Width="16" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource DefaultBorder}">
+                            <Border
+                                Grid.Column="0"
+                                Style="{StaticResource DefaultBorder}"
+                                ToolTip="Total public file you shared">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition />
@@ -107,7 +106,10 @@
                                         Text="{Binding PublicText}" />
                                 </Grid>
                             </Border>
-                            <Border Grid.Column="2" Style="{StaticResource DefaultBorder}">
+                            <Border
+                                Grid.Column="2"
+                                Style="{StaticResource DefaultBorder}"
+                                ToolTip="Total files you shared">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition />
@@ -124,7 +126,10 @@
                                         Text="{Binding SharedText}" />
                                 </Grid>
                             </Border>
-                            <Border Grid.Column="4" Style="{StaticResource DefaultBorder}">
+                            <Border
+                                Grid.Column="4"
+                                Style="{StaticResource DefaultBorder}"
+                                ToolTip="Total files you accessed">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition />
@@ -144,45 +149,47 @@
                         </Grid>
                     </Grid>
 
-                    <Grid Grid.Row="4">
+                    <Grid
+                        Grid.Row="4"
+                        local:GridHelper.RowSpacing="16"
+                        ScrollViewer.CanContentScroll="False">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="16" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
                             Style="{StaticResource SubTitleText}"
                             Text="Recent Activities" />
-                        <DataGrid
-                            Grid.Row="2"
-                            MaxHeight="332"
-                            AutoGenerateColumns="False"
-                            ItemsSource="{Binding DataGridActivities}"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                            ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                            SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
-                            Style="{StaticResource DefaultDataGrid}">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Width="*" IsReadOnly="True">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Vertical">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding Action}" />
-                                                    <TextBlock Text=" " />
-                                                    <TextBlock
-                                                        FontFamily="{StaticResource InterMedium}"
-                                                        Text="{Binding FileName}"
-                                                        TextTrimming="CharacterEllipsis" />
+                        <Border Grid.Row="1">
+                            <DataGrid
+                                local:ScrollHelper.BubbleScroll="True"
+                                AutoGenerateColumns="False"
+                                ItemsSource="{Binding DataGridActivities}"
+                                SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
+                                Style="{StaticResource DefaultDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="*" IsReadOnly="True">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Vertical">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Action}" />
+                                                        <TextBlock Text=" " />
+                                                        <TextBlock
+                                                            MaxWidth="250"
+                                                            FontFamily="{StaticResource InterMedium}"
+                                                            Text="{Binding FileName}"
+                                                            TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                    <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
                                                 </StackPanel>
-                                                <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
                     </Grid>
                 </Grid>
             </Border>

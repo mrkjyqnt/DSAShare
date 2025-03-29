@@ -13,7 +13,7 @@ Public Class FileDetailsViewModel
 
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _fileDataService As IFileDataService
-    Private ReadOnly _fileDownloadService As IFileDownloadService
+    Private ReadOnly _fileService As IFileService
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
 
@@ -21,9 +21,6 @@ Public Class FileDetailsViewModel
     Private _file As FilesShared
 
     Private _fileNameText As String
-    Private _saveChangesButtonVisibility As Visibility
-    Private _removeAccessButtonVisibility As Visibility
-    Private _downloadButtonVisibility As Visibility
     Private _detailsButtonVisibility As Visibility
     Private _settingsButtonVisibility As Visibility
     Private _dangerZoneButtonVisibility As Visibility
@@ -35,33 +32,6 @@ Public Class FileDetailsViewModel
         End Get
         Set(value As String)
             SetProperty(_fileNameText, value)
-        End Set
-    End Property
-
-    Public Property SaveChangesButtonVisibility As Visibility
-        Get
-            Return _saveChangesButtonVisibility
-        End Get
-        Set(value As Visibility)
-            SetProperty(_saveChangesButtonVisibility, value)
-        End Set
-    End Property
-
-    Public Property RemoveAccessButtonVisibility As Visibility
-        Get
-            Return _removeAccessButtonVisibility
-        End Get
-        Set(value As Visibility)
-            SetProperty(_removeAccessButtonVisibility, value)
-        End Set
-    End Property
-
-    Public Property DownloadButtonVisibility As Visibility
-        Get
-            Return _downloadButtonVisibility
-        End Get
-        Set(value As Visibility)
-            SetProperty(_downloadButtonVisibility, value)
         End Set
     End Property
 
@@ -92,20 +62,19 @@ Public Class FileDetailsViewModel
         End Set
     End Property
 
-    Public ReadOnly Property BackCommand As ICommand
-    Public ReadOnly Property DetailsCommand As ICommand
-    Public ReadOnly Property SettingsCommand As ICommand
-    Public ReadOnly Property DangerZoneCommand As ICommand
-    Public ReadOnly Property DownloadCommand As ICommand
+    Public ReadOnly Property BackCommand As DelegateCommand
+    Public ReadOnly Property DetailsCommand As DelegateCommand
+    Public ReadOnly Property SettingsCommand As DelegateCommand
+    Public ReadOnly Property DangerZoneCommand As DelegateCommand
 
     Public Sub New(sessionManager As ISessionManager,
                     fileDataService As IFileDataService,
-                    fileDownloadService As IFileDownloadService,
+                    fileService As IFileService,
                     regionManager As IRegionManager,
                     navigationService As INavigationService)
         _sessionManager = sessionManager
         _fileDataService = fileDataService
-        _fileDownloadService = fileDownloadService
+        _fileService = fileService
         _regionManager = regionManager
         _navigationService = navigationService
 
@@ -115,7 +84,6 @@ Public Class FileDetailsViewModel
         DetailsCommand = New DelegateCommand(AddressOf OnDetailsSelected)
         SettingsCommand = New DelegateCommand(AddressOf OnSettingSelected)
         DangerZoneCommand = New DelegateCommand(AddressOf OnDangerZoneSelected)
-        DownloadCommand = New DelegateCommand(AddressOf OnDownload)
     End Sub
 
     ' Command implementations
@@ -125,8 +93,6 @@ Public Class FileDetailsViewModel
 
     Public Sub OnDetailsSelected()
         Try
-            ChangeButtonVisibility("Details")
-
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
         Catch ex As Exception
 
@@ -135,63 +101,14 @@ Public Class FileDetailsViewModel
 
     Public Sub OnSettingSelected()
         ' Navigate to Details view in the FileDetailsPage region
-        ChangeButtonVisibility("Settings")
 
         '_regionManager.RequestNavigate("FileDetailsPage", "FileDetailsSettingsView", _parameters)
     End Sub
 
     Public Sub OnDangerZoneSelected()
         ' Navigate to Danger Zone view
-        ChangeButtonVisibility("Danger Zone")
 
         '_regionManager.RequestNavigate("FileDetailsPage", "FileDetailsDangerZoneView", _parameters)
-    End Sub
-
-    Public Sub OnDownload()
-        '_fileDownloadService.DownloadFile(_selectedFileId)
-    End Sub
-
-    Private Sub ChangeButtonVisibility(Page As String)
-        Try
-            SaveChangesButtonVisibility = Visibility.Collapsed
-            RemoveAccessButtonVisibility = Visibility.Collapsed
-            DownloadButtonVisibility = Visibility.Collapsed
-
-            If _sessionManager.CurrentUser.Id = _file.UploadedBy Then
-                Select Case Page
-                    Case "Details"
-                        DownloadButtonVisibility = Visibility.Visible
-                    Case "Settings"
-                        SaveChangesButtonVisibility = Visibility.Visible
-                    Case "None"
-                        Return
-                End Select
-
-                Return
-            End If
-
-            If _sessionManager.CurrentUser.Role = "Admin" Then
-                Select Case Page
-                    Case "Details"
-                        DownloadButtonVisibility = Visibility.Visible
-                    Case "None"
-                        Return
-                End Select
-                Return
-            End If
-
-            If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Then
-                Select Case Page
-                    Case "Details"
-                        DownloadButtonVisibility = Visibility.Visible
-                        RemoveAccessButtonVisibility = Visibility.Visible
-                    Case "None"
-                        Return
-                End Select
-            End If
-        Catch ex As Exception
-
-        End Try
     End Sub
 
     Private Sub Load()

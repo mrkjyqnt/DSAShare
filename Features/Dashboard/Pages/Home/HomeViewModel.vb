@@ -125,7 +125,7 @@ Public Class HomeViewModel
             AccessedText = _fileDataService.AccessedFilesCount.ToString()
 
             DataGridActivities = New ObservableCollection(Of ActivityServiceModel)(
-                Await Task.Run(Function() _activityService.GetUserActivity()).ConfigureAwait(True)
+                Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
             )
 
         Catch ex As Exception

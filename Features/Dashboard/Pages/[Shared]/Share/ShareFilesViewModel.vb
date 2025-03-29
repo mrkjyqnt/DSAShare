@@ -11,7 +11,7 @@ Public Class ShareFilesViewModel
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _fileInfoService As IFileInfoService
     Private ReadOnly _fileDataService As IFileDataService
-    Private ReadOnly _fileUploadService As IFileUploadService
+    Private ReadOnly _fileUploadService As IFileService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _activityService As IActivityService
 
@@ -228,7 +228,7 @@ Public Class ShareFilesViewModel
                    navigationService As INavigationService,
                    fileInfoService As IFileInfoService,
                    fileDataService As IFileDataService,
-                   fileUploadService As IFileUploadService,
+                   fileUploadService As IFileService,
                    ActivityService As IActivityService,
                    SessionManager As ISessionManager)
         _regionManager = regionManager
@@ -314,12 +314,9 @@ Public Class ShareFilesViewModel
             Dim result = Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True)
 
             If result.Success Then
-                PopUp.Information("Success", "File has been uploaded to server")
-            ElseIf result.FileExists Then
-                PopUp.Information("Failed", "The file already exists on the server")
-                Return
+                PopUp.Information("Success", result.Message)
             Else
-                PopUp.Information("Error", "Failed to upload file, please retry again")
+                PopUp.Information("Failed", result.Message)
                 Return
             End If
 

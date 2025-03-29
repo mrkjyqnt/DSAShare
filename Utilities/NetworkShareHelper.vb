@@ -2,35 +2,73 @@
 Imports System.IO
 Imports System.Net
 Imports System.Runtime.InteropServices
+Imports System.Diagnostics
 
 Module NetworkShareHelper
     ''' <summary>
     ''' Connects to a network share using the provided credentials.
     ''' </summary>
-    ''' <param name="networkPath">The UNC path of the network share (e.g., \\192.168.8.10\Server Storage\).</param>
-    ''' <param name="credentials">The credentials to use for authentication.</param>
-    Public Sub ConnectToNetworkShare(networkPath As String, credentials As NetworkCredential)
-        Dim netResource As New NetResource() With {
-            .Scope = ResourceScope.GlobalNetwork,
-            .ResourceType = ResourceType.Disk,
-            .DisplayType = ResourceDisplayType.Share,
-            .RemoteName = networkPath
-        }
+    ''' <returns>True if the connection is successful, False otherwise.</returns>
+    Public Function ConnectToNetworkShare() As Boolean
+        Try
+            Debug.WriteLine("[DEBUG] Connecting to network share...")
 
-        Dim result As Integer = WNetAddConnection2(netResource, credentials.Password, credentials.UserName, 0)
+            Dim netResource As New NetResource() With {
+                .Scope = ResourceScope.GlobalNetwork,
+                .ResourceType = ResourceType.Disk,
+                .DisplayType = ResourceDisplayType.Share,
+                .RemoteName = ConfigurationModule.FolderPath
+            }
 
-        If result <> 0 Then
-            Throw New IOException($"Failed to connect to the network share. Error code: {result}", result)
-        End If
-    End Sub
+            Debug.WriteLine($"[DEBUG] Network Path: {ConfigurationModule.FolderPath}")
+            Debug.WriteLine($"[DEBUG] Username: {ConfigurationModule.NetworkCredential.UserName}")
+
+            Dim result As Integer = WNetAddConnection2(netResource, ConfigurationModule.NetworkCredential.Password, ConfigurationModule.NetworkCredential.UserName, 0)
+
+            If result <> 0 Then
+                Debug.WriteLine($"[ERROR] Failed to connect to network share. Error Code: {result} - {GetErrorMessage(result)}")
+                Return False
+            End If
+
+            Debug.WriteLine("[DEBUG] Successfully connected to network share.")
+            Return True
+
+        Catch ex As Exception
+            Debug.WriteLine($"[EXCEPTION] Error connecting to network share: {ex.Message}")
+            Return False
+        End Try
+    End Function
 
     ''' <summary>
     ''' Disconnects from a network share.
     ''' </summary>
     ''' <param name="networkPath">The UNC path of the network share.</param>
     Public Sub DisconnectFromNetworkShare(networkPath As String)
-        WNetCancelConnection2(networkPath, 0, True)
+        Try
+            Debug.WriteLine($"[DEBUG] Disconnecting from network share: {networkPath}")
+
+            Dim result As Integer = WNetCancelConnection2(networkPath, 0, True)
+
+            If result <> 0 Then
+                Debug.WriteLine($"[ERROR] Failed to disconnect. Error Code: {result} - {GetErrorMessage(result)}")
+            Else
+                Debug.WriteLine("[DEBUG] Successfully disconnected from network share.")
+            End If
+
+        Catch ex As Exception
+            Debug.WriteLine($"[EXCEPTION] Error disconnecting from network share: {ex.Message}")
+        End Try
     End Sub
+
+    ''' <summary>
+    ''' Converts a Windows API error code to a human-readable message.
+    ''' </summary>
+    ''' <param name="errorCode">The Windows API error code.</param>
+    ''' <returns>A human-readable error message.</returns>
+    Private Function GetErrorMessage(errorCode As Integer) As String
+        Dim message As String = New System.ComponentModel.Win32Exception(errorCode).Message
+        Return message
+    End Function
 
     ' P/Invoke declarations for WNetAddConnection2 and WNetCancelConnection2
     <DllImport("mpr.dll", CharSet:=CharSet.Auto)>
