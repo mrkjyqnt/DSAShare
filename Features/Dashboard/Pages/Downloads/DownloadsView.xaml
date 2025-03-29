@@ -24,11 +24,12 @@
 
         <ListView
             Grid.Row="1"
-            Padding="32"
+            Padding="32,32,32,0"
             HorizontalAlignment="Stretch"
             Background="Transparent"
             BorderThickness="0"
             ItemsSource="{Binding DownloadHistory, IsAsync=True}"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -56,7 +57,11 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock FontWeight="Bold" Text="{Binding FileName}" />
+                                <TextBlock
+                                    MaxWidth="250"
+                                    FontWeight="Bold"
+                                    Text="{Binding FileName}"
+                                    TextTrimming="WordEllipsis" />
                                 <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding DownloadDate, StringFormat='Downloaded: {0:g}'}" />
                             </StackPanel>
                             <TextBlock

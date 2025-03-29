@@ -260,30 +260,30 @@ Public Class ShareFilesViewModel
             Loading.Show()
 
             If NameInput = "" OrElse NameInput Is Nothing Then
-                PopUp.Information("Failed", "Please add a name")
+                Await PopUp.Information("Failed", "Please add a name").ConfigureAwait(True)
                 Return
             End If
 
             If DescriptionInput = "" OrElse DescriptionInput Is Nothing Then
-                PopUp.Information("Failed", "Please add a description")
+                Await PopUp.Information("Failed", "Please add a description").ConfigureAwait(True)
                 Return
             End If
 
             If FilePath = "" OrElse FilePath Is Nothing Then
-                PopUp.Information("Failed", "Please add a file")
+                Await PopUp.Information("Failed", "Please add a file").ConfigureAwait(True)
                 Return
             End If
 
             If Privacy = "Private" Then
                 If EncryptionInput = "" OrElse EncryptionInput Is Nothing Then
-                    PopUp.Information("Failed", "Please add an encryption")
+                    Await PopUp.Information("Failed", "Please add an encryption").ConfigureAwait(True)
                     Return
                 End If
             End If
 
             If IsExpirationEnabled Then
                 If SelectedDate Is Nothing Then
-                    PopUp.Information("Failed", "Please add an encryption")
+                    Await PopUp.Information("Failed", "Please add an encryption").ConfigureAwait(True)
                     Return
                 End If
             End If
@@ -314,9 +314,9 @@ Public Class ShareFilesViewModel
             Dim result = Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True)
 
             If result.Success Then
-                PopUp.Information("Success", result.Message)
+                Await PopUp.Information("Success", result.Message).ConfigureAwait(True)
             Else
-                PopUp.Information("Failed", result.Message)
+                Await PopUp.Information("Failed", result.Message).ConfigureAwait(True)
                 Return
             End If
 

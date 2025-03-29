@@ -205,13 +205,13 @@ Public Class FileDetailsContentViewModel
             Dim result = Await Task.Run(Function() _fileService.DownloadFile(_file)).ConfigureAwait(True)
 
             If result.Success Then
-                PopUp.Information("Success", result.Message)
+                Await PopUp.Information("Success", result.Message).ConfigureAwait(True)
             Else
-                PopUp.Information("Failed", result.Message)
+                Await PopUp.Information("Failed", result.Message).ConfigureAwait(True)
                 Return
             End If
         Catch ex As Exception
-            Debug.WriteLine($"Error downloading file: {ex.Message}")
+            Debug.WriteLine($"[DEBUG] Error downloading file: {ex.Message}")
         Finally
             Loading.Hide()
         End Try
@@ -230,7 +230,7 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
         Catch ex As Exception
-            Debug.WriteLine($"Error changing button visibility: {ex.Message}")
+            Debug.WriteLine($"[DEBUG] Error changing button visibility: {ex.Message}")
         End Try
     End Sub
 
@@ -244,7 +244,7 @@ Public Class FileDetailsContentViewModel
                 _file = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
 
                 If String.IsNullOrEmpty(_file?.FileName) Then
-                    PopUp.Information("Error", "File not found")
+                    Await PopUp.Information("Error", "File not found").ConfigureAwait(True)
                     Return
                 End If
 
@@ -255,7 +255,7 @@ Public Class FileDetailsContentViewModel
             End If
             Loading.Hide()
         Catch ex As Exception
-            Debug.WriteLine($"Error navigating to FileDetailsContentModel: {ex.Message}")
+            Debug.WriteLine($"[Debug] Error navigating to FileDetailsContentModel: {ex.Message}")
         End Try
     End Sub
 

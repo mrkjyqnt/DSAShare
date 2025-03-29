@@ -154,27 +154,32 @@ Public Class HomeViewModel
     ''' </summary>
     ''' <param name="selectedActivity"></param>
     Private Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
-        Dim parameters = New NavigationParameters()
+        Try
+            Dim parameters = New NavigationParameters()
 
-        If selectedActivity.Action = "No recent" Then
-            PopUp.Information("Failed", "No activity was selected")
-            Return
-        End If
+            If selectedActivity.Action = "No recent" Then
+                PopUp.Information("Failed", "No activity was selected")
+                Return
+            End If
 
-        If selectedActivity.Action = "Remove a file" Then
-            PopUp.Information("Information", "This file has been removed.")
-            Return
-        End If
+            If selectedActivity.Action = "Remove a file" Then
+                PopUp.Information("Information", "This file has been removed.")
+                Return
+            End If
 
-        If selectedActivity.Action = "Accessed a file" Then
-            parameters.Add("fileId", selectedActivity.FileId)
-            _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
-        End If
+            If selectedActivity.Action = "Accessed a file" Then
+                parameters.Add("fileId", selectedActivity.FileId)
+                _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+            End If
 
-        If selectedActivity.Action = "Shared a file" Then
-            parameters.Add("fileId", selectedActivity.FileId)
-            _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
-        End If
+            If selectedActivity.Action = "Shared a file" Then
+                parameters.Add("fileId", selectedActivity.FileId)
+                _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Theres an error fetching the selected file")
+            Debug.WriteLine($"[DEBUG] Message: {ex.Message}")
+        End Try
     End Sub
 
 End Class

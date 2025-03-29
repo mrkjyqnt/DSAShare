@@ -89,34 +89,33 @@ Public Class SignUpViewModel
 
     Private Async Function OnSignUp() As Task
         If String.IsNullOrEmpty(Name) OrElse String.IsNullOrEmpty(Username) OrElse String.IsNullOrEmpty(Password) OrElse String.IsNullOrEmpty(RePassword) Then
-            PopUp.Information("Failed", "Please fill all the boxes")
+            Await PopUp.Information("Failed", "Please fill all the boxes").ConfigureAwait(True)
             Return
         End If
 
         If Password <> RePassword Then
-            PopUp.Information("Failed", "Password and re-enter password do not match.")
+            Await PopUp.Information("Failed", "Password and re-enter password do not match.").ConfigureAwait(True)
             Return
         End If
 
         Try
-            Loading.Show()            
+            Loading.Show()
 
             If Await Task.Run(Function() _registrationService.CheckUsername(Username)).ConfigureAwait(True) Then
-                PopUp.Information("Failed", "Username already exists.")
+                Await PopUp.Information("Failed", "Username already exists.").ConfigureAwait(True)
                 Return
             End If
 
             If Await Task.Run(Function() _registrationService.Register(Name, Username, Password)).ConfigureAwait(True) Then
-                PopUp.Information("Success", "Registration successful.")
+                Await PopUp.Information("Success", "Registration successful.").ConfigureAwait(True)
                 _regionManager.RequestNavigate("AuthenticationRegion", "SignInView")
                 _regionManager.Regions("AuthenticationRegion").Remove("SignUpView")
                 Return
             Else
-                PopUp.Information("Error", "An error occurred during login.")
+                Await PopUp.Information("Error", "An error occurred during login.").ConfigureAwait(True)
             End If
         Catch ex As Exception
-            PopUp.Information("Error", "An error occurred during login.")
-            ErrorHandler.SetError(ex.Message)
+            Debug.WriteLine($"[DEBUG] There was an error while signing up: {ex.Message}")
         Finally
             Loading.Hide()
         End Try

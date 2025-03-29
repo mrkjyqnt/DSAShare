@@ -81,16 +81,15 @@ Public Class DownloadsViewModel
         Try
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
 
             While attempts < maxAttempts
                 attempts += 1
-                Loading.Show()
-                Await Task.Delay(1).ConfigureAwait(True)
 
                 Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
 
                 If popUpResult Is Nothing Then
-                    PopUp.Information("Cancelled", "File deletion was cancelled.")
+                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
@@ -100,27 +99,26 @@ Public Class DownloadsViewModel
 
                     Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
                     If hasPermission Then
+
                         _downloadService.Remove(item)
 
                         OpenFileCommand.RaiseCanExecuteChanged()
                         OpenFolderCommand.RaiseCanExecuteChanged()
                         DeleteFileCommand.RaiseCanExecuteChanged()
+                        Await PopUp.Information("Success", $"The file has been removed successfully)").ConfigureAwait(True)
+                        Exit While
                     Else
-                        PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)")
-                        Await Task.Delay(1000).ConfigureAwait(True)
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
                     End If
                 End If
             End While
 
             ' Show final failure message if all attempts exhausted
             If attempts = maxAttempts Then
-                PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.")
+                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
             End If
         Catch ex As Exception
-            Debug.WriteLine($"Error deleting the file: {ex.Message}")
-            PopUp.Information("Error", "Failed to delete the file. Please try again.")
-        Finally
-            Loading.Hide()
+            Debug.WriteLine($"[DEBU] Error deleting the file: {ex.Message}")
         End Try
     End Function
 

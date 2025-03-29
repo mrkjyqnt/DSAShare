@@ -17,10 +17,17 @@ Public Class PopUp
     ''' </summary>
     ''' <param name="Title"></param>
     ''' <param name="Content"></param>
-    Public Shared Sub Information(Title As String, Content As String)
+    Public Shared Function Information(Title As String, Content As String) As Task
+        Dim tcs As New TaskCompletionSource(Of Boolean)()
         Dim infoPopupViewModel As New InformationPopUpViewModel(Title, Content)
-        _popupService.ShowPopUp(New InformationPopUpView(), infoPopupViewModel)
-    End Sub
+
+        _popupService.ShowPopUp(New InformationPopUpView(), infoPopupViewModel,
+                               Sub(result)
+                                   tcs.TrySetResult(True)
+                               End Sub)
+
+        Return tcs.Task
+    End Function
 
     ''' <summary>
     ''' Shows the selection pop up.
@@ -51,6 +58,6 @@ Public Class PopUp
                                    tcs.TrySetResult(result)
                                End Sub)
 
-        Return Await tcs.Task 
+        Return Await tcs.Task
     End Function
 End Class
