@@ -1,5 +1,6 @@
 ﻿Imports System.Text
 Imports System.Security.Cryptography
+Imports System.IO
 
 Module Tools
     Public Function ImageSource(image As String) As String
@@ -19,9 +20,9 @@ Module Tools
                 stringBuilder.Append(b.ToString("x2"))
             Next
 
-                    Return stringBuilder.ToString()
-            End Using
-      End Function
+            Return stringBuilder.ToString()
+        End Using
+    End Function
 
     Public Sub Dispatch(action As Action)
         Application.Current.Dispatcher.Invoke(action)
@@ -59,6 +60,24 @@ Module Tools
         Return String.IsNullOrEmpty(value)
     End Function
 
+    Public Function GetUniqueFilePath(folderPath As String, fileName As String) As String
+        Dim baseName As String = Path.GetFileNameWithoutExtension(fileName)
+        Dim extension As String = Path.GetExtension(fileName)
+        Dim newPath As String = Path.Combine(folderPath, fileName)
 
+        ' If file doesn't exist, return original path
+        If Not File.Exists(newPath) Then
+            Return newPath
+        End If
+
+        ' Find available numerical suffix
+        Dim counter As Integer = 1
+        Do While File.Exists(newPath)
+            newPath = Path.Combine(folderPath, $"{baseName} ({counter}){extension}")
+            counter += 1
+        Loop
+
+        Return newPath
+    End Function
 
 End Module

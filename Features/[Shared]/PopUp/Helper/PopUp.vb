@@ -4,19 +4,28 @@ Imports Prism.Ioc
 Public Class PopUp
     Private Shared _popupService As IPopupService
 
-    ' Shared constructor to initialize _popupService
+    ''' <summary>
+    ''' Initializes the <see cref="PopUp"/> class.
+    ''' </summary>
     Shared Sub New()
         Dim regionManager As IRegionManager = ContainerLocator.Container.Resolve(Of IRegionManager)()
         _popupService = New PopupService(regionManager)
     End Sub
 
-    ' Information Popup (no result)
+    ''' <summary>
+    ''' Shows the information pop up.
+    ''' </summary>
+    ''' <param name="Title"></param>
+    ''' <param name="Content"></param>
     Public Shared Sub Information(Title As String, Content As String)
         Dim infoPopupViewModel As New InformationPopUpViewModel(Title, Content)
         _popupService.ShowPopUp(New InformationPopUpView(), infoPopupViewModel)
     End Sub
 
-    ' Selection Popup (with result)
+    ''' <summary>
+    ''' Shows the selection pop up.
+    ''' </summary>
+    ''' <returns></returns>
     Public Shared Async Function Selection() As Task(Of PopupResult)
         Dim tcs As New TaskCompletionSource(Of PopupResult)()
         Dim selectionPopupViewModel As New SelectionPopUpViewModel()
@@ -26,18 +35,22 @@ Public Class PopUp
                                    tcs.TrySetResult(result)
                                End Sub)
 
-        Return Await tcs.Task ' Wait for the popup to close and return the result
+        Return Await tcs.Task
     End Function
 
+    ''' <summary>
+    ''' Shows the confirmation pop up.
+    ''' </summary>
+    ''' <returns></returns>
     Public Shared Async Function Confirmation() As Task(Of PopupResult)
         Dim tcs As New TaskCompletionSource(Of PopupResult)()
-        Dim selectionPopupViewModel As New SelectionPopUpViewModel()
+        Dim confirmationPopupViewModel As New ConfirmationPopUpViewModel()
 
-        _popupService.ShowPopUp(New SelectionPopUpView(), selectionPopupViewModel,
+        _popupService.ShowPopUp(New ConfirmationPopUpView(), confirmationPopupViewModel,
                                Sub(result)
                                    tcs.TrySetResult(result)
                                End Sub)
 
-        Return Await tcs.Task ' Wait for the popup to close and return the result
+        Return Await tcs.Task 
     End Function
 End Class

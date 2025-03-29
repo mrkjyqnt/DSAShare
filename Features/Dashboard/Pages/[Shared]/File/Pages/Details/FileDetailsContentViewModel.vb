@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Windows.Media.Imaging
 Imports ICSharpCode.AvalonEdit.Highlighting
 Imports Spire.Doc
+Imports Prism.Commands
 
 Public Class FileDetailsContentViewModel
     Inherits BindableBase
@@ -28,6 +29,13 @@ Public Class FileDetailsContentViewModel
     Private _filePath As String
 
     Private ReadOnly _fileDataService As IFileDataService
+    Private ReadOnly _fileService As IFileService
+    Private ReadOnly _sessionManager As ISessionManager
+
+    Public ReadOnly Property DownloadCommand As AsyncDelegateCommand
+
+    Private _removeAccessButtonEnabled As Visibility = Visibility.Collapsed
+    Private _downloadButtonVisibility As Visibility = Visibility.Collapsed
 
     Public Property DescriptionText As String
         Get
@@ -65,6 +73,24 @@ Public Class FileDetailsContentViewModel
         End Set
     End Property
 
+    Public Property RemoveAccessButtonVisibility As Visibility
+        Get
+            Return _removeAccessButtonEnabled
+        End Get
+        Set(value As Visibility)
+            SetProperty(_removeAccessButtonEnabled, value)
+        End Set
+    End Property
+
+    Public Property DownloadButtonVisibility As Visibility
+        Get
+            Return _downloadButtonVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_downloadButtonVisibility, value)
+        End Set
+    End Property
+
     Public ReadOnly Property DataGridFileDetails As ObservableCollection(Of KeyValuePair(Of String, String))
         Get
             If _dataGridFileDetails Is Nothing Then Return Nothing
@@ -80,42 +106,53 @@ Public Class FileDetailsContentViewModel
         End Get
     End Property
 
-    Public Sub New(fileDataService As IFileDataService)
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Throw New NotImplementedException()
+        End Get
+    End Property
+
+    Public Sub New(fileDataService As IFileDataService, fileService As IFileService, sessionManager As ISessionManager)
         _fileDataService = fileDataService
+        _fileService = fileService
+        _sessionManager = sessionManager
         _dataGridFileDetails = New FileDetailsContentModel()
+
+        DownloadCommand = New AsyncDelegateCommand(AddressOf OnDownload)
     End Sub
 
-    Private Sub Load()
+    Private Async Sub Load()
         Try
-            _dataGridFileDetails.Author = If(_file?.UploadedBy, "Nothing")
-            _dataGridFileDetails.FileName = If(_file?.FileName, "Nothing")
-            _dataGridFileDetails.AccessLevel = If(_file?.Privacy, "Nothing")
+            _dataGridFileDetails.Author = If(_file?.UploadedBy, "Unknown")
+            _dataGridFileDetails.FileName = If(_file?.FileName, "Unknown")
+            _dataGridFileDetails.AccessLevel = If(_file?.Privacy, "Unknown")
             _dataGridFileDetails.DownloadCount = If(_file?.DownloadCount, 0)
             _dataGridFileDetails.PublishDate = If(_file?.CreatedAt, DateTime.MinValue)
             _dataGridFileDetails.ExpirationDate = _file?.ExpiryDate
-            _dataGridFileDetails.FileType = If(_file?.FileType, "Nothing")
+            _dataGridFileDetails.FileType = If(_file?.FileType, "Unknown")
 
-            DescriptionText = If(_file?.FileDescription, "There no descriptions")
+            DescriptionText = If(_file?.FileDescription, "No description available.")
 
+            ChangeButtonVisibility()
             RaisePropertyChanged(NameOf(DataGridFileDetails))
+            Await LoadPreviewAsync().ConfigureAwait(True)
         Catch ex As Exception
             Debug.WriteLine($"Error loading file details: {ex.Message}")
         End Try
     End Sub
 
-#Disable Warning
     Private Async Function LoadPreviewAsync() As Task
         Try
             Dim extension = Path.GetExtension(_filePath).ToLower()
             Dim previewType = GetPreviewTypeForExtension(extension)
 
-            ' Update UI on UI thread
+#Disable Warning
             Await Application.Current.Dispatcher.InvokeAsync(Sub()
                                                                  CurrentPreviewType = previewType
                                                                  RaisePropertyChanged(NameOf(CurrentPreviewType))
                                                              End Sub)
+#Enable Warning
 
-            ' Load content based on type
             Select Case previewType
                 Case PreviewTypes.Image
                     Dim bitmap = Await Task.Run(Function()
@@ -126,28 +163,25 @@ Public Class FileDetailsContentViewModel
                                                     img.EndInit()
                                                     If img.CanFreeze Then img.Freeze()
                                                     Return img
-                                                End Function)
+                                                End Function).ConfigureAwait(True)
                     PreviewContent = bitmap
 
                 Case PreviewTypes.Document
-                    Dim imageSource = Await DocumentToImageHelper.ConvertFirstPageToImageAsync(_filePath)
+                    Dim imageSource = Await DocumentToImageHelper.ConvertFirstPageToImageAsync(_filePath).ConfigureAwait(True)
                     PreviewContent = imageSource
 
                 Case PreviewTypes.Text
-                    Dim text = Await Task.Run(Function() File.ReadAllText(_filePath))
+                    Dim text = Await Task.Run(Function() File.ReadAllText(_filePath)).ConfigureAwait(True)
                     PreviewContent = text
                 Case PreviewTypes.Unsupported
-                    Dim text = New Object()
-                    PreviewContent = text
+                    PreviewContent = "Unsupported file format."
             End Select
 
             RaisePropertyChanged(NameOf(PreviewContent))
 
         Catch ex As Exception
-            Application.Current.Dispatcher.BeginInvoke(Sub()
-                                                           CurrentPreviewType = PreviewTypes.Unsupported
-                                                           RaisePropertyChanged(NameOf(CurrentPreviewType))
-                                                       End Sub)
+            CurrentPreviewType = PreviewTypes.Unsupported
+            RaisePropertyChanged(NameOf(CurrentPreviewType))
             Debug.WriteLine($"Preview load error: {ex.Message}")
         End Try
     End Function
@@ -165,6 +199,41 @@ Public Class FileDetailsContentViewModel
         End Select
     End Function
 
+    Public Async Function OnDownload() As Task
+        Try
+            Loading.Show()
+            Dim result = Await Task.Run(Function() _fileService.DownloadFile(_file)).ConfigureAwait(True)
+
+            If result.Success Then
+                PopUp.Information("Success", result.Message)
+            Else
+                PopUp.Information("Failed", result.Message)
+                Return
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"Error downloading file: {ex.Message}")
+        Finally
+            Loading.Hide()
+        End Try
+    End Function
+
+    Private Sub ChangeButtonVisibility()
+        Try
+            If _sessionManager.CurrentUser.Id = _file.UploadedBy Then
+                DownloadButtonVisibility = Visibility.Visible
+                Return
+            End If
+
+            If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Then
+                DownloadButtonVisibility = Visibility.Visible
+                RemoveAccessButtonVisibility = Visibility.Visible
+                Return
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"Error changing button visibility: {ex.Message}")
+        End Try
+    End Sub
+
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
             Loading.Show()
@@ -173,33 +242,28 @@ Public Class FileDetailsContentViewModel
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")
                 }
                 _file = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
-                If IsNullOrEmpty(_file?.FileName) Then
+
+                If String.IsNullOrEmpty(_file?.FileName) Then
                     PopUp.Information("Error", "File not found")
                     Return
                 End If
 
                 _filePath = _file.FilePath
-                Load()
-                Await LoadPreviewAsync().ConfigureAwait(True)
+                Application.Current.Dispatcher.Invoke(Sub()
+                                                          Load()
+                                                      End Sub)
             End If
-        Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsContentModel: {ex.Message}")
-        Finally
             Loading.Hide()
+        Catch ex As Exception
+            Debug.WriteLine($"Error navigating to FileDetailsContentModel: {ex.Message}")
         End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget
-        Return False
+        Throw New NotImplementedException()
     End Function
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
-        ' Cleanup if needed
+        Throw New NotImplementedException()
     End Sub
-
-    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
-        Get
-            Return False
-        End Get
-    End Property
 End Class

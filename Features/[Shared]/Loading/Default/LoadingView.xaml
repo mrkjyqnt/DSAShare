@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True">
-    <Grid Background="#E5FFFFFF">
+    <Grid>
         <!--  Semi-transparent background  -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid>
@@ -18,7 +18,7 @@
                     Grid.Row="0"
                     Foreground="{StaticResource BlackBrush}"
                     Style="{StaticResource SubTitleText}"
-                    Text="LOADING..."
+                    Text="Loading"
                     TextAlignment="Center" />
                 <ProgressBar
                     Grid.Row="2"

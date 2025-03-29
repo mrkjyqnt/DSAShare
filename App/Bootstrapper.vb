@@ -42,6 +42,9 @@ Public Class Bootstrapper
         ' Register the Loading
         containerRegistry.RegisterSingleton(Of ILoadingService, LoadingService)
 
+        ' Register the User Service
+        containerRegistry.RegisterSingleton(Of IUserService, UserService)()
+
         ' Register the Fallback View
         containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
 
@@ -68,11 +71,13 @@ Public Class Bootstrapper
 
         ' Register the File Services
         containerRegistry.RegisterSingleton(Of IFileDataService, FileDataService)()
-        containerRegistry.RegisterSingleton(Of IFileDownloadService, FileDownloadService)
-        containerRegistry.RegisterSingleton(Of IFileUploadService, FileUploadService)
+        containerRegistry.RegisterSingleton(Of IFileService, FileService)
         containerRegistry.RegisterSingleton(Of IFileInfoService, FileInfoService)
         containerRegistry.RegisterSingleton(Of IFilePreviewService, FilePreviewService)()
         containerRegistry.RegisterSingleton(Of IActivityService, ActivityService)
+
+        'Register the Download Services
+        containerRegistry.RegisterSingleton(Of IDownloadService, DownloadService)()
 
         ' Shared
         containerRegistry.RegisterForNavigation(Of FileDetailsView)("FileDetailsView")
@@ -111,6 +116,10 @@ Public Class Bootstrapper
         'containerRegistry.Register(Of ManageUsersViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageFilesView)("ManageFilesView")
         'containerRegistry.Register(Of ManageFilesViewModel)()
+        containerRegistry.RegisterForNavigation(Of DownloadsView)("DownloadsView")
+        containerRegistry.Register(Of DownloadsViewModel)()
+
+
     End Sub
 
     ''' <summary>

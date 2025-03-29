@@ -152,17 +152,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <!--  Default ContentTemplate with Icon  -->
-        <Setter Property="ContentTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <Image
-                        Width="20"
-                        Height="20"
-                        Source="/Components/Images/back.png" />
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <Style x:Key="EmptyButton" TargetType="Button">

@@ -47,26 +47,7 @@
                             Text="{Binding FileNameText}"
                             TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                    <StackPanel
-                        Grid.Column="2"
-                        local:StackPanelHelper.Spacing="16"
-                        Orientation="Horizontal">
-                        <Button
-                            Command="{Binding DangerZoneCommand}"
-                            Content="Save Changes"
-                            Style="{StaticResource DefaultButton}"
-                            Visibility="{Binding SaveChangesButtonVisibility}" />
-                        <Button
-                            Command="{Binding DangerZoneCommand}"
-                            Content="Remove Access"
-                            Style="{StaticResource DefaultButton}"
-                            Visibility="{Binding RemoveAccessButtonVisibility}" />
-                        <Button
-                            Command="{Binding DangerZoneCommand}"
-                            Content="Download"
-                            Style="{StaticResource DefaultButton}"
-                            Visibility="{Binding DownloadButtonVisibility}" />
-                    </StackPanel>
+
                 </Grid>
                 <StackPanel
                     HorizontalAlignment="Stretch"
