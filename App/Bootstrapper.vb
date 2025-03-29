@@ -147,7 +147,7 @@ Public Class Bootstrapper
             End If
 
         Catch ex As Exception
-            PopUp.Information("Error", ex.Message)
+            Debug.WriteLine($"[DEBUG] Error initializing the application: {ex.Message}")
         Finally
             Loading.Hide()
         End Try
