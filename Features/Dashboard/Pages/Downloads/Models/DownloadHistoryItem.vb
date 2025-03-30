@@ -12,6 +12,7 @@ Public Class DownloadHistoryItem
     Private _downloadDate As DateTime
     Private _status As DownloadStatus
     Private _isFileExists As Boolean
+    Private _fileSize As Long
 
     Public Property Url As String
         Get
@@ -30,7 +31,7 @@ Public Class DownloadHistoryItem
         Set(value As String)
             _filePath = value
             OnPropertyChanged(NameOf(FilePath))
-            UpdateFileExists()
+            UpdateFileStatus()
         End Set
     End Property
 
@@ -74,8 +75,38 @@ Public Class DownloadHistoryItem
         End Set
     End Property
 
-    Public Sub UpdateFileExists()
-        IsFileExists = File.Exists(FilePath)
+    Public Property FileSize As Long
+        Get
+            Return _fileSize
+        End Get
+        Set(value As Long)
+            _fileSize = value
+            OnPropertyChanged(NameOf(FileSize))
+        End Set
+    End Property
+
+    Public Sub UpdateFileStatus()
+        Dim exists = File.Exists(FilePath)
+        IsFileExists = exists
+        
+        ' Update file size if exists
+        If exists Then
+            Try
+                Dim info = New FileInfo(FilePath)
+                FileSize = info.Length
+            Catch
+                FileSize = 0
+            End Try
+        Else
+            FileSize = 0
+        End If
+
+        ' Update status based on file existence
+        If Status = DownloadStatus.Completed AndAlso Not exists Then
+            Status = DownloadStatus.Removed
+        ElseIf Status = DownloadStatus.Removed AndAlso exists Then
+            Status = DownloadStatus.Completed
+        End If
     End Sub
 
     Protected Sub OnPropertyChanged(propertyName As String)
@@ -96,5 +127,4 @@ Public Class DownloadHistoryItem
         End If
         Return FilePath.GetHashCode()
     End Function
-
 End Class

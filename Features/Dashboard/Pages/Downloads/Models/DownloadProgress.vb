@@ -12,4 +12,5 @@ Public Enum DownloadStatus
     Completed
     Failed
     Canceled
+    Removed
 End Enum

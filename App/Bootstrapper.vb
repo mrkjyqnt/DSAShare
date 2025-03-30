@@ -4,6 +4,7 @@ Imports Prism.Ioc
 Imports Prism.Navigation.Regions
 Imports System.Runtime.Versioning
 
+#Disable Warning
 <SupportedOSPlatform("windows7.0")>
 <SupportedOSPlatform("windows10.0")>
 <SupportedOSPlatform("windows11.0")>
@@ -84,6 +85,8 @@ Public Class Bootstrapper
         containerRegistry.Register(Of FileDetailsViewModel)()
         containerRegistry.RegisterForNavigation(Of FileDetailsContentView)("FileDetailsContentView")
         containerRegistry.Register(Of FileDetailsContentViewModel)()
+        containerRegistry.RegisterForNavigation(Of FileSettingsView)("FileSettingsView")
+        containerRegistry.Register(Of FileSettingsViewModel)()
 
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
@@ -134,9 +137,14 @@ Public Class Bootstrapper
         sessionManager.LoadSession()
 
         Try
-            Loading.StartUp()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub()
+                                                                 Loading.StartUp()
+                                                             End Sub)
+
             If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(True) Then
                 regionManager.RequestNavigate("MainRegion", "FallBackView")
+
+                Await Task.Delay(5000).ConfigureAwait(True)
                 Return
             End If
 

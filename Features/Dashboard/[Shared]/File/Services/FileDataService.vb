@@ -46,9 +46,9 @@ Public Class FileDataService
 
     Public Sub GetAllCount() Implements IFileDataService.GetAllCount
         Try
-            PublicFilesCount = GetPublicFiles().Count
-            SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser).Count
-            AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser).Count
+            PublicFilesCount = GetPublicFiles()?.Count
+            SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser)?.Count
+            AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser)?.Count
         Catch ex As Exception
             PublicFilesCount = 0
             SharedFilesCount = 0
@@ -63,7 +63,7 @@ Public Class FileDataService
             }
             Return _fileSharedRepository.GetByPrivacy(_fileShared)
         Catch ex As Exception
-            PopUp.Information("Error", "Failed to retrieve public files. " & ex.Message)
+            Debug.WriteLine("[DEBUG] Failed to retrieve public files. " & ex.Message)
             Return New List(Of FilesShared)() ' Return empty list instead of Nothing
         End Try
     End Function
@@ -71,7 +71,7 @@ Public Class FileDataService
     Public Function GetSharedFiles(users As Users) As List(Of FilesShared) Implements IFileDataService.GetSharedFiles
         Try
             If users Is Nothing Then
-                PopUp.Information("Error", "User information is missing.")
+                Debug.WriteLine("[DEBUG] GetSharedFiles: User information is missing.")
                 Return New List(Of FilesShared)()
             End If
 
@@ -81,7 +81,7 @@ Public Class FileDataService
 
             Return _fileSharedRepository.GetByUploader(_fileShared)
         Catch ex As Exception
-            PopUp.Information("Error", "Failed to retrieve shared files. " & ex.Message)
+            Debug.WriteLine("[DEBUG] Failed to retrieve shared files. " & ex.Message)
             Return New List(Of FilesShared)()
         End Try
     End Function
@@ -89,7 +89,7 @@ Public Class FileDataService
     Public Function GetAccessedFiles(users As Users) As List(Of FilesAccessed) Implements IFileDataService.GetAccessedFiles
         Try
             If users Is Nothing Then
-                PopUp.Information("Error", "User information is missing.")
+                Debug.WriteLine("[DEBUG] GetAccessedFiles: User information is missing.")
                 Return New List(Of FilesAccessed)()
             End If
 
@@ -99,7 +99,7 @@ Public Class FileDataService
 
             Return New List(Of FilesAccessed)()
         Catch ex As Exception
-            PopUp.Information("Error", "Failed to retrieve accessed files. " & ex.Message)
+            Debug.WriteLine("[DEBUG] Failed to retrieve accessed files. " & ex.Message)
             Return New List(Of FilesAccessed)()
         End Try
     End Function

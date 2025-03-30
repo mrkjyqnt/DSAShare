@@ -7,7 +7,6 @@ Public Class ShareFilesViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
-    Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _fileInfoService As IFileInfoService
     Private ReadOnly _fileDataService As IFileDataService
@@ -224,14 +223,12 @@ Public Class ShareFilesViewModel
         End Get
     End Property
 
-    Public Sub New(regionManager As IRegionManager,
-                   navigationService As INavigationService,
+    Public Sub New(navigationService As INavigationService,
                    fileInfoService As IFileInfoService,
                    fileDataService As IFileDataService,
                    fileUploadService As IFileService,
                    ActivityService As IActivityService,
                    SessionManager As ISessionManager)
-        _regionManager = regionManager
         _navigationService = navigationService
         _fileInfoService = fileInfoService
         _fileUploadService = fileUploadService
@@ -286,6 +283,11 @@ Public Class ShareFilesViewModel
                     Await PopUp.Information("Failed", "Please add an encryption").ConfigureAwait(True)
                     Return
                 End If
+            End If
+
+            If IsExpirationEnabled AndAlso SelectedDate <= Date.Now Then
+                Await PopUp.Information("Failed", "Expiry date must be in the future").ConfigureAwait(True)
+                Return
             End If
 
             Dim file = New FilesShared With {

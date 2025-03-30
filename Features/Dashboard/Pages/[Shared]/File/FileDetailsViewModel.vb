@@ -4,6 +4,7 @@ Imports Prism.Mvvm
 Imports Prism.Navigation
 Imports Prism.Navigation.Regions
 Imports System.IO
+Imports System.Net.WebRequestMethods
 Imports System.Windows
 
 Public Class FileDetailsViewModel
@@ -13,7 +14,6 @@ Public Class FileDetailsViewModel
 
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _fileDataService As IFileDataService
-    Private ReadOnly _fileService As IFileService
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
 
@@ -24,7 +24,6 @@ Public Class FileDetailsViewModel
     Private _detailsButtonVisibility As Visibility
     Private _settingsButtonVisibility As Visibility
     Private _dangerZoneButtonVisibility As Visibility
-    Private _selectedFileId As Integer
 
     Public Property FileNameText As String
         Get
@@ -69,12 +68,10 @@ Public Class FileDetailsViewModel
 
     Public Sub New(sessionManager As ISessionManager,
                     fileDataService As IFileDataService,
-                    fileService As IFileService,
                     regionManager As IRegionManager,
                     navigationService As INavigationService)
         _sessionManager = sessionManager
         _fileDataService = fileDataService
-        _fileService = fileService
         _regionManager = regionManager
         _navigationService = navigationService
 
@@ -95,20 +92,24 @@ Public Class FileDetailsViewModel
         Try
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
         Catch ex As Exception
-
+            Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsContentView")
         End Try
     End Sub
 
     Public Sub OnSettingSelected()
-        ' Navigate to Details view in the FileDetailsPage region
-
-        '_regionManager.RequestNavigate("FileDetailsPage", "FileDetailsSettingsView", _parameters)
+        Try
+            _regionManager.RequestNavigate("FileDetailsRegion", "FileSettingsView", _parameters)
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Error navigating to FileSettingsView")
+        End Try
     End Sub
 
     Public Sub OnDangerZoneSelected()
-        ' Navigate to Danger Zone view
-
-        '_regionManager.RequestNavigate("FileDetailsPage", "FileDetailsDangerZoneView", _parameters)
+        Try
+            '_regionManager.RequestNavigate("FileDetailsRegion", "FileDangerZoneView", _parameters)
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Error navigating to FileDangerZoneView")
+        End Try
     End Sub
 
     Private Sub Load()
@@ -134,7 +135,14 @@ Public Class FileDetailsViewModel
     ' Navigation implementation
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
-            Loading.Show()
+            If navigationContext Is Nothing Then
+                _navigationService.GoBack()
+                Return
+            End If
+
+            If _parameters Is Nothing Then
+                _parameters = New NavigationParameters()
+            End If
 
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {
@@ -155,8 +163,7 @@ Public Class FileDetailsViewModel
             End If
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsViewModel")
-        Finally
-            Loading.Hide()
+            _navigationService.GoBack()
         End Try
     End Sub
 

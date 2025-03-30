@@ -15,7 +15,6 @@ Public Class HomeViewModel
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _navigationService As INavigationService
-    Private ReadOnly _sessionManager As ISessionManager
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
@@ -65,19 +64,29 @@ Public Class HomeViewModel
     End Property
 
     Private _selectedActivity As ActivityServiceModel
+    Private _isProcessingSelection As Boolean = False
+
     Public Property SelectedActivity As ActivityServiceModel
         Get
             Return _selectedActivity
         End Get
         Set(value As ActivityServiceModel)
-            If SetProperty(_selectedActivity, value) AndAlso value IsNot Nothing Then
-                ' Execute the command
-                If SelectedActivityCommand.CanExecute(value) Then
-                    SelectedActivityCommand.Execute(value)
+            If _isProcessingSelection Then Return
+
+            _isProcessingSelection = True
+            Try
+                If SetProperty(_selectedActivity, value) AndAlso value IsNot Nothing Then
+                    If SelectedActivityCommand.CanExecute(value) Then
+                        SelectedActivityCommand.Execute(value)
+                    End If
                 End If
-                ' Clear the selection to deselect the DataGrid row
-                SetProperty(_selectedActivity, Nothing)
-            End If
+            Finally
+                ' Delay the clearing to avoid interrupting navigation
+                Application.Current.Dispatcher.BeginInvoke(Sub()
+                                                               SetProperty(_selectedActivity, Nothing)
+                                                               _isProcessingSelection = False
+                                                           End Sub)
+            End Try
         End Set
     End Property
 
@@ -93,13 +102,11 @@ Public Class HomeViewModel
     ''' <param name="fileDataService"></param>
     Public Sub New(fileDataService As IFileDataService,
                    activityService As IActivityService,
-                   navigationService As INavigationService,
-                   sessionManager As ISessionManager)
+                   navigationService As INavigationService)
 
         _fileDataService = fileDataService
         _activityService = activityService
         _navigationService = navigationService
-        _sessionManager = sessionManager
 
         ' Initialize commands
         DataGridActivities = New ObservableCollection(Of ActivityServiceModel)()
@@ -116,7 +123,9 @@ Public Class HomeViewModel
     ''' </summary>
     Private Async Sub Load()
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub()
+                                                                 Loading.Show()
+                                                             End Sub)
 
             ' Get file data
             Await Task.Run(Sub() _fileDataService.GetAllCount()).ConfigureAwait(True)
@@ -128,8 +137,10 @@ Public Class HomeViewModel
                 Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
             )
 
+            _navigationService.Start("PageRegion", "HomeView", "Home")
+
         Catch ex As Exception
-            PopUp.Information("Error", ex.Message)
+            Debug.WriteLine($"[DEBUG] Error loading data: {ex.Message}")
         Finally
             Loading.Hide()
         End Try
@@ -155,10 +166,15 @@ Public Class HomeViewModel
     ''' <param name="selectedActivity"></param>
     Private Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
         Try
-            Dim parameters = New NavigationParameters()
+            ' Validate the activity exists
+            If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
+                PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
+                Return
+            End If
 
+            ' Handle special cases
             If selectedActivity.Action = "No recent" Then
-                PopUp.Information("Failed", "No activity was selected")
+                PopUp.Information("Information", "No recent activities found")
                 Return
             End If
 
@@ -167,18 +183,24 @@ Public Class HomeViewModel
                 Return
             End If
 
-            If selectedActivity.Action = "Accessed a file" Then
-                parameters.Add("fileId", selectedActivity.FileId)
-                _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+            ' Validate FileId for actions that require it
+            If (selectedActivity.Action = "Accessed a file" OrElse
+                selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file") AndAlso
+                (selectedActivity.FileId Is Nothing OrElse selectedActivity.FileId Is Nothing) Then
+                PopUp.Information("Failed", "The selected file is no longer available")
+                Return
             End If
 
-            If selectedActivity.Action = "Shared a file" Then
-                parameters.Add("fileId", selectedActivity.FileId)
-                _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
-            End If
+            ' Prepare navigation
+            Dim parameters = New NavigationParameters()
+            parameters.Add("fileId", selectedActivity.FileId)
+
+            ' Navigate with error handling
+            _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Theres an error fetching the selected file")
-            Debug.WriteLine($"[DEBUG] Message: {ex.Message}")
+            Debug.WriteLine($"[ERROR] Activity selection failed: {ex.Message}")
+            PopUp.Information("Error", "An unexpected error occurred while processing your request.")
         End Try
     End Sub
 

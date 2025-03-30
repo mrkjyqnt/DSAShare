@@ -16,14 +16,12 @@ Public Class DownloadService
     Private ReadOnly _activeDownloads As New ConcurrentDictionary(Of Guid, ActiveDownloadInfo)
     Private ReadOnly _history As New ObservableCollection(Of DownloadHistoryItem)
     Private ReadOnly _eventAggregator As IEventAggregator
-    Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _mutex As New Object()
 
     Public Event DownloadProgressChanged As EventHandler(Of DownloadProgress) Implements IDownloadService.DownloadProgressChanged
     Public Event DownloadCompleted As EventHandler(Of DownloadHistoryItem) Implements IDownloadService.DownloadCompleted
 
-    Public Sub New(eventAggregator As IEventAggregator, sessionManager As ISessionManager)
-        _sessionManager = sessionManager
+    Public Sub New(eventAggregator As IEventAggregator)
         _eventAggregator = eventAggregator
         LoadHistory()
     End Sub
@@ -124,10 +122,10 @@ Public Class DownloadService
 
                     ' Read until all bytes are read or cancellation is requested
                     While totalBytesRead < progress.TotalBytes AndAlso Not cancellationToken.IsCancellationRequested
-                        bytesRead = Await sourceStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)
+                        bytesRead = Await sourceStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(True)
                         If bytesRead = 0 Then Exit While ' End of file
 
-                        Await destinationStream.WriteAsync(buffer, 0, bytesRead, cancellationToken)
+                        Await destinationStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(True)
                         totalBytesRead += bytesRead
 
                         ' Update progress
@@ -198,15 +196,42 @@ Public Class DownloadService
             Try
                 Dim json = File.ReadAllText(HistoryFilePath)
                 Dim items = JsonSerializer.Deserialize(Of List(Of DownloadHistoryItem))(json)
-                _history.Clear()
-                For Each item In items
-                    item.UpdateFileExists()
-                    _history.Add(item)
-                Next
+                
+                Application.Current.Dispatcher.Invoke(Sub()
+                    _history.Clear()
+                    For Each item In items
+                        ' Force status update based on current file state
+                        If item.Status = DownloadStatus.Completed AndAlso Not File.Exists(item.FilePath) Then
+                            item.Status = DownloadStatus.Removed
+                        End If
+                        item.UpdateFileStatus()
+                        _history.Add(item)
+                    Next
+                End Sub)
             Catch ex As Exception
-                ' Handle deserialization error
+                Debug.WriteLine($"[DEBUG] Error loading download history: {ex.Message}")
             End Try
         End If
+    End Sub
+
+    ' Add this method to refresh file statuses
+    Public Sub RefreshFileStatuses() Implements IDownloadService.RefreshFileStatuses
+        SyncLock _mutex
+            Application.Current.Dispatcher.Invoke(Sub()
+                For Each item In _history
+                    If item.Status = DownloadStatus.Completed Then
+                        If Not File.Exists(item.FilePath) Then
+                            item.Status = DownloadStatus.Removed
+                        End If
+                    ElseIf item.Status = DownloadStatus.Removed Then
+                        If File.Exists(item.FilePath) Then
+                            item.Status = DownloadStatus.Completed
+                        End If
+                    End If
+                    item.UpdateFileStatus()
+                Next
+            End Sub)
+        End SyncLock
     End Sub
 
     Private Sub SaveHistory()
