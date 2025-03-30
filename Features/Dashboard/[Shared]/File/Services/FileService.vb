@@ -63,10 +63,14 @@ Public Class FileService
 
     Public Function DownloadFile(filesShared As FilesShared) As FileResult Implements IFileService.DownloadFile
         Try
-            Dim _filesShared As FilesShared = _fileSharedRepository.GetById(filesShared)
+            ' Update download count
+            filesShared.DownloadCount += 1
+            If Not _fileSharedRepository.Update(filesShared) Then
+                Return New FileResult With {.Success = False, .FileExists = False, .Message = "There's an error updating the download count"}
+            End If
 
             ' Check if the file exists in database
-            If _filesShared Is Nothing Then
+            If filesShared Is Nothing Then
                 Return New FileResult With {.Success = False, .FileExists = False, .Message = "There's an error fetching the file from server"}
             End If
 
@@ -76,15 +80,15 @@ Public Class FileService
             End If
 
             ' Verify the source file exists
-            If Not File.Exists(_filesShared.FilePath) Then
-                Debug.WriteLine($"[DEBUG] File not found: {_filesShared.FilePath}")
+            If Not File.Exists(filesShared.FilePath) Then
+                Debug.WriteLine($"[DEBUG] File not found: {filesShared.FilePath}")
                 Return New FileResult With {.Success = False, .FileExists = False, .Message = "File doesn't exist on the server"}
             End If
 
             ' Ensure we have the correct filename with extension
-            Dim sourceFileName As String = Path.GetFileName(_filesShared.FilePath)
+            Dim sourceFileName As String = Path.GetFileName(filesShared.FilePath)
             If String.IsNullOrEmpty(Path.GetExtension(sourceFileName)) Then
-                Debug.WriteLine($"[DEBUG] File has no extension: {_filesShared.FilePath}")
+                Debug.WriteLine($"[DEBUG] File has no extension: {filesShared.FilePath}")
                 Return New FileResult With {.Success = False, .FileExists = False, .Message = "File has no extension"}
             End If
 
@@ -93,18 +97,14 @@ Public Class FileService
             Dim destinationPath As String = GetUniqueFilePath(downloadsFolder, sourceFileName)
 
             ' Verify the source file before starting download
-            Dim fileInfo As New FileInfo(_filesShared.FilePath)
+            Dim fileInfo As New FileInfo(filesShared.FilePath)
             If fileInfo.Length = 0 Then
-                Debug.WriteLine($"[DEBUG] File is empty: {_filesShared.FilePath}")
+                Debug.WriteLine($"[DEBUG] File is empty: {filesShared.FilePath}")
                 Return New FileResult With {.Success = False, .FileExists = False, .Message = "File is empty"}
             End If
 
             ' Start the download using DownloadService
-            Dim downloadId = _downloadService.StartDownloadAsync(_filesShared.FilePath, destinationPath).Result
-
-            ' Update download count
-            _filesShared.DownloadCount += 1
-            _fileSharedRepository.Update(_filesShared)
+            Dim downloadId = _downloadService.StartDownloadAsync(filesShared.FilePath, destinationPath).Result
 
             Return New FileResult With {
                 .Success = True,
@@ -118,6 +118,30 @@ Public Class FileService
         Finally
             ' Disconnect from the network share
             DisconnectFromNetworkShare(FolderPath)
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Update a file info
+    ''' </summary>
+    ''' <param name="filesShared"></param>
+    ''' <returns></returns>
+    Public Function UpdateFile(filesShared As FilesShared) As FileResult Implements IFileService.UpdateFile
+        Try
+            If filesShared Is Nothing Then
+                Return New FileResult With {.Success = False, .Message = "File data is null"}
+            End If
+
+            If _fileSharedRepository.Update(filesShared) Then
+                Debug.WriteLine($"[File Service - UpdateFile] File updated successfully")
+                Return New FileResult With {.Success = True, .Message = "File updated successfully"}
+            Else
+                Debug.WriteLine($"[File Service - UpdateFile] Failed to update file in repository")
+                Return New FileResult With {.Success = False, .Message = "Failed to update file"}
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"[File Service - UpdateFile] Error: {ex.Message}")
+            Return New FileResult With {.Success = False, .Message = $"Error updating file: {ex.Message}"}
         End Try
     End Function
 

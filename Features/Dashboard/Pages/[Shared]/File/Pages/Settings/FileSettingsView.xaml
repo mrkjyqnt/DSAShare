@@ -137,12 +137,26 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="16" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBox
-                    Grid.Row="0"
-                    Style="{StaticResource DefaultTextbox}"
-                    Tag="Name"
-                    Text="{Binding NameInput, UpdateSourceTrigger=PropertyChanged}" />
+                <Grid local:GridHelper.ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        Grid.Column="0"
+                        Style="{StaticResource DefaultTextbox}"
+                        Tag="Name"
+                        Text="{Binding NameInput, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Command="{Binding SaveChangesCommand}"
+                        Content="Save Changes"
+                        Style="{StaticResource DefaultButton}" />
+                </Grid>
                 <TextBox
                     Grid.Row="2"
                     MinHeight="200"
@@ -150,44 +164,31 @@
                     Tag="Description"
                     Text="{Binding DescriptionInput, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap" />
-                <StackPanel Grid.Row="4">
-                    <Button
-                        HorizontalAlignment="Stretch"
-                        Command="{Binding AddFileCommand}"
-                        Content="Add File"
-                        Style="{StaticResource DefaultButton}"
-                        Visibility="{Binding AddFileButtonVisibility, UpdateSourceTrigger=PropertyChanged}" />
-                    <Grid HorizontalAlignment="Stretch" Visibility="{Binding AddedFileVisibility, UpdateSourceTrigger=PropertyChanged}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="auto" />
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Source="/Components/Images/file.png" />
-                        <TextBlock
-                            Grid.Column="2"
-                            MaxWidth="200"
-                            VerticalAlignment="Center"
-                            Style="{StaticResource BodyText}"
-                            Text="{Binding FileName}"
-                            TextTrimming="CharacterEllipsis" />
-                        <TextBlock
-                            Grid.Column="4"
-                            Width="Auto"
-                            VerticalAlignment="Center"
-                            Style="{StaticResource BodyText}"
-                            Text="{Binding FileSize}" />
-                        <Button
-                            Grid.Column="6"
-                            Command="{Binding RemoveFileCommand}"
-                            Content="Remove"
-                            Style="{StaticResource DefaultButton}" />
-                    </Grid>
-                </StackPanel>
+                <Grid Grid.Row="4" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="/Components/Images/file.png" />
+                    <TextBlock
+                        Grid.Column="2"
+                        MaxWidth="200"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyText}"
+                        Text="{Binding FileName}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Grid.Column="4"
+                        Width="Auto"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyText}"
+                        Text="{Binding FileSize}" />
+                </Grid>
             </Grid>
         </Grid>
     </Border>

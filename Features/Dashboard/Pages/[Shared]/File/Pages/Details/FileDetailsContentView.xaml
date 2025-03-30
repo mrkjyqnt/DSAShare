@@ -106,7 +106,6 @@
                                 <Button
                                     Grid.Column="0"
                                     HorizontalAlignment="Stretch"
-                                    Command="{Binding RemoveAccessCommand}"
                                     Content="Remove Access"
                                     Style="{StaticResource DefaultButton}"
                                     ToolTip="Remove your access" />

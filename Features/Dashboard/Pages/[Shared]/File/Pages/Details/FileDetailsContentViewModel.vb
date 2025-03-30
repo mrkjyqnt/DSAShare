@@ -7,6 +7,7 @@ Imports ICSharpCode.AvalonEdit.Highlighting
 Imports Spire.Doc
 Imports Prism.Commands
 
+# Disable Warning
 Public Class FileDetailsContentViewModel
     Inherits BindableBase
     Implements INavigationAware
@@ -106,12 +107,6 @@ Public Class FileDetailsContentViewModel
         End Get
     End Property
 
-    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
-        Get
-            Throw New NotImplementedException()
-        End Get
-    End Property
-
     Public Sub New(fileDataService As IFileDataService, fileService As IFileService, sessionManager As ISessionManager)
         _fileDataService = fileDataService
         _fileService = fileService
@@ -146,12 +141,10 @@ Public Class FileDetailsContentViewModel
             Dim extension = Path.GetExtension(_filePath).ToLower()
             Dim previewType = GetPreviewTypeForExtension(extension)
 
-#Disable Warning
             Await Application.Current.Dispatcher.InvokeAsync(Sub()
                                                                  CurrentPreviewType = previewType
                                                                  RaisePropertyChanged(NameOf(CurrentPreviewType))
                                                              End Sub)
-#Enable Warning
 
             Select Case previewType
                 Case PreviewTypes.Image
@@ -201,11 +194,15 @@ Public Class FileDetailsContentViewModel
 
     Public Async Function OnDownload() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub()
+                                                                 Loading.Show()
+                                                             End Sub)
+
             Dim result = Await Task.Run(Function() _fileService.DownloadFile(_file)).ConfigureAwait(True)
 
             If result.Success Then
                 Await PopUp.Information("Success", result.Message).ConfigureAwait(True)
+                Load()
             Else
                 Await PopUp.Information("Failed", result.Message).ConfigureAwait(True)
                 Return
@@ -260,10 +257,15 @@ Public Class FileDetailsContentViewModel
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget
-        Throw New NotImplementedException()
+        Return False
     End Function
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
-        Throw New NotImplementedException()
     End Sub
+
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Return False
+        End Get
+    End Property
 End Class

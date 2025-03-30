@@ -6,30 +6,48 @@
     <Style x:Key="DefaultRadioButton" TargetType="RadioButton">
         <Setter Property="FontFamily" Value="{StaticResource FontFamily}" />
         <Setter Property="FontSize" Value="{StaticResource BodySize}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
-                        <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
-                        <Image
-                            x:Name="RadioIcon"
-                            Grid.Column="2"
-                            Width="20"
-                            Height="20"
-                            Cursor="Hand"
-                            Source="{StaticResource UnselectedIcon}" />
+
+                        <!--  Content and Icon  -->
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <Image
+                                x:Name="RadioIcon"
+                                Width="20"
+                                Height="20"
+                                Margin="0,0,8,0"
+                                Source="{StaticResource UnselectedIcon}" />
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <!--  Visual States  -->
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RadioIcon" Storyboard.TargetProperty="Source">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SelectedIcon}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RadioIcon" Storyboard.TargetProperty="Source">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource UnselectedIcon}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
                     </Grid>
-                    <ControlTemplate.Triggers>
-                        <!--  Change icon when selected  -->
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="RadioIcon" Property="Source" Value="{StaticResource SelectedIcon}" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

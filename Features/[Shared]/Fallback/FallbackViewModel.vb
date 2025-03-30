@@ -3,11 +3,11 @@ Imports CommunityToolkit.Mvvm.Input
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
+# Disable Warning
 Public Class FallbackViewModel
     Inherits BindableBase
 
     Private ReadOnly _regionManager As IRegionManager
-    Private ReadOnly _loadingService As ILoadingService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _dispatcher As Dispatcher
 
@@ -15,15 +15,13 @@ Public Class FallbackViewModel
 
     Public ReadOnly Property RetryCommand As IAsyncRelayCommand
 
-    Sub New(regionManager As IRegionManager, 
-            fallbackService As IFallbackService, 
-            sessionManager As ISessionManager, 
-            loadingService As ILoadingService)
+    Sub New(regionManager As IRegionManager,
+            fallbackService As IFallbackService,
+            sessionManager As ISessionManager)
 
         _regionManager = regionManager
         _fallBackService = fallbackService
         _sessionManager = sessionManager
-        _loadingService = loadingService
 
         _dispatcher = Application.Current.Dispatcher
 
@@ -33,7 +31,9 @@ Public Class FallbackViewModel
     Private Async Function OnRetryCommand() As Task
         Debug.WriteLine("Retry Command Clicked")
         Try
-            _loadingService.Show(New LoadingView)
+            Await Application.Current.Dispatcher.InvokeAsync(Sub()
+                                                                 Loading.Show()
+                                                             End Sub)
 
             If Await Task.Run(Function() _fallBackService.Retry()).ConfigureAwait(False) Then
 
@@ -52,9 +52,7 @@ Public Class FallbackViewModel
         Catch ex As Exception
             ErrorHandler.SetError(ex.Message)
         Finally
-            _dispatcher.Invoke(Sub()
-                                   _loadingService.Hide()
-                               End Sub)
+            Loading.Hide()
         End Try
     End Function
 

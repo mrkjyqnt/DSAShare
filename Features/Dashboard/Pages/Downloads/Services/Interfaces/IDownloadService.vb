@@ -4,6 +4,7 @@ Public Interface IDownloadService
     Function StartDownloadAsync(url As String, Optional destinationPath As String = Nothing) As Task(Of Guid)
     Sub CancelDownload(downloadId As Guid)
     Sub Remove(item As DownloadHistoryItem)
+    Sub RefreshFileStatuses()
     ReadOnly Property DownloadHistory As IEnumerable(Of DownloadHistoryItem)
     ReadOnly Property ActiveDownloads As IEnumerable(Of ActiveDownloadInfo)
     Event DownloadProgressChanged As EventHandler(Of DownloadProgress)

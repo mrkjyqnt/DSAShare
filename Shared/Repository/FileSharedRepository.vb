@@ -34,8 +34,8 @@ Public Class FileSharedRepository
                 .FilePath = _connection.DataRow("file_path").ToString(),
                 .FileSize = _connection.DataRow("file_size").ToString(),
                 .FileType = _connection.DataRow("file_type").ToString(),
-                .UploadedBy = _connection.DataRow("uploaded_by"),
-                .ShareType = _connection.DataRow("share_type").ToString(),
+                .UploadedBy = _connection.DataRow("uploaded_by").ToString(),
+                .ShareType = If(_connection.DataRow.IsNull("share_type"), Nothing, _connection.DataRow("share_type").ToString()),
                 .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
@@ -271,18 +271,18 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[DEBUG] Error: {_connection.ErrorMessage}")
             Return False
         End If
 
 
         If Not _connection.HasRecord Then
-            _connection.ErrorMessage = "File doesn't exists."
+            Debug.WriteLine($"[DEBUG] Error: File doesn't exist")
             Return True
         End If
 
         _connection.Prepare("UPDATE files_shared 
-                            SET name = @name
+                            SET name = @name,
                                 file_name = @file_name, 
                                 file_description = @file_description, 
                                 file_path = @file_path, 
@@ -294,8 +294,8 @@ Public Class FileSharedRepository
                                 expiry_date = @expiry_date, 
                                 privacy = @privacy, 
                                 download_count = @download_count, 
-    q                           created_at = @created_at,
-    q                           updated_at = @updated_at 
+                                created_at = @created_at,
+                                updated_at = @updated_at 
                             WHERE id = @file_id")
         _connection.AddParam("@name", filesShared.Name)
         _connection.AddParam("@file_name", filesShared.FileName)
@@ -311,7 +311,14 @@ Public Class FileSharedRepository
         _connection.AddParam("@download_count", filesShared.DownloadCount)
         _connection.AddParam("@created_at", filesShared.CreatedAt)
         _connection.AddParam("@updated_at", filesShared.UpdatedAt)
+        _connection.AddParam("@file_id", filesShared.Id)
         _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[DEBUG] Error: {_connection.ErrorMessage}")
+            Return False
+        End If
+
 
         If _connection.HasChanges Then
             Return True
