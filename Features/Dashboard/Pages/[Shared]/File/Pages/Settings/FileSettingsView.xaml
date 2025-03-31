@@ -155,7 +155,8 @@
                         HorizontalAlignment="Right"
                         Command="{Binding SaveChangesCommand}"
                         Content="Save Changes"
-                        Style="{StaticResource DefaultButton}" />
+                        Style="{StaticResource DefaultButton}"
+                        ToolTip="Save Changes" />
                 </Grid>
                 <TextBox
                     Grid.Row="2"
@@ -181,7 +182,8 @@
                         VerticalAlignment="Center"
                         Style="{StaticResource BodyText}"
                         Text="{Binding FileName}"
-                        TextTrimming="CharacterEllipsis" />
+                        TextTrimming="CharacterEllipsis"
+                        ToolTip="{Binding FileName}" />
                     <TextBlock
                         Grid.Column="4"
                         Width="Auto"

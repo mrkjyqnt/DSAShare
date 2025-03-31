@@ -36,6 +36,13 @@
 
     <!--  SubTitle  -->
     <Style x:Key="SubTitleText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TitleSize}" />
+        <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+    </Style>
+
+
+    <!--  Body  -->
+    <Style x:Key="TitleBodyText" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource SubTitleSize}" />
         <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
     </Style>

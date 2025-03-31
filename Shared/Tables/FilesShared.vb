@@ -18,6 +18,7 @@ Public Class FilesShared
     Public Property ExpiryDate As DateTime? = Nothing
     Public Property Privacy As String
     Public Property DownloadCount As Integer? = Nothing
+    Public Property Availability As String
     Public Property CreatedAt As DateTime? = Nothing
     Public Property UpdatedAt As DateTime? = Nothing
 

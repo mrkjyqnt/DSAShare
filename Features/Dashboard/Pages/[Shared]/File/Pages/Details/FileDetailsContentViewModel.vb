@@ -7,7 +7,7 @@ Imports ICSharpCode.AvalonEdit.Highlighting
 Imports Spire.Doc
 Imports Prism.Commands
 
-# Disable Warning
+#Disable Warning
 Public Class FileDetailsContentViewModel
     Inherits BindableBase
     Implements INavigationAware
@@ -102,6 +102,7 @@ Public Class FileDetailsContentViewModel
                 New KeyValuePair(Of String, String)("Download Count", _dataGridFileDetails.DownloadCount.ToString()),
                 New KeyValuePair(Of String, String)("Publish Date", _dataGridFileDetails.PublishDate.ToString()),
                 New KeyValuePair(Of String, String)("Expiration Date", If(_dataGridFileDetails.ExpirationDate?.ToString(), "N/A")),
+                New KeyValuePair(Of String, String)("Availability", _dataGridFileDetails.Availability),
                 New KeyValuePair(Of String, String)("File Type", _dataGridFileDetails.FileType)
             }
         End Get
@@ -124,6 +125,7 @@ Public Class FileDetailsContentViewModel
             _dataGridFileDetails.DownloadCount = If(_file?.DownloadCount, 0)
             _dataGridFileDetails.PublishDate = If(_file?.CreatedAt, DateTime.MinValue)
             _dataGridFileDetails.ExpirationDate = _file?.ExpiryDate
+            _dataGridFileDetails.Availability = If(_file?.Availability, "Unknown")
             _dataGridFileDetails.FileType = If(_file?.FileType, "Unknown")
 
             DescriptionText = If(_file?.FileDescription, "No description available.")
@@ -194,9 +196,7 @@ Public Class FileDetailsContentViewModel
 
     Public Async Function OnDownload() As Task
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.Show()
-                                                             End Sub)
+            Loading.Show()
 
             Dim result = Await Task.Run(Function() _fileService.DownloadFile(_file)).ConfigureAwait(True)
 
@@ -234,6 +234,7 @@ Public Class FileDetailsContentViewModel
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
             Loading.Show()
+
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")

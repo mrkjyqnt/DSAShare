@@ -95,7 +95,7 @@
                         HorizontalAlignment="Stretch"
                         local:StackPanelHelper.Spacing="16"
                         Orientation="Vertical">
-                        <TextBlock FontFamily="{StaticResource InterMedium}" Text="Options" />
+                        <TextBlock Style="{StaticResource TitleBodyText}" Text="Options" />
                         <StackPanel HorizontalAlignment="Stretch">
 
                             <Grid local:GridHelper.ColumnSpacing="16" Visibility="{Binding RemoveAccessButtonVisibility}">
@@ -137,15 +137,31 @@
                     <DataGrid
                         local:ScrollHelper.BubbleScroll="True"
                         AutoGenerateColumns="False"
-                        IsHitTestVisible="False"
                         ItemsSource="{Binding DataGridFileDetails}"
                         Style="{StaticResource DefaultDataGrid}">
+
                         <DataGrid.Columns>
+                            <!--  Text Column with Text Trimming & Tooltip  -->
                             <DataGridTextColumn
                                 Width="*"
                                 Binding="{Binding Key}"
-                                FontFamily="{StaticResource InterMedium}" />
-                            <DataGridTextColumn Width="*" Binding="{Binding Value}" />
+                                FontFamily="{StaticResource InterMedium}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                        <Setter Property="ToolTip" Value="{Binding Key}" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn Width="*" Binding="{Binding Value}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                        <Setter Property="ToolTip" Value="{Binding Value}" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>

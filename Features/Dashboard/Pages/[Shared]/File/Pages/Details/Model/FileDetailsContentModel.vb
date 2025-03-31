@@ -5,5 +5,6 @@
     Public Property DownloadCount As Integer
     Public Property PublishDate As DateTime
     Public Property ExpirationDate As DateTime?
+    Public Property Availability As String
     Public Property FileType As String
 End Class

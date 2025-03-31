@@ -29,6 +29,7 @@ Public Class ActivitiesRepository
                 .ActionIn = record("action_in").ToString,
                 .ActionAt = record("action_at").ToString,
                 .FileId = record("file_id"),
+                .FileName = record("file_name"),
                 .UserId = record("user_id")
             }
 
@@ -58,6 +59,7 @@ Public Class ActivitiesRepository
                 .ActionIn = record("action_in").ToString,
                 .ActionAt = record("action_at").ToString,
                 .FileId = record("file_id"),
+                .FileName = record("file_name"),
                 .UserId = record("user_id")
             }
             activityList.Add(activity)
@@ -67,11 +69,12 @@ Public Class ActivitiesRepository
 
     ' Rest of your methods remain unchanged
     Public Function Insert(activities As Activities) As Boolean
-        _connection.Prepare("INSERT INTO activities (action, action_in, action_at, file_id, user_id) VALUES (@action, @action_in, @action_at, @file_id, @user_id)")
+        _connection.Prepare("INSERT INTO activities (action, action_in, action_at, file_id, file_name, user_id) VALUES (@action, @action_in, @action_at, @file_id, @file_name, @user_id)")
         _connection.AddParam("@action", activities.Action)
         _connection.AddParam("@action_in", activities.ActionIn)
         _connection.AddParam("@action_at", activities.ActionAt)
         _connection.AddParam("@file_id", activities.FileId)
+        _connection.AddParam("@file_name", activities.FileName)
         _connection.AddParam("@user_id", activities.UserId)
         _connection.Execute()
 

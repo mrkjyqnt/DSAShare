@@ -180,7 +180,8 @@
                                                             MaxWidth="250"
                                                             FontFamily="{StaticResource InterMedium}"
                                                             Text="{Binding FileName}"
-                                                            TextTrimming="CharacterEllipsis" />
+                                                            TextTrimming="CharacterEllipsis"
+                                                            ToolTip="{Binding FileName}" />
                                                     </StackPanel>
                                                     <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
                                                 </StackPanel>
