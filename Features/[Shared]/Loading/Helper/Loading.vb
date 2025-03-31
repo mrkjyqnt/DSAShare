@@ -11,19 +11,19 @@ Public Class Loading
     End Sub
 
     Public Shared Sub Show()
-        Application.Current.Dispatcher.Invoke(Sub()
+        Application.Current.Dispatcher.InvokeAsync(Sub()
                                                 _loadingService.Show(New LoadingView)
                                               End Sub)
     End Sub
 
     Public Shared Sub StartUp()
-        Application.Current.Dispatcher.Invoke(Sub()
+        Application.Current.Dispatcher.InvokeAsync(Sub()
                                                 _loadingService.Show(New StartupLoadingView)
                                               End Sub)
     End Sub
 
     Public Shared Sub Hide()
-        Application.Current.Dispatcher.Invoke(Sub()
+        Application.Current.Dispatcher.InvokeAsync(Sub()
                                                   _loadingService.Hide()
                                               End Sub)
     End Sub

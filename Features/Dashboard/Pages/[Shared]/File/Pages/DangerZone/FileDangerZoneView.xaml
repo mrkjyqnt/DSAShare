@@ -1,0 +1,78 @@
+﻿<UserControl
+    x:Class="FileDangerZoneView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DSAShare"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    Background="{StaticResource SecondaryBackgroundBrush}"
+    UseLayoutRounding="True"
+    mc:Ignorable="d">
+    <ScrollViewer
+        Padding="{StaticResource Space-32}"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Hidden">
+        <Grid local:GridHelper.ColumnSpacing="32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" local:GridHelper.RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    Style="{StaticResource SubTitleText}"
+                    Text="Danger Zone" />
+                <TextBlock
+                    Grid.Row="2"
+                    Text="Please read carfully before doing an action"
+                    TextWrapping="Wrap" />
+            </Grid>
+            <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    Style="{StaticResource TitleBodyText}"
+                    Text="{Binding AvailabilityText}" />
+                <Button
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding DisableFileCommand}"
+                    Content="Disable"
+                    Style="{StaticResource DefaultButton}"
+                    ToolTip="Temporarily disable the file"
+                    Visibility="{Binding DisableButtonVisibility}" />
+                <Button
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding EnableFileCommand}"
+                    Content="Enable"
+                    Style="{StaticResource DefaultButton}"
+                    ToolTip="Enable the file"
+                    Visibility="{Binding EnableButtonVisibility}" />
+                <TextBlock
+                    Grid.Row="2"
+                    Style="{StaticResource TitleBodyText}"
+                    Text="Permanently Delete File"
+                    TextWrapping="Wrap" />
+                <Button
+                    Grid.Row="3"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding DeleteFileCommand}"
+                    Content="Delete File"
+                    Style="{StaticResource DefaultButton}"
+                    ToolTip="WARNING: This will delete the file permanently" />
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

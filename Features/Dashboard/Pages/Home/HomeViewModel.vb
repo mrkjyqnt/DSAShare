@@ -8,12 +8,14 @@ Imports DryIoc.FastExpressionCompiler.LightExpression
 Imports System.IO
 Imports Prism.Navigation
 
+#Disable Warning
 Public Class HomeViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _activityService As IActivityService
+    Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _navigationService As INavigationService
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
@@ -102,10 +104,12 @@ Public Class HomeViewModel
     ''' <param name="fileDataService"></param>
     Public Sub New(fileDataService As IFileDataService,
                    activityService As IActivityService,
+                   sessionManager As ISessionManager,
                    navigationService As INavigationService)
 
         _fileDataService = fileDataService
         _activityService = activityService
+        _sessionManager = sessionManager
         _navigationService = navigationService
 
         ' Initialize commands
@@ -123,9 +127,7 @@ Public Class HomeViewModel
     ''' </summary>
     Private Async Sub Load()
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.Show()
-                                                             End Sub)
+            Loading.Show()
 
             ' Get file data
             Await Task.Run(Sub() _fileDataService.GetAllCount()).ConfigureAwait(True)
@@ -164,8 +166,13 @@ Public Class HomeViewModel
     ''' On activity selected
     ''' </summary>
     ''' <param name="selectedActivity"></param>
-    Private Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
+    Private Async Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
         Try
+            Dim file = New FilesShared With {
+                .Id = selectedActivity.FileId
+            }
+            Dim fileInfo = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
+
             ' Validate the activity exists
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
                 PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
@@ -178,15 +185,34 @@ Public Class HomeViewModel
                 Return
             End If
 
-            If selectedActivity.Action = "Remove a file" Then
-                PopUp.Information("Information", "This file has been removed.")
+            If selectedActivity.Action = "Deleted a file" Then
+                PopUp.Information("Information", "This file has been deleted")
                 Return
+            End If
+
+            If fileInfo Is Nothing Then
+                PopUp.Information("Failed", "Selected file was either removed or changed")
+                Return
+            End If
+
+            If Not _sessionManager.CurrentUser.Id = fileInfo.UploadedBy Then
+
+                If fileInfo.Availability = "Disabled" Then
+                    PopUp.Information("Failed", "Referenced file has been disabled by the uploader")
+                    Return
+                End If
+
+                If fileInfo.Availability = "Deleted" Then
+                    PopUp.Information("Failed", "Referenced file has been deleted by the uploader")
+                    Return
+                End If
+
             End If
 
             ' Validate FileId for actions that require it
             If (selectedActivity.Action = "Accessed a file" OrElse
-                selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file") AndAlso
-                (selectedActivity.FileId Is Nothing OrElse selectedActivity.FileId Is Nothing) Then
+            selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file") AndAlso
+            (selectedActivity.FileId Is Nothing OrElse selectedActivity.FileId Is Nothing) Then
                 PopUp.Information("Failed", "The selected file is no longer available")
                 Return
             End If

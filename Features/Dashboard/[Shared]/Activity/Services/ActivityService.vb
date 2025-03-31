@@ -6,14 +6,11 @@ Public Class ActivityService
 
     Private Property ActivityCount As Integer
     Private ReadOnly _activitiesRepository As ActivitiesRepository
-    Private ReadOnly _fileSharedRepository As FileSharedRepository
     Private ReadOnly _sessionManager As ISessionManager
 
     Public Sub New(activitiesRepository As ActivitiesRepository,
-                   fileSharedRepository As FileSharedRepository,
                    sessionManager As ISessionManager)
         _activitiesRepository = activitiesRepository
-        _fileSharedRepository = fileSharedRepository
         _sessionManager = sessionManager
     End Sub
 
@@ -27,7 +24,6 @@ Public Class ActivityService
     End Property
 
     Public Function GetUserActivity(Optional activities As Activities = Nothing) As List(Of ActivityServiceModel) Implements IActivityService.GetUserActivity
-        Dim _fileShared As FilesShared
         Dim result = New List(Of ActivityServiceModel)()
         Dim _activityList As List(Of Activities)
 
@@ -36,15 +32,15 @@ Public Class ActivityService
                 .UserId = If(activities?.UserId, _sessionManager.CurrentUser.Id)
             })
 
-            If IsNullOrEmpty(_activityList) Then
+            If IsNullOrEmpty(_activityList) OrElse _activityList.Count < 0 Then
                 Debug.WriteLine("[DEBUG] No activities found")
                 result.Add(New ActivityServiceModel With {
                     .Id = 0,
                     .FileId = 0,
                     .Action = "No recent",
                     .ActionIn = "No Reference",
-                    .ActionAt = DateTime.Now.ToString,
-                    .FileName = "Activities"
+                    .FileName = "",
+                    .ActionAt = DateTime.Now
                 })
                 Return result
             End If
@@ -52,23 +48,15 @@ Public Class ActivityService
             Debug.WriteLine($"[DEBUG] Found {_activityList.Count} activities")
 
             For Each activity In _activityList
-                _fileShared = _fileSharedRepository.GetById(New FilesShared With {
-                    .Id = activity.FileId
+                Debug.WriteLine($"[DEBUG] Adding activity: {activity.Id}")
+                result.Add(New ActivityServiceModel With {
+                    .Id = activity.Id,
+                    .FileId = activity.FileId,
+                    .Action = activity.Action,
+                    .ActionIn = activity.ActionIn,
+                    .FileName = activity.FileName,
+                    .ActionAt = activity.ActionAt
                 })
-
-                If _fileShared IsNot Nothing Then
-                    Debug.WriteLine($"[DEBUG] Adding activity: {_fileShared.Id}")
-                    result.Add(New ActivityServiceModel With {
-                        .Id = activity.Id,
-                        .FileId = _fileShared.Id,
-                        .Action = activity.Action,
-                        .ActionIn = activity.ActionIn,
-                        .ActionAt = activity.ActionAt,
-                        .FileName = _fileShared.FileName
-                    })
-                Else
-                    Debug.WriteLine("[DEBUG] No file shared found for activity")
-                End If
             Next
 
             Return result

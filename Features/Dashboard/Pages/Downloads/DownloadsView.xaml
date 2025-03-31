@@ -69,7 +69,8 @@
                                         MaxWidth="250"
                                         FontWeight="Bold"
                                         Text="{Binding FileName}"
-                                        TextTrimming="WordEllipsis" />
+                                        TextTrimming="WordEllipsis"
+                                        ToolTip="{Binding FileName}" />
                                     <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding DownloadDate, StringFormat='Downloaded: {0:g}'}" />
                                 </StackPanel>
                                 <TextBlock

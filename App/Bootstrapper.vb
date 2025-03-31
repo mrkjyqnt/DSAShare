@@ -87,6 +87,8 @@ Public Class Bootstrapper
         containerRegistry.Register(Of FileDetailsContentViewModel)()
         containerRegistry.RegisterForNavigation(Of FileSettingsView)("FileSettingsView")
         containerRegistry.Register(Of FileSettingsViewModel)()
+        containerRegistry.RegisterForNavigation(Of FileDangerZoneView)("FileDangerZoneView")
+        containerRegistry.Register(Of FileDangerZoneViewModel)()
 
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")

@@ -252,9 +252,7 @@ Public Class FileSettingsViewModel
 
     Private Async Function OnSaveChanges() As Task
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.Show()
-                                                             End Sub)
+            Loading.Show()
 
             If String.IsNullOrEmpty(NameInput) Then
                 Await PopUp.Information("Failed", "Please add a name").ConfigureAwait(True)
@@ -284,7 +282,7 @@ Public Class FileSettingsViewModel
                 .Name = NameInput,
                 .FileName = _file.FileName,
                 .FileDescription = DescriptionInput,
-                .FilePath = _file.FilePath,  ' Fixed: Use FilePath instead of FileSize
+                .FilePath = _file.FilePath,
                 .FileSize = _file.FileSize,
                 .FileType = _file.FileType,
                 .UploadedBy = _file.UploadedBy,
@@ -293,6 +291,7 @@ Public Class FileSettingsViewModel
                 .ExpiryDate = If(IsExpirationEnabled, SelectedDate, Nothing),
                 .Privacy = Privacy,
                 .DownloadCount = _file.DownloadCount,
+                .Availability = _file.Availability,
                 .CreatedAt = _file.CreatedAt,
                 .UpdatedAt = Date.Now
             }
@@ -316,6 +315,7 @@ Public Class FileSettingsViewModel
                 .ActionIn = "Shared Files",
                 .ActionAt = Date.Now,
                 .FileId = file.Id,
+                .FileName = $"{file.FileName}{file.FileType}",
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
@@ -349,9 +349,7 @@ Public Class FileSettingsViewModel
 
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.Show()
-                                                             End Sub)
+            Loading.Show()
 
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {

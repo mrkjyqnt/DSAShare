@@ -22,6 +22,8 @@ Public Class FileService
     End Sub
 
     Public Function UploadFile(filesShared As FilesShared) As FileResult Implements IFileService.UploadFile
+        Dim destinationPath As String = ""
+
         Try
             If Not ConnectToNetworkShare() Then
                 Return New FileResult With {.Success = False, .FileExists = False, .Message = "Failed to connect to the Server"}
@@ -33,93 +35,89 @@ Public Class FileService
 
             _fileInfoService.Extract(filesShared.FilePath)
 
-            ' Generate a new file name
             Dim newFileName As String = $"{filesShared.FileName}_{_sessionManager.CurrentUser.Username}{_fileInfoService.Type}"
-            Dim destinationPath As String = Path.Combine(FolderPath, newFileName)
+            destinationPath = Path.Combine(FolderPath, newFileName)
 
-            ' Check if file exists first
             If File.Exists(destinationPath) Then
-                Return New FileResult With {.Success = False, .FileExists = True, .Message = "File already exist, try changing a file or file name"}
+                Return New FileResult With {.Success = False, .FileExists = True, .Message = "File already exists"}
             End If
 
-            ' Copy the file to the shared folder
             File.Copy(filesShared.FilePath, destinationPath, False)
 
-            ' Save the file details to the database using the repository
-            Dim _filesShared = filesShared
-            _filesShared.FilePath = destinationPath
+            filesShared.FilePath = destinationPath
 
-            ' Insert file details into the database
-            Dim insertSuccess = _fileSharedRepository.Insert(_filesShared)
-            Return New FileResult With {.Success = insertSuccess, .FileExists = False, .Message = "File uploaded sucessfully"}
+            Dim insertSuccess = _fileSharedRepository.Insert(filesShared)
+            If Not insertSuccess Then
+                ' Rollback file copy if DB insert fails
+                File.Delete(destinationPath)
+                Return New FileResult With {.Success = False, .FileExists = False, .Message = "Database error, upload failed"}
+            End If
+
+            Return New FileResult With {.Success = True, .FileExists = False, .Message = "File uploaded successfully"}
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] an error happen: {ex.Message} ")
-            Return New FileResult With {.Success = False, .FileExists = False, .Message = "Theres an error while uploading the file"}
+            If Not String.IsNullOrEmpty(destinationPath) AndAlso File.Exists(destinationPath) Then
+                File.Delete(destinationPath)
+            End If
+
+            Debug.WriteLine($"[DEBUG] Upload error: {ex.Message}")
+            Return New FileResult With {.Success = False, .FileExists = False, .Message = "Error uploading file"}
         Finally
-            ' Disconnect from the network share
             DisconnectFromNetworkShare(FolderPath)
         End Try
     End Function
+
 
     Public Function DownloadFile(filesShared As FilesShared) As FileResult Implements IFileService.DownloadFile
+        Dim destinationPath As String = ""
+
         Try
-            ' Update download count
-            filesShared.DownloadCount += 1
-            If Not _fileSharedRepository.Update(filesShared) Then
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "There's an error updating the download count"}
-            End If
-
-            ' Check if the file exists in database
-            If filesShared Is Nothing Then
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "There's an error fetching the file from server"}
-            End If
-
             ' Connect to the network share
             If Not ConnectToNetworkShare() Then
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "Failed to connect to the Server"}
+                Return New FileResult With {.Success = False, .Message = "Failed to connect to the Server"}
             End If
 
-            ' Verify the source file exists
+            ' Validate file exists in DB
+            If filesShared Is Nothing OrElse String.IsNullOrEmpty(filesShared.FilePath) Then
+                Return New FileResult With {.Success = False, .Message = "Invalid file data"}
+            End If
+
+            ' Verify if file exists physically
             If Not File.Exists(filesShared.FilePath) Then
-                Debug.WriteLine($"[DEBUG] File not found: {filesShared.FilePath}")
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "File doesn't exist on the server"}
+                Return New FileResult With {.Success = False, .Message = "File does not exist on the server"}
             End If
 
-            ' Ensure we have the correct filename with extension
-            Dim sourceFileName As String = Path.GetFileName(filesShared.FilePath)
-            If String.IsNullOrEmpty(Path.GetExtension(sourceFileName)) Then
-                Debug.WriteLine($"[DEBUG] File has no extension: {filesShared.FilePath}")
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "File has no extension"}
-            End If
-
-            ' Generate unique destination path in Downloads folder
+            ' Generate a unique file name in Downloads folder
             Dim downloadsFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) & "\Downloads"
-            Dim destinationPath As String = GetUniqueFilePath(downloadsFolder, sourceFileName)
+            Dim sourceFileName As String = Path.GetFileName(filesShared.FilePath)
+            destinationPath = GetUniqueFilePath(downloadsFolder, sourceFileName)
 
-            ' Verify the source file before starting download
-            Dim fileInfo As New FileInfo(filesShared.FilePath)
-            If fileInfo.Length = 0 Then
-                Debug.WriteLine($"[DEBUG] File is empty: {filesShared.FilePath}")
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "File is empty"}
+            ' Attempt file download
+            _downloadService.StartDownloadAsync(filesShared.FilePath, destinationPath)
+
+            ' Only update DownloadCount after successful download
+            filesShared.DownloadCount += 1
+            If Not _fileSharedRepository.Update(filesShared) Then
+                ' Rollback: Remove downloaded file if DB update fails
+                If File.Exists(destinationPath) Then File.Delete(destinationPath)
+                Return New FileResult With {.Success = False, .Message = "Download successful, but failed to update download count"}
             End If
 
-            ' Start the download using DownloadService
-            Dim downloadId = _downloadService.StartDownloadAsync(filesShared.FilePath, destinationPath).Result
-
-            Return New FileResult With {
-                .Success = True,
-                .FileExists = True,
-                .Message = $"Added to your Downloads as {Path.GetFileName(destinationPath)}"
-            }
+            Return New FileResult With {.Success = True, .Message = $"File downloaded successfully: {destinationPath}"}
 
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error initiating download: {ex.Message}")
-            Return New FileResult With {.Success = False, .FileExists = False, .Message = $"Error initiating download: {ex.Message}"}
+            ' Rollback: Remove partially downloaded file
+            If Not String.IsNullOrEmpty(destinationPath) AndAlso File.Exists(destinationPath) Then
+                File.Delete(destinationPath)
+            End If
+
+            Debug.WriteLine($"[DEBUG] Download error: {ex.Message}")
+            Return New FileResult With {.Success = False, .Message = $"Error downloading file: {ex.Message}"}
+
         Finally
-            ' Disconnect from the network share
             DisconnectFromNetworkShare(FolderPath)
         End Try
     End Function
+
 
     ''' <summary>
     ''' Update a file info
@@ -142,6 +140,38 @@ Public Class FileService
         Catch ex As Exception
             Debug.WriteLine($"[File Service - UpdateFile] Error: {ex.Message}")
             Return New FileResult With {.Success = False, .Message = $"Error updating file: {ex.Message}"}
+        End Try
+    End Function
+
+    Public Function DeleteFile(filesShared As FilesShared) As FileResult Implements IFileService.DeleteFile
+        Try
+            If filesShared Is Nothing Then
+                Return New FileResult With {.Success = False, .Message = "File data is null"}
+            End If
+
+            If Not ConnectToNetworkShare() Then
+                Return New FileResult With {.Success = False, .Message = "Failed to connect to the Server"}
+            End If
+
+            If Not _fileSharedRepository.Delete(filesShared) Then
+                Return New FileResult With {.Success = False, .Message = "Failed to delete file in repository"}
+            End If
+
+            If Not File.Exists(filesShared.FilePath) Then
+                Return New FileResult With {.Success = False, .Message = "File not found on server"}
+            End If
+
+            File.Delete(filesShared.FilePath)
+
+            Return New FileResult With {.Success = True, .Message = "File successfully removed"}
+
+        Catch ex As Exception
+            _fileSharedRepository.Insert(filesShared)
+
+            Debug.WriteLine($"[DEBUG] Delete error: {ex.Message}")
+            Return New FileResult With {.Success = False, .Message = $"Error deleting file: {ex.Message}"}
+        Finally
+            DisconnectFromNetworkShare(FolderPath)
         End Try
     End Function
 

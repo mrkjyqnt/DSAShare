@@ -106,7 +106,7 @@ Public Class FileDetailsViewModel
 
     Public Sub OnDangerZoneSelected()
         Try
-            '_regionManager.RequestNavigate("FileDetailsRegion", "FileDangerZoneView", _parameters)
+            _regionManager.RequestNavigate("FileDetailsRegion", "FileDangerZoneView", _parameters)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error navigating to FileDangerZoneView")
         End Try

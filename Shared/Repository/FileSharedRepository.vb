@@ -40,6 +40,7 @@ Public Class FileSharedRepository
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
+                .Availability = _connection.DataRow("availability").ToString(),
                 .CreatedAt = _connection.DataRow("created_at"),
                 .UpdatedAt = _connection.DataRow("updated_at")
             }
@@ -78,6 +79,7 @@ Public Class FileSharedRepository
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
+                .Availability = _connection.DataRow("availability").ToString(),
                 .CreatedAt = _connection.DataRow("created_at"),
                 .UpdatedAt = _connection.DataRow("updated_at")
             }
@@ -121,6 +123,7 @@ Public Class FileSharedRepository
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
+                .Availability = _connection.DataRow("availability").ToString(),
                 .CreatedAt = _connection.DataRow("created_at"),
                 .UpdatedAt = _connection.DataRow("updated_at")
             }
@@ -165,6 +168,7 @@ Public Class FileSharedRepository
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
+                .Availability = _connection.DataRow("availability").ToString(),
                 .CreatedAt = _connection.DataRow("created_at"),
                 .UpdatedAt = _connection.DataRow("updated_at")
             }
@@ -211,6 +215,7 @@ Public Class FileSharedRepository
                 .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
                 .Privacy = _connection.DataRow("privacy").ToString(),
                 .DownloadCount = _connection.DataRow("download_count"),
+                .Availability = _connection.DataRow("availability").ToString(),
                 .CreatedAt = _connection.DataRow("created_at"),
                 .UpdatedAt = _connection.DataRow("updated_at")
             }
@@ -228,8 +233,8 @@ Public Class FileSharedRepository
     ''' </summary>
     ''' <param name="filesShared">The FilesShared object containing file data.</param>
     Public Function Insert(filesShared As FilesShared) As Boolean
-        _connection.Prepare("INSERT INTO files_shared (name, file_name, file_description, file_path, file_size, file_type, uploaded_by, share_type, share_value, expiry_date, privacy, download_count, created_at, updated_at) " &
-                              "VALUES (@name, @file_name, @file_description, @file_path, @file_size, @file_type, @uploaded_by, @share_type, @share_value, @expiry_date, @privacy, @download_count, @created_at, @updated_at)")
+        _connection.Prepare("INSERT INTO files_shared (name, file_name, file_description, file_path, file_size, file_type, uploaded_by, share_type, share_value, expiry_date, privacy, download_count, availability, created_at, updated_at) " &
+                              "VALUES (@name, @file_name, @file_description, @file_path, @file_size, @file_type, @uploaded_by, @share_type, @share_value, @expiry_date, @privacy, @download_count, @availability, @created_at, @updated_at)")
         _connection.AddParam("@name", filesShared.Name)
         _connection.AddParam("@file_name", filesShared.FileName)
         _connection.AddParam("@file_description", filesShared.FileDescription)
@@ -242,6 +247,7 @@ Public Class FileSharedRepository
         _connection.AddParam("@expiry_date", filesShared.ExpiryDate)
         _connection.AddParam("@privacy", filesShared.Privacy)
         _connection.AddParam("@download_count", filesShared.DownloadCount)
+        _connection.AddParam("@availability", filesShared.Availability)
         _connection.AddParam("@created_at", filesShared.CreatedAt)
         _connection.AddParam("@updated_at", filesShared.UpdatedAt)
         _connection.Execute()
@@ -294,6 +300,7 @@ Public Class FileSharedRepository
                                 expiry_date = @expiry_date, 
                                 privacy = @privacy, 
                                 download_count = @download_count, 
+                                availability = @availability, 
                                 created_at = @created_at,
                                 updated_at = @updated_at 
                             WHERE id = @file_id")
@@ -309,6 +316,7 @@ Public Class FileSharedRepository
         _connection.AddParam("@expiry_date", filesShared.ExpiryDate)
         _connection.AddParam("@privacy", filesShared.Privacy)
         _connection.AddParam("@download_count", filesShared.DownloadCount)
+        _connection.AddParam("@availability", filesShared.Availability)
         _connection.AddParam("@created_at", filesShared.CreatedAt)
         _connection.AddParam("@updated_at", filesShared.UpdatedAt)
         _connection.AddParam("@file_id", filesShared.Id)

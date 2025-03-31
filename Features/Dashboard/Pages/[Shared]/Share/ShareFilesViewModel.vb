@@ -303,6 +303,7 @@ Public Class ShareFilesViewModel
                 .ExpiryDate = SelectedDate,
                 .Privacy = If(Privacy, ""),
                 .DownloadCount = 0,
+                .Availability = "Available",
                 .CreatedAt = Date.Now,
                 .UpdatedAt = Date.Now
             }
@@ -329,6 +330,7 @@ Public Class ShareFilesViewModel
                 .ActionIn = "Shared Files",
                 .ActionAt = Date.Now,
                 .FileId = file.Id,
+                .FileName = $"{file.FileName}{file.FileType}",
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
