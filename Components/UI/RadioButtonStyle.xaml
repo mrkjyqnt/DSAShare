@@ -15,19 +15,18 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <!--  Content and Icon  -->
-                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                            <Image
-                                x:Name="RadioIcon"
-                                Width="20"
-                                Height="20"
-                                Margin="0,0,8,0"
-                                Source="{StaticResource UnselectedIcon}" />
-                            <ContentPresenter VerticalAlignment="Center" />
-                        </StackPanel>
-
+                        <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
+                        <Image
+                            x:Name="RadioIcon"
+                            Grid.Column="2"
+                            Width="20"
+                            Height="20"
+                            Margin="0,0,8,0"
+                            Source="{StaticResource UnselectedIcon}" />
                         <!--  Visual States  -->
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CheckStates">

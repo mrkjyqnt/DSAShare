@@ -2,7 +2,7 @@
 
 Public Class FileDataService
     Implements IFileDataService
-    
+
     Private ReadOnly _fileSharedRepository As FileSharedRepository
     Private ReadOnly _fileAccessedRepository As FileAccessedRepository
     Private ReadOnly _sessionManager As ISessionManager
@@ -140,5 +140,4 @@ Public Class FileDataService
             Return Nothing
         End Try
     End Function
-
 End Class

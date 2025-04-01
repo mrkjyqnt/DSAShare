@@ -17,8 +17,8 @@
                 <TextBlock
                     Grid.Row="0"
                     Foreground="{StaticResource BlackBrush}"
-                    Style="{StaticResource SubTitleText}"
-                    Text="Loading"
+                    Style="{StaticResource TitleBodyText}"
+                    Text="Loading..."
                     TextAlignment="Center" />
                 <ProgressBar
                     Grid.Row="2"
