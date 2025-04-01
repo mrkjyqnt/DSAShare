@@ -17,6 +17,7 @@ Public Class HomeViewModel
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _navigationService As INavigationService
+    Private ReadOnly _fallBackService As IFallbackService
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
@@ -105,12 +106,14 @@ Public Class HomeViewModel
     Public Sub New(fileDataService As IFileDataService,
                    activityService As IActivityService,
                    sessionManager As ISessionManager,
-                   navigationService As INavigationService)
+                   navigationService As INavigationService,
+                   fallBackService As IFallbackService)
 
         _fileDataService = fileDataService
         _activityService = activityService
         _sessionManager = sessionManager
         _navigationService = navigationService
+        _fallBackService = fallBackService
 
         ' Initialize commands
         DataGridActivities = New ObservableCollection(Of ActivityServiceModel)()
@@ -119,6 +122,7 @@ Public Class HomeViewModel
         AccessFilesCommand = New DelegateCommand(AddressOf OnAccessFilesCommand)
 
         ' Load data
+        _navigationService.Start("PageRegion", "HomeView", "Home")
         Load()
     End Sub
 
@@ -127,7 +131,11 @@ Public Class HomeViewModel
     ''' </summary>
     Private Async Sub Load()
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             ' Get file data
             Await Task.Run(Sub() _fileDataService.GetAllCount()).ConfigureAwait(True)
@@ -138,8 +146,6 @@ Public Class HomeViewModel
             DataGridActivities = New ObservableCollection(Of ActivityServiceModel)(
                 Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
             )
-
-            _navigationService.Start("PageRegion", "HomeView", "Home")
 
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error loading data: {ex.Message}")

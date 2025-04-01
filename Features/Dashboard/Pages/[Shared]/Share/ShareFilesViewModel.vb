@@ -254,7 +254,11 @@ Public Class ShareFilesViewModel
 
     Private Async Function OnPublish() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If NameInput = "" OrElse NameInput Is Nothing Then
                 Await PopUp.Information("Failed", "Please add a name").ConfigureAwait(True)

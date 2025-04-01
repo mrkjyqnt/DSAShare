@@ -1,3 +1,4 @@
 ﻿Public Interface IFallbackService
-    Function Retry() As Boolean
+    Sub Show(View As Object)
+    Sub Hide()
 End Interface

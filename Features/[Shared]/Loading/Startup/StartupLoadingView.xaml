@@ -6,7 +6,10 @@
     xmlns:local="clr-namespace:DSAShare"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch"
     prism:ViewModelLocator.AutoWireViewModel="True"
+    Background="{StaticResource BackgroundBrush}"
     UseLayoutRounding="True"
     mc:Ignorable="d">
     <Grid>

@@ -252,7 +252,11 @@ Public Class FileSettingsViewModel
 
     Private Async Function OnSaveChanges() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If String.IsNullOrEmpty(NameInput) Then
                 Await PopUp.Information("Failed", "Please add a name").ConfigureAwait(True)
@@ -349,7 +353,11 @@ Public Class FileSettingsViewModel
 
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {

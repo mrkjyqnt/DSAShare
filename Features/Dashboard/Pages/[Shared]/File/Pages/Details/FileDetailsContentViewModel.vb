@@ -196,7 +196,11 @@ Public Class FileDetailsContentViewModel
 
     Public Async Function OnDownload() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             Dim result = Await Task.Run(Function() _fileService.DownloadFile(_file)).ConfigureAwait(True)
 
@@ -233,7 +237,11 @@ Public Class FileDetailsContentViewModel
 
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {

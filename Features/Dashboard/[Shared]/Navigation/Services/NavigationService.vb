@@ -45,6 +45,8 @@ Public Class NavigationService
             _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish(prev.Item)
 
             _navigationHistoryService.RemoveCurrentPage()
+        Else
+            Debug.WriteLine($"[DEBUG] Theres an error going back to recent view")
         End If
     End Sub
 End Class
