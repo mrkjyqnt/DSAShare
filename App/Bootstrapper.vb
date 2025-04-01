@@ -53,6 +53,12 @@ Public Class Bootstrapper
         containerRegistry.RegisterForNavigation(Of LoadingView)("LoadingView")
         containerRegistry.RegisterForNavigation(Of StartupLoadingView)("StartupLoadingView")
 
+        ' Register Repositories
+        containerRegistry.Register(Of FileSharedRepository)()
+        containerRegistry.Register(Of FileAccessedRepository)()
+        containerRegistry.Register(Of UsersRepository)()
+        containerRegistry.Register(Of ActivitiesRepository)()
+
 
         ' AUTHENTICATION '
         ' Register the Authentication Services
@@ -110,7 +116,7 @@ Public Class Bootstrapper
         'containerRegistry.Register(Of PublicFilesViewModel)()
 
         containerRegistry.RegisterForNavigation(Of SharedFilesView)("SharedFilesView")
-        'containerRegistry.Register(Of SharedFilesViewModel)()
+        containerRegistry.Register(Of SharedFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
         containerRegistry.Register(Of ShareFilesViewModel)()
 

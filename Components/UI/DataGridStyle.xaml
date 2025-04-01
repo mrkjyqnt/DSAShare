@@ -147,7 +147,10 @@
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     SnapsToDevicePixels="True">
-                                    <ContentPresenter VerticalAlignment="Stretch" SnapsToDevicePixels="True" />
+                                    <ContentPresenter
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        SnapsToDevicePixels="True" />
                                 </Border>
                             </ControlTemplate>
                         </Setter.Value>
