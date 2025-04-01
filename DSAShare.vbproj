@@ -76,6 +76,7 @@
     <None Remove="Components\Images\public.png" />
     <None Remove="Components\Images\radio-filled.png" />
     <None Remove="Components\Images\radio.png" />
+    <None Remove="Components\Images\search.png" />
     <None Remove="Components\Images\server-x.png" />
     <None Remove="Components\Images\shared-filled.png" />
     <None Remove="Components\Images\shared.png" />
@@ -100,10 +101,6 @@
     <Import Include="System.Windows.Media.Imaging" />
     <Import Include="System.Windows.Navigation" />
     <Import Include="System.Windows.Shapes" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Dashboard\Pages\SharedFiles\Pages\SearchFile\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -145,6 +142,7 @@
     <Resource Include="Components\Images\public.png" />
     <Resource Include="Components\Images\radio-filled.png" />
     <Resource Include="Components\Images\radio.png" />
+    <Resource Include="Components\Images\search.png" />
     <Resource Include="Components\Images\server-x.png" />
     <Resource Include="Components\Images\shared-filled.png" />
     <Resource Include="Components\Images\shared.png" />
