@@ -47,7 +47,8 @@ Public Class Bootstrapper
         containerRegistry.RegisterSingleton(Of IUserService, UserService)()
 
         ' Register the Fallback View
-        containerRegistry.RegisterForNavigation(Of FallbackView)("FallBackView")
+        containerRegistry.RegisterForNavigation(Of FallbackView)("FallbackView")
+        containerRegistry.Register(Of FallbackViewModel)()
 
         ' Register the Loading View
         containerRegistry.RegisterForNavigation(Of LoadingView)("LoadingView")
@@ -141,26 +142,15 @@ Public Class Bootstrapper
 
         Dim regionManager = Container.Resolve(Of IRegionManager)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
+        Dim navigation = Container.Resolve(Of INavigationService)
 
         sessionManager.LoadSession()
 
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.StartUp()
-                                                             End Sub)
+            Loading.StartUp()
+            Await Task.Delay(3000).ConfigureAwait(True)
 
-            If Not Await Task.Run(Function() _connection.TestConnection()).ConfigureAwait(True) Then
-                regionManager.RequestNavigate("MainRegion", "FallBackView")
-
-                Await Task.Delay(5000).ConfigureAwait(True)
-                Return
-            End If
-
-            If sessionManager.IsLoggedIn() Then
-                regionManager.RequestNavigate("MainRegion", "DashboardView")
-            Else
-                regionManager.RequestNavigate("MainRegion", "AuthenticationView")
-            End If
+            navigation.Go("MainRegion", "AuthenticationView")       
 
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error initializing the application: {ex.Message}")

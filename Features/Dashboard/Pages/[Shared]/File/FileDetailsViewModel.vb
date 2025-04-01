@@ -135,6 +135,12 @@ Public Class FileDetailsViewModel
     ' Navigation implementation
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
             If navigationContext Is Nothing Then
                 _navigationService.GoBack()
                 Return
@@ -164,6 +170,8 @@ Public Class FileDetailsViewModel
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsViewModel")
             _navigationService.GoBack()
+        Finally
+            Loading.Hide
         End Try
     End Sub
 

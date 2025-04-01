@@ -85,7 +85,30 @@ Public Class FileDangerZoneViewModel
 
     Private Async Function OnDisableFile() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+
+            If popUpResult Is Nothing Then
+                Await PopUp.Information("Cancelled", "File disabling was cancelled.").ConfigureAwait(True)
+                Exit Function
+            Else
+                Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
+                Dim user = New Users With {
+                    .PasswordHash = HashPassword(enteredPassword)
+                }
+
+                Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
+                If Not hasPermission Then
+                     Await PopUp.Information("Failed", $"Invalid Password").ConfigureAwait(True)
+                Else
+                    Exit Function
+                End If
+            End If
 
             If _file Is Nothing Then
                 PopUp.Information("Failed", "Theres an error while disabling the file, File reference is nothing")
@@ -131,6 +154,25 @@ Public Class FileDangerZoneViewModel
             If _file Is Nothing Then
                 PopUp.Information("Failed", "Theres an error while disabling the file, File reference is nothing")
                 Return
+            End If
+
+            Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+
+            If popUpResult Is Nothing Then
+                Await PopUp.Information("Cancelled", "File enabling was cancelled.").ConfigureAwait(True)
+                Exit Function
+            Else
+                Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
+                Dim user = New Users With {
+                    .PasswordHash = HashPassword(enteredPassword)
+                }
+
+                Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
+                If Not hasPermission Then
+                    Await PopUp.Information("Failed", $"Invalid Password").ConfigureAwait(True)
+                Else
+                    Exit Function
+                End If
             End If
 
             Dim file As FilesShared = _file

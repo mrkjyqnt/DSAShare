@@ -21,6 +21,17 @@
         <ContentControl prism:RegionManager.RegionName="MainRegion" />
 
         <Grid
+            x:Name="Fallback"
+            Panel.ZIndex="1"
+            Visibility="Collapsed">
+            <Border Background="{StaticResource BackgroundBrush}" />
+            <ContentControl
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                prism:RegionManager.RegionName="FallbackRegion" />
+        </Grid>
+
+        <Grid
             x:Name="Loading"
             Panel.ZIndex="1"
             Visibility="Collapsed">

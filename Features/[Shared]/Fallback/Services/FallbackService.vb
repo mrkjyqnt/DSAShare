@@ -1,13 +1,25 @@
-﻿Public Class FallbackService
+﻿Imports Prism.Navigation.Regions
+
+Public Class FallbackService
     Implements IFallbackService
 
-    Private ReadOnly _connection As Connection
+    Private ReadOnly _regionManager As IRegionManager
 
-    Sub New(connection As Connection)
-        _connection = connection
+    Public Sub New(regionManager As IRegionManager)
+        _regionManager = regionManager
     End Sub
 
-    Public Function Retry() As Boolean Implements IFallbackService.Retry
-        Return _connection.TestConnection
-    End Function
+    Public Sub Show(View As Object) Implements IFallbackService.Show
+        _regionManager.Regions("FallbackRegion").Add(View)
+
+        Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
+        mainWindow.Fallback.Visibility = Visibility.Visible
+    End Sub
+
+    Public Sub Hide() Implements IFallbackService.Hide
+        _regionManager.Regions("FallbackRegion").RemoveAll()
+
+        Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
+        mainWindow.Fallback.Visibility = Visibility.Collapsed
+    End Sub
 End Class

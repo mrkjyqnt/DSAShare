@@ -16,7 +16,6 @@ Public Class SharedFilesViewModel
 
     Private _userFiles As List(Of FilesShared)
 
-    ' Properties
     Private _searchInput As String
     Public Property SearchInput As String
         Get
@@ -102,8 +101,6 @@ Public Class SharedFilesViewModel
         End Set
     End Property
 
-
-    ' Checkbox Properties
     Private _isAllTypesSelected As Boolean? = True
     Public Property IsAllTypesSelected As Boolean?
         Get
@@ -205,7 +202,6 @@ Public Class SharedFilesViewModel
         End Set
     End Property
 
-    ' Commands
     Public Property SearchCommand As DelegateCommand
     Public Property ShareFileCommand As DelegateCommand
     Public Property ViewCommand As DelegateCommand(Of Integer?)
@@ -281,7 +277,11 @@ Public Class SharedFilesViewModel
 
     Private Async Sub LoadData()
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             _userFiles = Await Task.Run(Function() _fileDataService.GetSharedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
 
