@@ -6,6 +6,9 @@
     xmlns:local="clr-namespace:DSAShare"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -23,20 +26,12 @@
         </Border>
 
         <Grid Grid.Row="1">
-            <Border Padding="{StaticResource Space-32}" VerticalAlignment="Top">
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontSize="16"
-                    Style="{StaticResource BodyText}"
-                    Text="No downloads yet" />
-            </Border>
             <ListView
                 Padding="32,32,32,0"
                 HorizontalAlignment="Stretch"
                 Background="Transparent"
                 BorderThickness="0"
-                ItemsSource="{Binding DownloadHistory, IsAsync=True}"
+                ItemsSource="{Binding DownloadHistory, UpdateSourceTrigger=PropertyChanged}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListView.ItemContainerStyle>
@@ -123,6 +118,17 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <Border
+                Padding="{StaticResource Space-32}"
+                VerticalAlignment="Top"
+                Visibility="{Binding DownloadHistory, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Visible}">
+                <Border
+                    Padding="{StaticResource Space-16}"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource DefaultBorder}">
+                    <TextBlock Style="{StaticResource BodyText}" Text="No records found" />
+                </Border>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

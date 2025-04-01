@@ -98,7 +98,7 @@ Public Class FileSharedRepository
 
         _connection.Prepare("SELECT * FROM files_shared WHERE privacy = @privacy ORDER BY id DESC")
         _connection.AddParam("@privacy", fileShared.Privacy)
-        _connection.AddParam("@uploaded_by", fileShared.UploadedBy)
+        _connection.AddParam("@uploaded_by", CInt(fileShared.UploadedBy))
         _connection.Execute()
 
         If _connection.HasError Then
@@ -110,22 +110,22 @@ Public Class FileSharedRepository
 
         For Each record As DataRow In records
             Dim file As New FilesShared() With {
-                .Id = _connection.DataRow("id"),
-                .Name = _connection.DataRow("name").ToString(),
-                .FileName = _connection.DataRow("file_name").ToString(),
-                .FileDescription = _connection.DataRow("file_description").ToString(),
-                .FilePath = _connection.DataRow("file_path").ToString(),
-                .FileSize = _connection.DataRow("file_size").ToString(),
-                .FileType = _connection.DataRow("file_type").ToString(),
-                .UploadedBy = _connection.DataRow("uploaded_by"),
-                .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
-                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
-                .Privacy = _connection.DataRow("privacy").ToString(),
-                .DownloadCount = _connection.DataRow("download_count"),
-                .Availability = _connection.DataRow("availability").ToString(),
-                .CreatedAt = _connection.DataRow("created_at"),
-                .UpdatedAt = _connection.DataRow("updated_at")
+                .Id = record("id"),
+                .Name = record("name").ToString(),
+                .FileName = record("file_name").ToString(),
+                .FileDescription = record("file_description").ToString(),
+                .FilePath = record("file_path").ToString(),
+                .FileSize = record("file_size").ToString(),
+                .FileType = record("file_type").ToString().Trim(),
+                .UploadedBy = record("uploaded_by"),
+                .ShareType = record("share_type").ToString(),
+                .ShareValue = If(record.IsNull("share_value"), Nothing, record("share_value").ToString()),
+                .ExpiryDate = If(record.IsNull("expiry_date"), Nothing, record("expiry_date")),
+                .Privacy = record("privacy").ToString(),
+                .DownloadCount =record("download_count"),
+                .Availability = record("availability").ToString(),
+                .CreatedAt = record("created_at"),
+                .UpdatedAt = record("updated_at")
             }
 
             filesList.Add(file)
@@ -155,22 +155,22 @@ Public Class FileSharedRepository
 
         For Each record As DataRow In records
             Dim file As New FilesShared() With {
-                .Id = _connection.DataRow("id"),
-                .Name = _connection.DataRow("name").ToString(),
-                .FileName = _connection.DataRow("file_name").ToString(),
-                .FileDescription = _connection.DataRow("file_description").ToString(),
-                .FilePath = _connection.DataRow("file_path").ToString(),
-                .FileSize = _connection.DataRow("file_size").ToString(),
-                .FileType = _connection.DataRow("file_type").ToString(),
-                .UploadedBy = _connection.DataRow("uploaded_by"),
-                .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
-                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
-                .Privacy = _connection.DataRow("privacy").ToString(),
-                .DownloadCount = _connection.DataRow("download_count"),
-                .Availability = _connection.DataRow("availability").ToString(),
-                .CreatedAt = _connection.DataRow("created_at"),
-                .UpdatedAt = _connection.DataRow("updated_at")
+                .Id = record("id"),
+                .Name = record("name").ToString(),
+                .FileName = record("file_name").ToString(),
+                .FileDescription = record("file_description").ToString(),
+                .FilePath = record("file_path").ToString(),
+                .FileSize = record("file_size").ToString(),
+                .FileType = record("file_type").ToString().Trim(),
+                .UploadedBy = record("uploaded_by"),
+                .ShareType = record("share_type").ToString(),
+                .ShareValue = If(record.IsNull("share_value"), Nothing, record("share_value").ToString()),
+                .ExpiryDate = If(record.IsNull("expiry_date"), Nothing, record("expiry_date")),
+                .Privacy = record("privacy").ToString(),
+                .DownloadCount =record("download_count"),
+                .Availability = record("availability").ToString(),
+                .CreatedAt = record("created_at"),
+                .UpdatedAt = record("updated_at")
             }
 
             filesList.Add(file)
@@ -202,22 +202,22 @@ Public Class FileSharedRepository
         ' Iterate through each record using For Each
         For Each record As DataRow In records
             Dim file As New FilesShared() With {
-                .Id = _connection.DataRow("id"),
-                .Name = _connection.DataRow("name").ToString(),
-                .FileName = _connection.DataRow("file_name").ToString(),
-                .FileDescription = _connection.DataRow("file_description").ToString(),
-                .FilePath = _connection.DataRow("file_path").ToString(),
-                .FileSize = _connection.DataRow("file_size").ToString(),
-                .FileType = _connection.DataRow("file_type").ToString(),
-                .UploadedBy = _connection.DataRow("uploaded_by").ToString(),
-                .ShareType = _connection.DataRow("share_type").ToString(),
-                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
-                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
-                .Privacy = _connection.DataRow("privacy").ToString(),
-                .DownloadCount = _connection.DataRow("download_count"),
-                .Availability = _connection.DataRow("availability").ToString(),
-                .CreatedAt = _connection.DataRow("created_at"),
-                .UpdatedAt = _connection.DataRow("updated_at")
+                .Id = record("id"),
+                .Name = record("name").ToString(),
+                .FileName = record("file_name").ToString(),
+                .FileDescription = record("file_description").ToString(),
+                .FilePath = record("file_path").ToString(),
+                .FileSize = record("file_size").ToString(),
+                .FileType = record("file_type").ToString().Trim(),
+                .UploadedBy = record("uploaded_by"),
+                .ShareType = record("share_type").ToString(),
+                .ShareValue = If(record.IsNull("share_value"), Nothing, record("share_value").ToString()),
+                .ExpiryDate = If(record.IsNull("expiry_date"), Nothing, record("expiry_date")),
+                .Privacy = record("privacy").ToString(),
+                .DownloadCount =record("download_count"),
+                .Availability = record("availability").ToString(),
+                .CreatedAt = record("created_at"),
+                .UpdatedAt = record("updated_at")
             }
 
             filesList.Add(file)

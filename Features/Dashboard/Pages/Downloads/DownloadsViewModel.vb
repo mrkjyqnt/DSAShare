@@ -6,6 +6,8 @@ Imports System.IO
 Imports System.Diagnostics
 Imports System.Threading.Tasks
 Imports Prism.Navigation.Regions
+Imports System.Collections
+Imports System.Collections.Specialized
 
 Public Class DownloadsViewModel
     Inherits BindableBase
@@ -50,21 +52,16 @@ Public Class DownloadsViewModel
 
     Private Async Sub LoadDownloadHistory()
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.Show()
-                                                             End Sub)
-
+            Loading.Show()
             Dim history = Await Task.Run(Function() _downloadService.DownloadHistory.ToList()).ConfigureAwait(True)
-
             Application.Current.Dispatcher.Invoke(Sub()
                                                       _downloadHistory.Clear()
                                                       For Each item In history
-                                                          ' Ensure status is updated before showing in UI
                                                           item.UpdateFileStatus()
                                                           _downloadHistory.Add(item)
                                                       Next
+                                                      NotifyCollectionChanged()
                                                   End Sub)
-
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error loading download history: {ex.Message}")
         Finally
@@ -72,15 +69,23 @@ Public Class DownloadsViewModel
         End Try
     End Sub
 
-    Private Sub OpenFile(item As DownloadHistoryItem)
-        ' First verify file status
-        item.UpdateFileStatus()
+    Private Sub NotifyCollectionChanged()
+        ' Create a new list with the same items
+        Dim tempList = New ObservableCollection(Of DownloadHistoryItem)(_downloadHistory)
+        _downloadHistory.Clear()
+        For Each item In tempList
+            _downloadHistory.Add(item)
+        Next
+        RaisePropertyChanged(NameOf(DownloadHistory))
+    End Sub
 
+
+    Private Sub OpenFile(item As DownloadHistoryItem)
+        item.UpdateFileStatus()
         If Not item.IsFileExists Then
             ShowFileMissingError(item)
             Return
         End If
-
         Try
             Process.Start(New ProcessStartInfo(item.FilePath) With {.UseShellExecute = True})
         Catch ex As Exception
@@ -90,14 +95,11 @@ Public Class DownloadsViewModel
     End Sub
 
     Private Sub OpenFolder(item As DownloadHistoryItem)
-        ' First verify file status
         item.UpdateFileStatus()
-
         If Not item.IsFileExists Then
             ShowFileMissingError(item)
             Return
         End If
-
         Try
             Process.Start("explorer.exe", $"/select,""{item.FilePath}""")
         Catch ex As Exception
@@ -108,14 +110,9 @@ Public Class DownloadsViewModel
 
     Private Async Sub ShowFileMissingError(item As DownloadHistoryItem)
         Try
-            ' Update status in case it changed
             item.UpdateFileStatus()
-
-            ' Refresh commands
             OpenFileCommand.RaiseCanExecuteChanged()
             OpenFolderCommand.RaiseCanExecuteChanged()
-
-            ' Show error message
             Await PopUp.Information("File Not Found", "The file has been moved or deleted.").ConfigureAwait(True)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error showing file missing error: {ex.Message}")
@@ -129,10 +126,8 @@ Public Class DownloadsViewModel
                 RefreshCommands()
                 Await PopUp.Information("Success", $"The file has been removed successfully").ConfigureAwait(True)
                 LoadDownloadHistory()
-
                 Return
             End If
-
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
@@ -140,7 +135,6 @@ Public Class DownloadsViewModel
 
             While attempts < maxAttempts
                 attempts += 1
-
                 Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
 
                 If popUpResult Is Nothing Then
@@ -148,9 +142,7 @@ Public Class DownloadsViewModel
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
-                    Dim user = New Users With {
-                        .PasswordHash = HashPassword(enteredPassword)
-                    }
+                    Dim user = New Users With {.PasswordHash = HashPassword(enteredPassword)}
 
                     Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
                     If hasPermission Then
@@ -190,7 +182,6 @@ Public Class DownloadsViewModel
                 "Downloads",
                 Path.GetFileName(url))
         End If
-
         Try
             Await _downloadService.StartDownloadAsync(url, destinationPath).ConfigureAwait(True)
         Catch ex As Exception
