@@ -327,7 +327,7 @@ Public Class ShareFilesViewModel
                 Return
             End If
 
-            file.Id = Await Task.Run(Function() _fileDataService.GetFileInfo(file)?.Id).ConfigureAwait(True)
+            file.Id = Await Task.Run(Function() _fileDataService.GetSharedFileInfo(file)?.Id).ConfigureAwait(True)
 
             Dim activity = New Activities With {
                 .Action = "Shared a file",

@@ -61,9 +61,10 @@ Public Class FileDataService
             Dim _fileShared = New FilesShared With {
                 .Privacy = "Public"
             }
-            Return _fileSharedRepository.GetByPrivacy(_fileShared)
+
+            Return _fileSharedRepository.GetByPrivacy(_fileShared).Where(Function(f) f.Availability = "Available").ToList()
         Catch ex As Exception
-            Debug.WriteLine("[DEBUG] Failed to retrieve public files. " & ex.Message)
+            Debug.WriteLine("[FileDataService] Failed to retrieve public files: " & ex.Message)
             Return New List(Of FilesShared)() ' Return empty list instead of Nothing
         End Try
     End Function
@@ -71,7 +72,7 @@ Public Class FileDataService
     Public Function GetSharedFiles(users As Users) As List(Of FilesShared) Implements IFileDataService.GetSharedFiles
         Try
             If users Is Nothing Then
-                Debug.WriteLine("[DEBUG] GetSharedFiles: User information is missing.")
+                Debug.WriteLine("[FileDataService] GetSharedFiles: User information is missing.")
                 Return New List(Of FilesShared)()
             End If
 
@@ -81,7 +82,7 @@ Public Class FileDataService
 
             Return _fileSharedRepository.GetByUploader(_fileShared)
         Catch ex As Exception
-            Debug.WriteLine("[DEBUG] Failed to retrieve shared files. " & ex.Message)
+            Debug.WriteLine("[FileDataService] Failed to retrieve shared files. " & ex.Message)
             Return New List(Of FilesShared)()
         End Try
     End Function
@@ -89,17 +90,17 @@ Public Class FileDataService
     Public Function GetAccessedFiles(users As Users) As List(Of FilesAccessed) Implements IFileDataService.GetAccessedFiles
         Try
             If users Is Nothing Then
-                Debug.WriteLine("[DEBUG] GetAccessedFiles: User information is missing.")
+                Debug.WriteLine("[FileDataService] GetAccessedFiles: User information is missing.")
                 Return New List(Of FilesAccessed)()
             End If
 
-            Dim usersAccessed = New FilesAccessed With {
+            Dim filesAccessed = New FilesAccessed With {
                 .UserId = users.Id
             }
 
-            Return New List(Of FilesAccessed)()
+            Return _fileAccessedRepository.GetAllByUserId(filesAccessed)
         Catch ex As Exception
-            Debug.WriteLine("[DEBUG] Failed to retrieve accessed files. " & ex.Message)
+            Debug.WriteLine($"[FileDataService] GetAccessedFiles Error: {ex.Message}")
             Return New List(Of FilesAccessed)()
         End Try
     End Function
@@ -109,16 +110,16 @@ Public Class FileDataService
     ''' </summary>
     ''' <param name="filesShared"></param>
     ''' <returns></returns>
-    Public Function GetFileInfo(filesShared As FilesShared) As FilesShared Implements IFileDataService.GetFileInfo
+    Public Function GetSharedFileInfo(filesShared As FilesShared) As FilesShared Implements IFileDataService.GetSharedFileInfo
         Try
             If filesShared Is Nothing Then
-                Debug.WriteLine("[DEBUG] User information is missing.")
+                Debug.WriteLine("[FileDataService] GetSharedFileInfo: filesShared is nothing")
                 Return Nothing
             End If
 
             Return _fileSharedRepository.GetByExact(filesShared)
         Catch ex As Exception
-            Debug.WriteLine("[DEBUG] User information is missing.")
+            Debug.WriteLine($"[FileDataService] GetSharedFileInfo Error: {ex.Message}")
             Return Nothing
         End Try
     End Function
@@ -128,15 +129,48 @@ Public Class FileDataService
     ''' </summary>
     ''' <param name="filesAccessed"></param>
     ''' <returns></returns>
-    Public Function GetFileById(fileShared As FilesShared) As FilesShared Implements IFileDataService.GetFileById
+    Public Function GetSharedFileById(fileShared As FilesShared) As FilesShared Implements IFileDataService.GetSharedFileById
         Try
             If fileShared Is Nothing Then
-                Debug.WriteLine("[DEBUG] User information is missing.")
+                Debug.WriteLine("[FileDataService] GetSharedFileInfo: fileShared is nothing")
                 Return Nothing
             End If
             Return _fileSharedRepository.GetById(fileShared)
         Catch ex As Exception
-            Debug.WriteLine("[DEBUG] User information is missing.")
+            Debug.WriteLine($"[FileDataService] GetSharedFileById Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    Public Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.SetAccessFile
+        Try
+            If filesAccesed Is Nothing Then
+                Debug.WriteLine("[FileDataService] SetAccessFile: filesAccesed is nothing.")
+                Return False
+            End If
+            Return _fileAccessedRepository.Insert(filesAccesed)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] SetAccessFile Error: {ex.Message}")
+            Return False
+        End Try
+    End Function
+
+    Public Function GetAccessedFileByUserFile(filesAccesed As FilesAccessed) As FilesAccessed Implements IFileDataService.GetAccessedFileByUserFile
+        Try
+            If filesAccesed Is Nothing Then
+                Debug.WriteLine("[FileDataService] GetAccessedFileByUserFile: filesAccesed is nothing.")
+                Return Nothing
+            End If
+
+            Dim result = _fileAccessedRepository.GetAllByUserId(filesAccesed)
+
+            If result.Count > 0 Then
+                Return result.Where(Function(i) i.FileId = filesAccesed.FileId)
+            End If
+
+            Return Nothing
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] GetAccessedFileByUserFile Error: {ex.Message}")
             Return Nothing
         End Try
     End Function

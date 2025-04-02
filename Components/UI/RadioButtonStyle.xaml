@@ -25,7 +25,6 @@
                             Grid.Column="2"
                             Width="20"
                             Height="20"
-                            Margin="0,0,8,0"
                             Source="{StaticResource UnselectedIcon}" />
                         <!--  Visual States  -->
                         <VisualStateManager.VisualStateGroups>

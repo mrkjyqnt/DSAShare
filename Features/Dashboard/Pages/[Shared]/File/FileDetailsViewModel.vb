@@ -155,7 +155,7 @@ Public Class FileDetailsViewModel
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")
                 }
 
-                _file = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
+                _file = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
 
                 If IsNullOrEmpty(_file?.FileName) Then
                     Return

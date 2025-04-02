@@ -78,36 +78,13 @@
                             Grid.Row="0"
                             Style="{StaticResource SubTitleText}"
                             Text="Total Files" />
-                        <Grid Grid.Row="2">
+                        <Grid Grid.Row="2" local:GridHelper.ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="16" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Border
                                 Grid.Column="0"
-                                Style="{StaticResource DefaultBorder}"
-                                ToolTip="Total public file you shared">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock
-                                        Grid.Row="0"
-                                        Style="{StaticResource BodyText}"
-                                        Text="Public" />
-                                    <TextBlock
-                                        Grid.Row="2"
-                                        Style="{StaticResource TitleText}"
-                                        Text="{Binding PublicText}" />
-                                </Grid>
-                            </Border>
-                            <Border
-                                Grid.Column="2"
                                 Style="{StaticResource DefaultBorder}"
                                 ToolTip="Total files you shared">
                                 <Grid>
@@ -127,7 +104,7 @@
                                 </Grid>
                             </Border>
                             <Border
-                                Grid.Column="4"
+                                Grid.Column="2"
                                 Style="{StaticResource DefaultBorder}"
                                 ToolTip="Total files you accessed">
                                 <Grid>

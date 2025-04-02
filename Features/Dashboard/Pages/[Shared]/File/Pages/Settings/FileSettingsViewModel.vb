@@ -363,7 +363,7 @@ Public Class FileSettingsViewModel
                 Dim file = New FilesShared With {
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")
                 }
-                _file = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
+                _file = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
 
                 If String.IsNullOrEmpty(_file?.FileName) Then
                     Await PopUp.Information("Error", "File not found").ConfigureAwait(True)

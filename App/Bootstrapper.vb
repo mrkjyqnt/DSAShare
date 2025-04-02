@@ -96,6 +96,8 @@ Public Class Bootstrapper
         containerRegistry.Register(Of FileSettingsViewModel)()
         containerRegistry.RegisterForNavigation(Of FileDangerZoneView)("FileDangerZoneView")
         containerRegistry.Register(Of FileDangerZoneViewModel)()
+        containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
+        containerRegistry.Register(Of ShareFilesViewModel)()
 
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
@@ -114,14 +116,9 @@ Public Class Bootstrapper
         containerRegistry.RegisterForNavigation(Of AccountView)("AccountView")
         'containerRegistry.Register(Of AccountViewModel)()
         containerRegistry.RegisterForNavigation(Of PublicFilesView)("PublicFilesView")
-        'containerRegistry.Register(Of PublicFilesViewModel)()
-
+        containerRegistry.Register(Of PublicFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of SharedFilesView)("SharedFilesView")
         containerRegistry.Register(Of SharedFilesViewModel)()
-        containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
-        containerRegistry.Register(Of ShareFilesViewModel)()
-
-
         containerRegistry.RegisterForNavigation(Of AccessedFilesView)("AccessedFilesView")
         'containerRegistry.Register(Of AccessedFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageUsersView)("ManageUsersView")
@@ -150,7 +147,7 @@ Public Class Bootstrapper
             Loading.StartUp()
             Await Task.Delay(3000).ConfigureAwait(True)
 
-            navigation.Go("MainRegion", "AuthenticationView")       
+            navigation.Go("MainRegion", "AuthenticationView")
 
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error initializing the application: {ex.Message}")
