@@ -41,6 +41,8 @@ DSAShare (Datamex Saint Adeline Share) is a local file-sharing system designed t
     FOLDER_PATH=\\(Server IP)\ServerStorage\
     NET_USER=(Server Windows Username)
     NET_PASSWORD=(Server Windows Password)
+    ```
+    - Copy the file to the Debug Folder under your project path
     
 4. **Setup the server and client**: 
     - Install SQL Server Configuration Manager
