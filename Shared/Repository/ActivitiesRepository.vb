@@ -24,13 +24,13 @@ Public Class ActivitiesRepository
 
         For Each record As DataRow In records
             Dim activity As New Activities() With {
-                .Id = record("id"),
-                .Action = record("action").ToString,
-                .ActionIn = record("action_in").ToString,
-                .ActionAt = record("action_at").ToString,
-                .FileId = record("file_id"),
-                .FileName = record("file_name"),
-                .UserId = record("user_id")
+                .Id = If(record.IsNull("id"), Nothing, record("id")),
+                .Action = If(record.IsNull("action"), Nothing, record("action").ToString()),
+                .ActionIn = If(record.IsNull("action_in"), Nothing, record("action_in").ToString()),
+                .ActionAt = If(record.IsNull("action_at"), Nothing, record("action_at").ToString()),
+                .FileId = If(record.IsNull("file_id"), Nothing, record("file_id")),
+                .FileName = If(record.IsNull("file_name"), Nothing, record("file_name").ToString()),
+                .UserId = If(record.IsNull("user_id"), Nothing, record("user_id"))
             }
 
             activityList.Add(activity)
@@ -54,13 +54,13 @@ Public Class ActivitiesRepository
         Dim records = _connection.FetchAll()
         For Each record As DataRow In records
             Dim activity As New Activities() With {
-                .Id = record("id"),
-                .Action = record("action").ToString,
-                .ActionIn = record("action_in").ToString,
-                .ActionAt = record("action_at").ToString,
-                .FileId = record("file_id"),
-                .FileName = record("file_name"),
-                .UserId = record("user_id")
+                .Id = If(record.IsNull("id"), Nothing, record("id")),
+                .Action = If(record.IsNull("action"), Nothing, record("action").ToString()),
+                .ActionIn = If(record.IsNull("action_in"), Nothing, record("action_in").ToString()),
+                .ActionAt = If(record.IsNull("action_at"), Nothing, record("action_at").ToString()),
+                .FileId = If(record.IsNull("file_id"), Nothing, record("file_id")),
+                .FileName = If(record.IsNull("file_name"), Nothing, record("file_name").ToString()),
+                .UserId = If(record.IsNull("user_id"), Nothing, record("user_id"))
             }
             activityList.Add(activity)
         Next

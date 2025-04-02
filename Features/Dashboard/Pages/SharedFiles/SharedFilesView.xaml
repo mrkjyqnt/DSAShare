@@ -201,6 +201,8 @@
                                         Text="From" />
                                     <DatePicker
                                         Grid.Row="4"
+                                        DisplayDateEnd="{Binding FromMaxDate}"
+                                        DisplayDateStart="{Binding FromMinDate}"
                                         SelectedDate="{Binding FromSelectedDate}"
                                         Style="{StaticResource DefaultDatePicker}" />
                                     <TextBlock
@@ -209,6 +211,8 @@
                                         Text="To" />
                                     <DatePicker
                                         Grid.Row="8"
+                                        DisplayDateEnd="{Binding ToMaxDate}"
+                                        DisplayDateStart="{Binding ToMinDate}"
                                         SelectedDate="{Binding ToSelectedDate}"
                                         Style="{StaticResource DefaultDatePicker}" />
                                 </Grid>
@@ -216,12 +220,25 @@
                         </StackPanel>
                     </Border>
                 </ScrollViewer>
-                <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Hidden">
-                    <Grid>
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel
+                        Grid.Row="0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource SubTitleText}" Text="{Binding ResultCount}" />
+                        <TextBlock Style="{StaticResource SubTitleText}" Text=" Shared Files found" />
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
                         <DataGrid
                             VerticalAlignment="Stretch"
                             local:ScrollHelper.BubbleScroll="True"
                             AutoGenerateColumns="False"
+                            IsReadOnly="True"
                             ItemsSource="{Binding DataGridFiles}"
                             Style="{StaticResource DefaultDataGrid}">
                             <DataGrid.Columns>
@@ -235,19 +252,6 @@
                                             <Setter Property="HorizontalAlignment" Value="Center" />
                                             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                                             <Setter Property="ToolTip" Value="{Binding Name}" />
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-
-                                <DataGridTextColumn
-                                    Width="*"
-                                    Binding="{Binding CreatedAt, StringFormat='{}{0:MMMM dd, yyyy}'}"
-                                    Header="Date">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="HorizontalAlignment" Value="Center" />
-                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                                            <Setter Property="ToolTip" Value="{Binding CreatedAt, StringFormat='{}{0:MMMM dd, yyyy}'}" />
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
@@ -268,6 +272,7 @@
                                 <DataGridTextColumn
                                     Width="*"
                                     Binding="{Binding FileType}"
+                                    CanUserSort="True"
                                     Header="Type">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
@@ -319,7 +324,7 @@
                             </Border>
                         </Border>
                     </Grid>
-                </ScrollViewer>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

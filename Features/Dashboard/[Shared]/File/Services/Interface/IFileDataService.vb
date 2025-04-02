@@ -7,6 +7,8 @@
     Function GetPublicFiles() As List(Of FilesShared)
     Function GetSharedFiles(users As Users) As List(Of FilesShared)
     Function GetAccessedFiles(users As Users) As List(Of FilesAccessed)
-    Function GetFileInfo(filesShared As FilesShared) As FilesShared
-    Function GetFileById(fileShared As FilesShared) As FilesShared
+    Function GetSharedFileInfo(filesShared As FilesShared) As FilesShared
+    Function GetSharedFileById(fileShared As FilesShared) As FilesShared
+    Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean
+    Function GetAccessedFileByUserFile(filesAccesed As FilesAccessed) As FilesAccessed
 End Interface

@@ -177,7 +177,7 @@ Public Class HomeViewModel
             Dim file = New FilesShared With {
                 .Id = selectedActivity.FileId
             }
-            Dim fileInfo = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
+            Dim fileInfo = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
 
             ' Validate the activity exists
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then

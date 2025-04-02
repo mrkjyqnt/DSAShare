@@ -91,23 +91,36 @@ Public Class FileDangerZoneViewModel
                 Return
             End If
 
-            Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+            Dim maxAttempts As Integer = 3
+            Dim attempts As Integer = 0
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
 
-            If popUpResult Is Nothing Then
-                Await PopUp.Information("Cancelled", "File disabling was cancelled.").ConfigureAwait(True)
-                Exit Function
-            Else
-                Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
-                Dim user = New Users With {
-                    .PasswordHash = HashPassword(enteredPassword)
-                }
+            While attempts < maxAttempts
+                attempts += 1
 
-                Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
-                If Not hasPermission Then
-                     Await PopUp.Information("Failed", $"Invalid Password").ConfigureAwait(True)
-                Else
+                Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+
+                If popUpResult Is Nothing Then
+                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
                     Exit Function
+                Else
+                    Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
+                    Dim user = New Users With {
+                        .PasswordHash = HashPassword(enteredPassword)
+                    }
+
+                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
+                    If Not hasPermission Then
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
+                    Else
+                        Exit While
+                    End If
                 End If
+            End While
+
+            If attempts = maxAttempts Then
+                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
+                Return
             End If
 
             If _file Is Nothing Then
@@ -156,23 +169,36 @@ Public Class FileDangerZoneViewModel
                 Return
             End If
 
-            Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+            Dim maxAttempts As Integer = 3
+            Dim attempts As Integer = 0
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
 
-            If popUpResult Is Nothing Then
-                Await PopUp.Information("Cancelled", "File enabling was cancelled.").ConfigureAwait(True)
-                Exit Function
-            Else
-                Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
-                Dim user = New Users With {
-                    .PasswordHash = HashPassword(enteredPassword)
-                }
+            While attempts < maxAttempts
+                attempts += 1
 
-                Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
-                If Not hasPermission Then
-                    Await PopUp.Information("Failed", $"Invalid Password").ConfigureAwait(True)
-                Else
+                Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+
+                If popUpResult Is Nothing Then
+                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
                     Exit Function
+                Else
+                    Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
+                    Dim user = New Users With {
+                        .PasswordHash = HashPassword(enteredPassword)
+                    }
+
+                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
+                    If Not hasPermission Then
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
+                    Else
+                        Exit While
+                    End If
                 End If
+            End While
+
+            If attempts = maxAttempts Then
+                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
+                Return
             End If
 
             Dim file As FilesShared = _file
@@ -210,6 +236,11 @@ Public Class FileDangerZoneViewModel
     Private Async Function OnDeleteFile() As Task
         Try
             Loading.Show()
+
+            If _file Is Nothing Then
+                PopUp.Information("Failed", "Theres an error while disabling the file, File reference is nothing")
+                Return
+            End If
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
@@ -292,7 +323,7 @@ Public Class FileDangerZoneViewModel
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")
                 }
 
-                _file = Await Task.Run(Function() _fileDataService.GetFileById(file)).ConfigureAwait(True)
+                _file = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
 
                 If String.IsNullOrEmpty(_file?.FileName) Then
                     Await PopUp.Information("Error", "File not found").ConfigureAwait(True)

@@ -20,16 +20,15 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
-            Return Nothing
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return New FilesAccessed
         End If
 
-        If _connection.HasRecord
+        If _connection.HasRecord Then
             Return New FilesAccessed() With {
             .Id = _connection.DataRow("id"),
             .UserId = _connection.DataRow("user_id"),
             .FileId = _connection.DataRow("file_id"),
-            .AccessType = _connection.DataRow("access_type").ToString(),
             .AccessedAt = _connection.DataRow("accessed_at")
         }
         End If
@@ -50,8 +49,8 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
-            Return Nothing
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return New List(Of FilesAccessed)
         End If
 
         Dim records = _connection.FetchAll()
@@ -61,7 +60,6 @@ Public Class FileAccessedRepository
                 .Id = record("id"),
                 .UserId = record("user_id"),
                 .FileId = record("file_id"),
-                .AccessType = record("access_type").ToString(),
                 .AccessedAt = record("accessed_at")
             }
 
@@ -82,8 +80,8 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
-            Return Nothing
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return New List(Of FilesAccessed)
         End If
 
         Dim records = _connection.FetchAll()
@@ -93,7 +91,6 @@ Public Class FileAccessedRepository
                 .Id = record("id"),
                 .UserId = record("user_id"),
                 .FileId = record("file_id"),
-                .AccessType = record("access_type").ToString(),
                 .AccessedAt = record("accessed_at")
             }
 
@@ -117,7 +114,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -125,13 +122,22 @@ Public Class FileAccessedRepository
             Return False
         End If
 
-        _connection.Prepare("INSERT INTO files_accessed (user_id, file_id, access_type, accessed_at) " &
-                              "VALUES (@user_id, @file_id, @access_type, @accessed_at)")
+        _connection.Prepare("INSERT INTO files_accessed (user_id, file_id, accessed_at) " &
+                              "VALUES (@user_id, @file_id, @accessed_at)")
         _connection.AddParam("@user_id", filesAccessed.UserId)
         _connection.AddParam("@file_id", filesAccessed.FileId)
-        _connection.AddParam("@access_type", filesAccessed.AccessType)
         _connection.AddParam("@accessed_at", filesAccessed.AccessedAt)
         _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return False
+        End If
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return False
+        End If
 
         If _connection.HasChanges Then
             Return True
@@ -152,7 +158,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -164,10 +170,14 @@ Public Class FileAccessedRepository
                               "SET @user_id WHERE id = @id ")
         _connection.AddParam("@user_id", filesAccessed.UserId)
         _connection.AddParam("@file_id", filesAccessed.FileId)
-        _connection.AddParam("@access_type", filesAccessed.AccessType)
         _connection.AddParam("@accessed_at", filesAccessed.AccessedAt)
         _connection.AddParam("@id", filesAccessed.Id)
         _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return False
+        End If
 
         If _connection.HasChanges Then
             Return True
@@ -199,6 +209,11 @@ Public Class FileAccessedRepository
         _connection.Prepare("DELETE FROM files_accessed WHERE id = @id")
         _connection.AddParam("@id", filesAccessed.Id)
         _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Return False
+        End If
 
         If _connection.HasChanges Then
             Return True
