@@ -17,6 +17,7 @@ Public Class FileDetailsViewModel
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
 
+    Private _openedFrom As String
     Private _parameters As NavigationParameters
     Private _file As FilesShared
 
@@ -114,18 +115,23 @@ Public Class FileDetailsViewModel
 
     Private Sub Load()
         Try
+            If Not _openedFrom = "ManageFilesView" Then
+
+                If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Then
+                    SettingsButtonVisibility = Visibility.Collapsed
+                    DangerZoneButtonVisibility = Visibility.Collapsed
+
+                    Return
+                End If
+
+            End If
+
             If _sessionManager.CurrentUser.Role = "Admin" Then
                 SettingsButtonVisibility = Visibility.Collapsed
 
                 Return
             End If
 
-            If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Then
-                SettingsButtonVisibility = Visibility.Collapsed
-                DangerZoneButtonVisibility = Visibility.Collapsed
-
-                Return
-            End If
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error loading navigation")
             Debug.WriteLine($"[DEBUG] Message: {ex.Message}")
@@ -136,6 +142,7 @@ Public Class FileDetailsViewModel
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
@@ -161,17 +168,21 @@ Public Class FileDetailsViewModel
                     Return
                 End If
 
+                If navigationContext.Parameters.ContainsKey("openedFrom") Then
+                    _openedFrom = navigationContext.Parameters.GetValue(Of String)("openedFrom")
+                End If
+
                 FileNameText = _file.Name
                 _parameters.Add("fileId", _file.Id)
 
                 Load()
                 OnDetailsSelected()
             End If
+
+            Loading.Hide()
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsViewModel")
             _navigationService.GoBack()
-        Finally
-            Loading.Hide
         End Try
     End Sub
 

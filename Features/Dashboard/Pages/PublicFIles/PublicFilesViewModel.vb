@@ -3,6 +3,7 @@ Imports Prism.Mvvm
 Imports Prism.Navigation
 Imports Prism.Navigation.Regions
 Imports System.Collections.ObjectModel
+Imports System.IO
 
 #Disable Warning
 Public Class PublicFilesViewModel
@@ -270,47 +271,14 @@ Public Class PublicFilesViewModel
                 Return
             End If
 
-            ' Check if the user is not guest
-            If Not _sessionManager.CurrentUser.Role = "Guest" And Not _sessionManager.CurrentUser.Id = fileShared.UploadedBy Then
-
-                Dim accessedFile = New FilesAccessed With {
-                    .UserId = _sessionManager.CurrentUser.Id,
-                    .FileId = fileId,
-                    .AccessedAt = Date.Now
-                }
-
-                'Check if theres recent user accessed files
-                Dim accessedFilesList = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
-
-                If Not accessedFilesList.Count > 0 Then
-
-                    'Check if file accessed already exist on accessed list
-                    Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile)).ConfigureAwait(True)
-
-                    If _accessedFiles Is Nothing Then
-                        If Not Await Task.Run(Function() _fileDataService.SetAccessFile(accessedFile)).ConfigureAwait(True) Then
-                            PopUp.Information("Failed", "Theres a problem while accessing the file")
-                            Return
-                        End If
-
-                        Dim activity = New Activities With {
-                            .Action = "Accessed a file",
-                            .ActionIn = "Accessed Files",
-                            .ActionAt = Date.Now,
-                            .FileId = fileShared.Id,
-                            .FileName = $"{fileShared.FileName}{fileShared.FileType}",
-                            .UserId = _sessionManager.CurrentUser.Id
-                        }
-
-                        If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then
-                            _navigationService.GoBack()
-                        End If
-                    End If
-                End If
+            If fileShared IsNot Nothing And Not fileShared.Availability = "Available" Then
+                Await PopUp.Information("Failed", "File was already expired or removed")
+                Return
             End If
 
             Dim parameters = New NavigationParameters From {
-                {"fileId", fileId.Value}
+                {"fileId", fileId.Value},
+                {"openedFrom", "HomeView"}
             }
 
             _navigationService.Go("PageRegion", "FileDetailsView", "Public Files", parameters)

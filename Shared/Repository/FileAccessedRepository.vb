@@ -198,12 +198,12 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[FileAccessedRepository] Delete error: {_connection.ErrorMessage}")
             Return False
         End If
 
         If Not _connection.HasRecord Then
-            Return False
+            Return True
         End If
 
         _connection.Prepare("DELETE FROM files_accessed WHERE id = @id")
@@ -211,7 +211,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileAccessedRepository] Delete error: {_connection.ErrorMessage}")
             Return False
         End If
 

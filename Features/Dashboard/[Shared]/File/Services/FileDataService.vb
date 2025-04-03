@@ -165,12 +165,26 @@ Public Class FileDataService
             Dim result = _fileAccessedRepository.GetAllByUserId(filesAccesed)
 
             If result.Count > 0 Then
-                Return result.Where(Function(i) i.FileId = filesAccesed.FileId)
+                Return result.Where(Function(i) i.FileId = filesAccesed.FileId).FirstOrDefault
             End If
 
             Return Nothing
         Catch ex As Exception
             Debug.WriteLine($"[FileDataService] GetAccessedFileByUserFile Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    Public Function RemoveAccessedFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.RemoveAccessedFile
+        Try
+            If filesAccesed Is Nothing Then
+                Debug.WriteLine("[FileDataService] RemoveAccessedFile: filesAccesed is nothing.")
+                Return False
+            End If
+
+            Return _fileAccessedRepository.Delete(filesAccesed)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] RemoveAccessedFile Error: {ex.Message}")
             Return Nothing
         End Try
     End Function

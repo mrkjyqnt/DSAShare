@@ -17,8 +17,8 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-    <Grid>
-        <ContentControl prism:RegionManager.RegionName="MainRegion" />
+    <Grid KeyboardNavigation.TabNavigation="None">
+        <ContentControl x:Name="Main" prism:RegionManager.RegionName="MainRegion" />
 
         <Grid
             x:Name="Fallback"
@@ -28,7 +28,8 @@
             <ContentControl
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                prism:RegionManager.RegionName="FallbackRegion" />
+                prism:RegionManager.RegionName="FallbackRegion"
+                KeyboardNavigation.TabNavigation="Cycle" />
         </Grid>
 
         <Grid

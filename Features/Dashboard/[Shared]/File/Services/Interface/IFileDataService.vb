@@ -11,4 +11,5 @@
     Function GetSharedFileById(fileShared As FilesShared) As FilesShared
     Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean
     Function GetAccessedFileByUserFile(filesAccesed As FilesAccessed) As FilesAccessed
+    Function RemoveAccessedFile(filesAccesed As FilesAccessed) As Boolean
 End Interface

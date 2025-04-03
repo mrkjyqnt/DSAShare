@@ -14,6 +14,7 @@ Public Class FallbackService
 
         Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
         mainWindow.Fallback.Visibility = Visibility.Visible
+        mainWindow.Main.IsEnabled = False
     End Sub
 
     Public Sub Hide() Implements IFallbackService.Hide
@@ -21,5 +22,6 @@ Public Class FallbackService
 
         Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
         mainWindow.Fallback.Visibility = Visibility.Collapsed
+        mainWindow.Main.IsEnabled = True
     End Sub
 End Class

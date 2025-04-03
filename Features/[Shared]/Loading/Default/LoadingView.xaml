@@ -3,7 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:prism="http://prismlibrary.com/"
-    prism:ViewModelLocator.AutoWireViewModel="True">
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    UseLayoutRounding="True">
     <Grid>
         <!--  Semi-transparent background  -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

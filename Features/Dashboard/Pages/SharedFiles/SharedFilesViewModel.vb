@@ -282,7 +282,8 @@ Public Class SharedFilesViewModel
         Debug.WriteLine($"[DEBUG] Viewing file ID: {fileId.Value}")
 
         Dim parameters = New NavigationParameters From {
-            {"fileId", fileId.Value}
+            {"fileId", fileId.Value},
+            {"openedFrom", "HomeView"}
         }
 
         _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)

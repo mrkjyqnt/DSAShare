@@ -75,14 +75,14 @@ Public Class SignUpViewModel
     ''' </summary>
     ''' <param name="regionManager"></param>
     ''' <param name="sessionManager"></param>
-    Public Sub New(regionManager As IRegionManager, 
-                   sessionManager As ISessionManager, 
+    Public Sub New(regionManager As IRegionManager,
+                   sessionManager As ISessionManager,
                    registrationService As IRegistrationService,
                    popupService As IPopupService)
 
         _regionManager = regionManager
         _registrationService = registrationService
-       
+
         SignUpCommand = New AsyncRelayCommand(AddressOf OnSignUp)
         SignInCommand = New DelegateCommand(AddressOf OnSignIn)
     End Sub
@@ -99,7 +99,11 @@ Public Class SignUpViewModel
         End If
 
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If Await Task.Run(Function() _registrationService.CheckUsername(Username)).ConfigureAwait(True) Then
                 Await PopUp.Information("Failed", "Username already exists.").ConfigureAwait(True)

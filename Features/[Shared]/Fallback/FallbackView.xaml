@@ -30,7 +30,9 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding RetryCommand}"
                     Content="Retry"
-                    Style="{StaticResource DefaultButton}" />
+                    KeyboardNavigation.TabNavigation="Continue"
+                    Style="{StaticResource DefaultButton}"
+                    TabIndex="0" />
             </Grid>
         </StackPanel>
     </Grid>

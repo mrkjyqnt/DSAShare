@@ -4,7 +4,7 @@ Imports Prism.Commands
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
-Public Partial Class SignInViewModel
+Partial Public Class SignInViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
@@ -43,7 +43,7 @@ Public Partial Class SignInViewModel
     End Property
 
     Public Sub New(authenticationService As IAuthenticationService,
-                   sessionManager As ISessionManager, 
+                   sessionManager As ISessionManager,
                    regionManager As IRegionManager)
 
         _authenticationService = authenticationService
@@ -63,7 +63,11 @@ Public Partial Class SignInViewModel
         End If
 
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             Dim isAuthenticated = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True)
 

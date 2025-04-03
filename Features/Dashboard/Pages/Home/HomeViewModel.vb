@@ -174,10 +174,22 @@ Public Class HomeViewModel
     ''' <param name="selectedActivity"></param>
     Private Async Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
         Try
-            Dim file = New FilesShared With {
+            Dim fileShared = New FilesShared With {
                 .Id = selectedActivity.FileId
             }
-            Dim fileInfo = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
+
+            Dim fileAccessed = New FilesAccessed With {
+                .UserId = _sessionManager.CurrentUser.Id,
+                .FileId = selectedActivity.FileId
+            }
+
+            Dim fileSharedInfo = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
+            Dim fileAccessedInfo = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(True)
+
+            If fileSharedInfo Is Nothing Then
+                PopUp.Information("Failed", "Selected file was either removed or changed")
+                Return
+            End If
 
             ' Validate the activity exists
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
@@ -196,19 +208,28 @@ Public Class HomeViewModel
                 Return
             End If
 
-            If fileInfo Is Nothing Then
-                PopUp.Information("Failed", "Selected file was either removed or changed")
+            If selectedActivity.Action = "Removed Access a file" Then
+                PopUp.Information("Failed", "Referenced file access was removed ")
                 Return
             End If
 
-            If Not _sessionManager.CurrentUser.Id = fileInfo.UploadedBy Then
+            If selectedActivity.Action = "Save Access a file" Then
+                If fileAccessedInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Return
+                End If
+            End If
 
-                If fileInfo.Availability = "Disabled" Then
+            If Not _sessionManager.CurrentUser.Id = fileSharedInfo.UploadedBy Then
+
+
+
+                If fileSharedInfo.Availability = "Disabled" Then
                     PopUp.Information("Failed", "Referenced file has been disabled by the uploader")
                     Return
                 End If
 
-                If fileInfo.Availability = "Deleted" Then
+                If fileSharedInfo.Availability = "Deleted" Then
                     PopUp.Information("Failed", "Referenced file has been deleted by the uploader")
                     Return
                 End If
@@ -217,7 +238,8 @@ Public Class HomeViewModel
 
             ' Validate FileId for actions that require it
             If (selectedActivity.Action = "Accessed a file" OrElse
-            selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file") AndAlso
+            selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file" OrElse
+            selectedActivity.Action = "Save Access a file") AndAlso
             (selectedActivity.FileId Is Nothing OrElse selectedActivity.FileId Is Nothing) Then
                 PopUp.Information("Failed", "The selected file is no longer available")
                 Return
@@ -226,6 +248,7 @@ Public Class HomeViewModel
             ' Prepare navigation
             Dim parameters = New NavigationParameters()
             parameters.Add("fileId", selectedActivity.FileId)
+            parameters.Add("openedFrom", "HomeView")
 
             ' Navigate with error handling
             _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)

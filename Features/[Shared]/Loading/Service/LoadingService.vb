@@ -18,6 +18,7 @@ Public Class LoadingService
 
         Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
         mainWindow.Loading.Visibility = Visibility.Visible
+        mainWindow.Main.IsEnabled = False
     End Sub
 
     Public Sub Hide() Implements ILoadingService.Hide
@@ -25,6 +26,7 @@ Public Class LoadingService
 
         Dim mainWindow = CType(Application.Current.MainWindow, MainWindow)
         mainWindow.Loading.Visibility = Visibility.Collapsed
+        mainWindow.Main.IsEnabled = True
     End Sub
 
 End Class

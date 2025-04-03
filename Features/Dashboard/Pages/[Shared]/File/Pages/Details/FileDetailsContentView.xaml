@@ -98,17 +98,27 @@
                         <TextBlock Style="{StaticResource TitleBodyText}" Text="Options" />
                         <StackPanel HorizontalAlignment="Stretch">
 
-                            <Grid local:GridHelper.ColumnSpacing="16" Visibility="{Binding RemoveAccessButtonVisibility}">
+                            <Grid local:GridHelper.ColumnSpacing="16" Visibility="{Binding AccessButtonVisibility}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Button
-                                    Grid.Column="0"
-                                    HorizontalAlignment="Stretch"
-                                    Content="Remove Access"
-                                    Style="{StaticResource DefaultButton}"
-                                    ToolTip="Remove your access" />
+                                <Grid Grid.Column="0">
+                                    <Button
+                                        HorizontalAlignment="Stretch"
+                                        Command="{Binding SaveAccessCommand}"
+                                        Content="Save Access"
+                                        Style="{StaticResource DefaultButton}"
+                                        ToolTip="Save this to accessed files"
+                                        Visibility="{Binding SaveAccessButtonVisibility}" />
+                                    <Button
+                                        HorizontalAlignment="Stretch"
+                                        Command="{Binding RemoveAccessCommand}"
+                                        Content="Remove Access"
+                                        Style="{StaticResource DefaultButton}"
+                                        ToolTip="Remove your access"
+                                        Visibility="{Binding RemoveAccessButtonVisibility}" />
+                                </Grid>
                                 <Button
                                     Grid.Column="1"
                                     HorizontalAlignment="Stretch"

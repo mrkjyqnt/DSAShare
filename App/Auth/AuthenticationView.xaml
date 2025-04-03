@@ -6,9 +6,11 @@
     xmlns:local="clr-namespace:DSAShare"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    mc:Ignorable="d" HorizontalAlignment="Center" VerticalAlignment="Center">
-    <Grid>
+    mc:Ignorable="d">
+    <Grid KeyboardNavigation.TabNavigation="None">
         <ContentControl prism:RegionManager.RegionName="AuthenticationRegion" />
     </Grid>
 </UserControl>

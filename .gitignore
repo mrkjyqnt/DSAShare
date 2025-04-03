@@ -361,5 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Features/Dashboard/Pages/[Shared]/FileDetails/FileDetailsView.xaml
 /config.ini
