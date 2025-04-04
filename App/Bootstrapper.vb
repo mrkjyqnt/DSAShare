@@ -142,6 +142,7 @@ Public Class Bootstrapper
         Dim navigation = Container.Resolve(Of INavigationService)
 
         sessionManager.LoadSession()
+        ConfigurationModule.GetSettings()
 
         Try
             Loading.StartUp()

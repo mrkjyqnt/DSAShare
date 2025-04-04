@@ -5,7 +5,10 @@ Imports System.Data
 ''' Connection class for database operations.
 ''' </summary>
 Public Class Connection
-    Public Connect As New SqlConnection(ConfigurationModule.DBConnectionString)
+    Private Config = ConfigurationModule.GetSettings()
+    Public ConnectString As String = $"Data Source={Config.Database.Server};Initial Catalog={Config.Database.Name};User ID={Config.Database.Username};Password={Config.Database.Password};Trust Server Certificate=True"
+
+    Public Connect As New SqlConnection(ConnectString)
     Public Command As New SqlCommand
     Public CommandString As String
     Public Parameters As New List(Of SqlParameter)

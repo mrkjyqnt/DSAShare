@@ -7,6 +7,7 @@ Imports System.Security.Policy
 Public Class FileService
     Implements IFileService
 
+    Private ReadOnly _folderPath As String = ConfigurationModule.GetSettings().Network.FolderPath
     Private ReadOnly _fileSharedRepository As FileSharedRepository
     Private ReadOnly _fileInfoService As IFileInfoService
     Private ReadOnly _sessionManager As ISessionManager
@@ -29,14 +30,14 @@ Public Class FileService
                 Return New FileResult With {.Success = False, .FileExists = False, .Message = "Failed to connect to the Server"}
             End If
 
-            If Not Directory.Exists(FolderPath) Then
-                Directory.CreateDirectory(FolderPath)
+            If Not Directory.Exists(_folderPath) Then
+                Directory.CreateDirectory(_folderPath)
             End If
 
             _fileInfoService.Extract(filesShared.FilePath)
 
             Dim newFileName As String = $"{filesShared.FileName}_{_sessionManager.CurrentUser.Username}{_fileInfoService.Type}"
-            destinationPath = Path.Combine(FolderPath, newFileName)
+            destinationPath = Path.Combine(_folderPath, newFileName)
 
             If File.Exists(destinationPath) Then
                 Return New FileResult With {.Success = False, .FileExists = True, .Message = "File already exists"}
@@ -62,7 +63,7 @@ Public Class FileService
             Debug.WriteLine($"[DEBUG] Upload error: {ex.Message}")
             Return New FileResult With {.Success = False, .FileExists = False, .Message = "Error uploading file"}
         Finally
-            DisconnectFromNetworkShare(FolderPath)
+            DisconnectFromNetworkShare(_folderPath)
         End Try
     End Function
 
@@ -114,7 +115,7 @@ Public Class FileService
             Return New FileResult With {.Success = False, .Message = $"Error downloading file: {ex.Message}"}
 
         Finally
-            DisconnectFromNetworkShare(FolderPath)
+            DisconnectFromNetworkShare(_folderPath)
         End Try
     End Function
 
@@ -171,7 +172,7 @@ Public Class FileService
             Debug.WriteLine($"[DEBUG] Delete error: {ex.Message}")
             Return New FileResult With {.Success = False, .Message = $"Error deleting file: {ex.Message}"}
         Finally
-            DisconnectFromNetworkShare(FolderPath)
+            DisconnectFromNetworkShare(_folderPath)
         End Try
     End Function
 

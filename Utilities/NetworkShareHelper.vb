@@ -5,6 +5,9 @@ Imports System.Runtime.InteropServices
 Imports System.Diagnostics
 
 Module NetworkShareHelper
+
+    Private ReadOnly _config = ConfigurationModule.GetSettings
+
     ''' <summary>
     ''' Connects to a network share using the provided credentials.
     ''' </summary>
@@ -17,13 +20,13 @@ Module NetworkShareHelper
                 .Scope = ResourceScope.GlobalNetwork,
                 .ResourceType = ResourceType.Disk,
                 .DisplayType = ResourceDisplayType.Share,
-                .RemoteName = ConfigurationModule.FolderPath
+                .RemoteName = _config.Network.FolderPath
             }
 
-            Debug.WriteLine($"[DEBUG] Network Path: {ConfigurationModule.FolderPath}")
-            Debug.WriteLine($"[DEBUG] Username: {ConfigurationModule.NetworkCredential.UserName}")
+            Debug.WriteLine($"[DEBUG] Network Path: {_config.Network.FolderPath}")
+            Debug.WriteLine($"[DEBUG] Username: {_config.Network.UserName}")
 
-            Dim result As Integer = WNetAddConnection2(netResource, ConfigurationModule.NetworkCredential.Password, ConfigurationModule.NetworkCredential.UserName, 0)
+            Dim result As Integer = WNetAddConnection2(netResource, _config.Network.Password, _config.Network.UserName, 0)
 
             If result <> 0 Then
                 Debug.WriteLine($"[ERROR] Failed to connect to network share. Error Code: {result} - {GetErrorMessage(result)}")
