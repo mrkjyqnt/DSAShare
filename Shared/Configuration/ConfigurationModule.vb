@@ -13,14 +13,13 @@ Module ConfigurationModule
 #End If
 
     ' File paths
+    Private ReadOnly DebugConfigPath As String = "AppConfig.debug.json"
     Private ReadOnly RuntimeConfigPath As String = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "YourAppName",
-        "appConfig.secure")
+        "DSAShare",
+        "AppConfig.secure")
 
-    Private ReadOnly DebugConfigPath As String = "appConfig.debug.json"
-
-    ' Your secret key
+    ' Secret key
     Private ReadOnly SecretKey As String = "DSAShare"
 
     ' Default configuration
@@ -38,7 +37,6 @@ Module ConfigurationModule
         }
     }
 
-    ' Configuration classes
     Public Class AppSettings
         Public Property Database As DatabaseSettings
         Public Property Network As NetworkSettings
@@ -57,13 +55,11 @@ Module ConfigurationModule
         Public Property Password As String
     End Class
 
-    ' JSON options for consistent serialization
     Private ReadOnly JsonOptions As New JsonSerializerOptions With {
         .WriteIndented = True,
         .PropertyNameCaseInsensitive = True
     }
 
-    ' Public interface
     Public Function GetSettings() As AppSettings
         Return If(DebugMode, LoadDebugConfig(), LoadRuntimeConfig())
     End Function
@@ -91,7 +87,6 @@ Module ConfigurationModule
                 Dim json As String = File.ReadAllText(DebugConfigPath)
                 Return JsonSerializer.Deserialize(Of AppSettings)(json, JsonOptions)
             Else
-                ' Create default debug config if missing
                 SaveDebugConfig(DefaultConfig)
                 Return DefaultConfig
             End If
@@ -124,7 +119,7 @@ Module ConfigurationModule
         Catch ex As Exception
             Debug.WriteLine($"Runtime config load error: {ex.Message}")
         End Try
-        
+
         Return DefaultConfig
     End Function
 
@@ -141,21 +136,19 @@ Module ConfigurationModule
         End Try
     End Sub
 
-    ' Encryption helpers
     Private Function EncryptStringToBytes(plainText As String) As Byte()
         Using aes As Aes = Aes.Create()
-            ' Use DPAPI with your SecretKey
             Dim entropy As Byte() = Encoding.UTF8.GetBytes(
                 $"{Environment.MachineName}-{WindowsIdentity.GetCurrent().User.Value}")
-            
+
             Dim protectedKey As Byte() = ProtectedData.Protect(
-                Encoding.UTF8.GetBytes(SecretKey), 
-                entropy, 
+                Encoding.UTF8.GetBytes(SecretKey),
+                entropy,
                 DataProtectionScope.CurrentUser)
-            
+
             aes.Key = protectedKey
             aes.GenerateIV()
-            
+
             Using encryptor = aes.CreateEncryptor()
                 Using ms = New MemoryStream()
                     ms.Write(aes.IV, 0, aes.IV.Length)
@@ -175,17 +168,17 @@ Module ConfigurationModule
             Dim iv(15) As Byte
             Array.Copy(cipherText, 0, iv, 0, iv.Length)
             aes.IV = iv
-            
+
             Dim entropy As Byte() = Encoding.UTF8.GetBytes(
                 $"{Environment.MachineName}-{WindowsIdentity.GetCurrent().User.Value}")
-            
+
             Dim protectedKey As Byte() = ProtectedData.Protect(
-                Encoding.UTF8.GetBytes(SecretKey), 
-                entropy, 
+                Encoding.UTF8.GetBytes(SecretKey),
+                entropy,
                 DataProtectionScope.CurrentUser)
-            
+
             aes.Key = protectedKey
-            
+
             Using decryptor = aes.CreateDecryptor()
                 Using ms = New MemoryStream(cipherText, iv.Length, cipherText.Length - iv.Length)
                     Using cs = New CryptoStream(ms, decryptor, CryptoStreamMode.Read)

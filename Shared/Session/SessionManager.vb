@@ -14,19 +14,18 @@ Public Class SessionManager
     Private Const DebugMode As Boolean = False
 #End If
 
-    ' File paths (unchanged from your original)
+    ' File paths
     Private Const SessionFilePath As String = "UserSession.debug.json"
     Private ReadOnly SecureSessionPath As String = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "DSAShare",
         "UserSession.secure")
 
-    ' Use the same secret key as ConfigurationModule
+    ' Secret key
     Private ReadOnly SecretKey As String = "DSAShare"
 
     Private _currentUser As Users
 
-    ' All your original public methods remain exactly the same
     Sub New()
         LoadSession()
     End Sub
@@ -59,7 +58,6 @@ Public Class SessionManager
         Return IsLoggedIn() AndAlso _currentUser.Role.Equals(role, StringComparison.OrdinalIgnoreCase)
     End Function
 
-    ' Private methods with identical encryption to ConfigurationModule
     Private Sub SaveSession()
         If DebugMode Then
             SaveDebugSession()
@@ -139,10 +137,8 @@ Public Class SessionManager
         End Try
     End Sub
 
-    ' Identical encryption methods to ConfigurationModule
     Private Function EncryptStringToBytes(plainText As String) As Byte()
         Using aes As Aes = Aes.Create()
-            ' Use DPAPI with your SecretKey
             Dim entropy As Byte() = Encoding.UTF8.GetBytes(
                 $"{Environment.MachineName}-{WindowsIdentity.GetCurrent().User.Value}")
             

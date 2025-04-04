@@ -1,6 +1,6 @@
 ﻿
 Public Class Users
-    Public Property Id As Integer? = Nothing
+    Public Property Id As Integer? = 0
     Public Property Name As String
     Public Property Username As String
     Public Property PasswordHash As String

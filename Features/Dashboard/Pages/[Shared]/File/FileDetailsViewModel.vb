@@ -6,7 +6,9 @@ Imports Prism.Navigation.Regions
 Imports System.IO
 Imports System.Net.WebRequestMethods
 Imports System.Windows
+Imports System.Windows.Interop
 
+#Disable Warning
 Public Class FileDetailsViewModel
     Inherits BindableBase
     Implements INavigationAware
@@ -93,7 +95,7 @@ Public Class FileDetailsViewModel
         Try
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsContentView")
+            Debug.WriteLine($"[DEBUG] OnDetailsSelected Error navigating to FileDetailsContentView")
         End Try
     End Sub
 
@@ -101,7 +103,7 @@ Public Class FileDetailsViewModel
         Try
             _regionManager.RequestNavigate("FileDetailsRegion", "FileSettingsView", _parameters)
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error navigating to FileSettingsView")
+            Debug.WriteLine($"[DEBUG] OnSettingSelected Error navigating to FileSettingsView")
         End Try
     End Sub
 
@@ -109,7 +111,7 @@ Public Class FileDetailsViewModel
         Try
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDangerZoneView", _parameters)
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error navigating to FileDangerZoneView")
+            Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to FileDangerZoneView")
         End Try
     End Sub
 
@@ -117,7 +119,7 @@ Public Class FileDetailsViewModel
         Try
             If Not _openedFrom = "ManageFilesView" Then
 
-                If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Then
+                If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Or _sessionManager.CurrentUser.Role = "Guest" Then
                     SettingsButtonVisibility = Visibility.Collapsed
                     DangerZoneButtonVisibility = Visibility.Collapsed
 
@@ -157,6 +159,18 @@ Public Class FileDetailsViewModel
                 _parameters = New NavigationParameters()
             End If
 
+            If Not navigationContext.Parameters.ContainsKey("fileId") Then
+                Await PopUp.Information("Failed", "File was empty")
+                _navigationService.GoBack()
+                Return
+            End If
+
+            If Not navigationContext.Parameters.ContainsKey("openedFrom") Then
+                Await PopUp.Information("Failed", $"Navigation history is empty {navigationContext.Parameters.GetValue(Of String)("openedFrom")}")
+                _navigationService.GoBack()
+                Return
+            End If
+
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")
@@ -173,7 +187,8 @@ Public Class FileDetailsViewModel
                 End If
 
                 FileNameText = _file.Name
-                _parameters.Add("fileId", _file.Id)
+                _parameters.Add("fileId", navigationContext.Parameters.GetValue(Of Integer)("fileId"))
+                _parameters.Add("openedFrom", navigationContext.Parameters.GetValue(Of String)("openedFrom"))
 
                 Load()
                 OnDetailsSelected()

@@ -157,8 +157,8 @@ Public Class FileDetailsContentViewModel
             _dataGridFileDetails.FileName = If(_fileShared?.FileName, "Unknown")
             _dataGridFileDetails.AccessLevel = If(_fileShared?.Privacy, "Unknown")
             _dataGridFileDetails.DownloadCount = If(_fileShared?.DownloadCount, 0)
-            _dataGridFileDetails.PublishDate = If(_fileShared?.CreatedAt, DateTime.MinValue)
-            _dataGridFileDetails.ExpirationDate = _fileShared?.ExpiryDate
+            _dataGridFileDetails.PublishDate = If(_fileShared?.CreatedAt, DateTime.Now)
+            _dataGridFileDetails.ExpirationDate = If(_fileShared?.ExpiryDate, DateTime.Now)
             _dataGridFileDetails.Availability = If(_fileShared?.Availability, "Unknown")
             _dataGridFileDetails.FileType = If(_fileShared?.FileType, "Unknown")
 
@@ -301,7 +301,8 @@ Public Class FileDetailsContentViewModel
                 Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
 
                 Await PopUp.Information("Success", "File has been added to your Accessed Files")
-                Return
+                _fileAccessed = New FilesAccessed With {.FileId = _fileShared.Id }
+                ChangeButtonVisibility()
             End If
 
         Catch ex As Exception
@@ -386,15 +387,14 @@ Public Class FileDetailsContentViewModel
             End If
 
             If Not _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
+                AccessButtonVisibility = Visibility.Visible
 
                 If _fileAccessed Is Nothing Then
-                    AccessButtonVisibility = Visibility.Visible
                     SaveAccessButtonVisibility = Visibility.Visible
                     Return
                 End If
 
                 If _fileAccessed.FileId = _fileShared.Id Then
-                    AccessButtonVisibility = Visibility.Visible
                     RemoveAccessButtonVisibility = Visibility.Visible
                     Return
                 End If
@@ -430,7 +430,19 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
 
-            If navigationContext.Parameters.ContainsKey("fileId") Then
+            If Not navigationContext.Parameters.ContainsKey("fileId") Then
+                Await PopUp.Information("Failed", "File was empty")
+                _navigationService.GoBack()
+                Return
+            End If
+
+            If Not navigationContext.Parameters.ContainsKey("openedFrom") Then
+                Await PopUp.Information("Failed", $"Navigation history is empty {navigationContext.Parameters.GetValue(Of String)("openedFrom")}")
+                _navigationService.GoBack()
+                Return
+            End If
+
+            If navigationContext.Parameters.ContainsKey("fileId") AndAlso navigationContext.Parameters.ContainsKey("openedFrom") Then
                 Dim fileShared = New FilesShared With {
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("fileId")
                 }
@@ -445,7 +457,7 @@ Public Class FileDetailsContentViewModel
                 _fileShared = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
 
                 If String.IsNullOrEmpty(_fileShared?.FileName) Then
-                    Await PopUp.Information("Error", "File not found").ConfigureAwait(True)
+                    Await PopUp.Information("Error", "Shared File not found").ConfigureAwait(True)
                     Return
                 End If
 
@@ -458,6 +470,10 @@ Public Class FileDetailsContentViewModel
             Loading.Hide()
         Catch ex As Exception
             Debug.WriteLine($"[Debug] Error navigating to FileDetailsContentModel: {ex.Message}")
+            PopUp.Information("Failed", "Theres an error while loading the file")
+            _navigationService.GoBack()
+        Finally
+            Loading.Hide()
         End Try
     End Sub
 

@@ -9,6 +9,7 @@ Imports Prism.Navigation.Regions
 Imports System.Collections
 Imports System.Collections.Specialized
 
+#Disable Warning CRR0029
 Public Class DownloadsViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
@@ -17,11 +18,23 @@ Public Class DownloadsViewModel
     Private ReadOnly _downloadService As IDownloadService
     Private ReadOnly _eventAggregator As IEventAggregator
 
+
     Private _downloadHistory As ObservableCollection(Of DownloadHistoryItem)
+    Private _downloadCount As String
+
     Public ReadOnly Property DownloadHistory As ObservableCollection(Of DownloadHistoryItem)
         Get
             Return _downloadHistory
         End Get
+    End Property
+
+    Public Property DownloadCount As String
+        Get
+            Return _downloadCount
+        End Get
+        Set(value As String)
+            SetProperty(_downloadCount, value)
+        End Set
     End Property
 
     Public ReadOnly Property OpenFileCommand As DelegateCommand(Of DownloadHistoryItem)
@@ -52,8 +65,11 @@ Public Class DownloadsViewModel
 
     Private Async Sub LoadDownloadHistory()
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(50)
+
             Dim history = Await Task.Run(Function() _downloadService.DownloadHistory.ToList()).ConfigureAwait(True)
+            DownloadCount = history.Count
             Application.Current.Dispatcher.Invoke(Sub()
                                                       _downloadHistory.Clear()
                                                       For Each item In history
@@ -62,6 +78,8 @@ Public Class DownloadsViewModel
                                                       Next
                                                       NotifyCollectionChanged()
                                                   End Sub)
+
+            RaisePropertyChanged(NameOf(DownloadHistory))
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error loading download history: {ex.Message}")
         Finally

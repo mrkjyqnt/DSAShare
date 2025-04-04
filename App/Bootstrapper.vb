@@ -120,7 +120,7 @@ Public Class Bootstrapper
         containerRegistry.RegisterForNavigation(Of SharedFilesView)("SharedFilesView")
         containerRegistry.Register(Of SharedFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of AccessedFilesView)("AccessedFilesView")
-        'containerRegistry.Register(Of AccessedFilesViewModel)()
+        containerRegistry.Register(Of AccessedFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageUsersView)("ManageUsersView")
         'containerRegistry.Register(Of ManageUsersViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageFilesView)("ManageFilesView")

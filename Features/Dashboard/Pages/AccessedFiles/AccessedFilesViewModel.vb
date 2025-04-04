@@ -3,21 +3,21 @@ Imports Prism.Mvvm
 Imports Prism.Navigation
 Imports Prism.Navigation.Regions
 Imports System.Collections.ObjectModel
-Imports System.IO
 
 #Disable Warning
-Public Class PublicFilesViewModel
+Public Class AccessedFilesViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _navigationService As INavigationService
-    Private ReadOnly _activityService As IActivityService
     Private ReadOnly _sessionManager As ISessionManager
 
-    Private _publicFiles As List(Of FilesShared)
-    Private _resultCount As String
+    Private _sharedFiles As List(Of FilesShared)
+    Private _accessedFiles As List(Of FilesAccessed)
+
     Private _searchInput As String
+    Private _resultCount As String
     Private _fromDate As DateTime?
     Private _fromMinDate As DateTime?
     Private _fromMaxDate As DateTime?
@@ -25,7 +25,9 @@ Public Class PublicFilesViewModel
     Private _toMinDate As DateTime?
     Private _toMaxDate As DateTime?
     Private _dataGridFiles As ObservableCollection(Of FilesShared)
-    Private _isPublicSelected As Boolean? = True
+    Private _isBothSelected As Boolean? = True
+    Private _isPublicSelected As Boolean
+    Private _isPrivateSelected As Boolean
     Private _isAllTypesSelected As Boolean? = True
     Private _isCompressedSelected As Boolean? = True
     Private _isDocsSelected As Boolean? = True
@@ -42,6 +44,7 @@ Public Class PublicFilesViewModel
             SetProperty(_resultCount, value)
         End Set
     End Property
+
 
     Public Property SearchInput As String
         Get
@@ -119,13 +122,40 @@ Public Class PublicFilesViewModel
         End Set
     End Property
 
+    Public Property IsBothSelected As Boolean?
+        Get
+            Return _isBothSelected
+        End Get
+        Set(value As Boolean?)
+            If SetProperty(_isBothSelected, value) AndAlso value Then
+                IsPublicSelected = False
+                IsPrivateSelected = False
+                ApplyFilters()
+            End If
+        End Set
+    End Property
 
-    Public Property IsPublicSelected As Boolean?
+    Public Property IsPublicSelected As Boolean
         Get
             Return _isPublicSelected
         End Get
-        Set(value As Boolean?)
+        Set(value As Boolean)
             If SetProperty(_isPublicSelected, value) AndAlso value Then
+                _isBothSelected = False
+                IsPrivateSelected = False
+                ApplyFilters()
+            End If
+        End Set
+    End Property
+
+    Public Property IsPrivateSelected As Boolean
+        Get
+            Return _isPrivateSelected
+        End Get
+        Set(value As Boolean)
+            If SetProperty(_isPrivateSelected, value) AndAlso value Then
+                _isBothSelected = False
+                IsPublicSelected = False
                 ApplyFilters()
             End If
         End Set
@@ -173,7 +203,6 @@ Public Class PublicFilesViewModel
             End If
         End Set
     End Property
-
 
     Public Property IsImageSelected As Boolean?
         Get
@@ -227,70 +256,44 @@ Public Class PublicFilesViewModel
     End Property
 
     Public Property SearchCommand As DelegateCommand
-    Public Property ShareFileCommand As DelegateCommand
-    Public Property ViewCommand As AsyncDelegateCommand(Of Integer?)
+    Public Property AccessFileCommand As DelegateCommand
+    Public Property ViewCommand As DelegateCommand(Of Integer?)
 
-    Public Sub New(fileDataService As IFileDataService,
-                   navigationService As INavigationService,
-                   activityService As IActivityService,
-                   sessionManager As ISessionManager)
+    Public Sub New(fileDataService As IFileDataService, navigationService As INavigationService, sessionManager As ISessionManager)
         _fileDataService = fileDataService
         _navigationService = navigationService
-        _activityService = activityService
         _sessionManager = sessionManager
 
         DataGridFiles = New ObservableCollection(Of FilesShared)
         SearchCommand = New DelegateCommand(AddressOf OnSearchCommand)
-        ViewCommand = New AsyncDelegateCommand(Of Integer?)(AddressOf OnViewCommand)
+        AccessFileCommand = New DelegateCommand(AddressOf OnAccessFileCommand)
+        ViewCommand = New DelegateCommand(Of Integer?)(AddressOf OnViewCommand)
 
         LoadData()
     End Sub
 
-    Private Async Function OnViewCommand(fileId As Integer?) As Task
-        Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
+    Private Sub OnViewCommand(fileId As Integer?)
+        If Not fileId.HasValue Then
+            Debug.WriteLine("[WARN] Tried to view a file with NULL ID")
+            Return
+        End If
 
-            If Not Await Fallback.CheckConnection() Then
-                Return
-            End If
+        Debug.WriteLine($"[DEBUG] Viewing file ID: {fileId.Value}")
 
-            If Not fileId.HasValue Then
-                Debug.WriteLine("[PublicFilesViewModel] Tried to view a file with NULL ID")
-                Return
-            End If
+        Dim parameters = New NavigationParameters From {
+            {"fileId", fileId.Value},
+            {"openedFrom", "AccessedFilesView"}
+        }
 
-            Dim fileShared = New FilesShared With {
-                .Id = fileId
-            }
-
-            fileShared = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
-
-            If fileShared Is Nothing Then
-                Debug.WriteLine("[PublicFiles] Retrieve nothing")
-                Return
-            End If
-
-            If fileShared IsNot Nothing And Not fileShared.Availability = "Available" Then
-                Await PopUp.Information("Failed", "File was already expired or removed")
-                Return
-            End If
-
-            Dim parameters = New NavigationParameters From {
-                {"fileId", fileId.Value},
-                {"openedFrom", "PublicFilesView"}
-            }
-
-            _navigationService.Go("PageRegion", "FileDetailsView", "Public Files", parameters)
-        Catch ex As Exception
-            Debug.WriteLine($"[PublicFilesView] OnViewCommand Error: {ex.Message}")
-        Finally
-            Loading.Hide()
-        End Try
-    End Function
+        _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+    End Sub
 
     Private Sub OnSearchCommand()
         ApplyFilters()
+    End Sub
+
+    Private Sub OnAccessFileCommand()
+        _navigationService.Go("PageRegion", "AccessedFilesView", "Accessed")
     End Sub
 
     Private Async Sub LoadData()
@@ -302,13 +305,26 @@ Public Class PublicFilesViewModel
                 Return
             End If
 
-            _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
+            _navigationService.Start("PageRegion", "AccessedFilesView", "Accessed Files")
 
-            _publicFiles = Await Task.Run(Function() _fileDataService.GetPublicFiles()).ConfigureAwait(True)
-            _publicFiles = _publicFiles.Where(Function(i) i.UploadedBy <> _sessionManager.CurrentUser.Id).ToList()
+            _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
+            _sharedFiles = New List(Of FilesShared)()
 
-            If _publicFiles IsNot Nothing AndAlso _publicFiles.Count > 0 Then
-                Dim orderedDates = _publicFiles.Select(Function(f) f.CreatedAt).OrderBy(Function(d) d).ToList()
+            For Each accessFile In _accessedFiles
+                Dim file = New FilesShared With {
+                    .Id = accessFile.FileId
+                }
+
+                Dim sharedFile = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
+                _sharedFiles.Add(sharedFile)
+
+                If sharedFile IsNot Nothing Then
+                    _sharedFiles.Last().CreatedAt = accessFile.AccessedAt
+                End If
+            Next
+
+            If _sharedFiles IsNot Nothing AndAlso _sharedFiles.Count > 0 Then
+                Dim orderedDates = _sharedFiles.Select(Function(f) f.CreatedAt).ToList()
 
                 FromMinDate = orderedDates.First()
                 FromMaxDate = orderedDates.Last()
@@ -325,7 +341,7 @@ Public Class PublicFilesViewModel
             End If
 
             IsAllTypesSelected = True
-            IsPublicSelected = True
+            IsBothSelected = True
             IsDocsSelected = True
             IsMediaSelected = True
             IsImageSelected = True
@@ -358,15 +374,17 @@ Public Class PublicFilesViewModel
     End Sub
 
     Private Sub ApplyFilters()
-        If _publicFiles Is Nothing Then
+        If _sharedFiles Is Nothing Then
             Debug.WriteLine("[FILTER] No files loaded")
             Return
         End If
 
-        Dim filtered = _publicFiles.AsEnumerable()
+        Dim filtered = _sharedFiles.AsEnumerable()
+        Debug.WriteLine($"[FILTER] Starting with {filtered.Count()} files")
 
         If Not String.IsNullOrEmpty(SearchInput) Then
             filtered = filtered.Where(Function(f) f.Name.Contains(SearchInput, StringComparison.OrdinalIgnoreCase))
+            Debug.WriteLine($"[FILTER] After search: {filtered.Count()}")
         End If
 
         If FromSelectedDate.HasValue Then
@@ -379,7 +397,14 @@ Public Class PublicFilesViewModel
             filtered = filtered.Where(Function(f) f.CreatedAt < toDate)
         End If
 
-        Dim privacyFilter As New List(Of String) From {"Public"}
+        Dim privacyFilter As New List(Of String)
+        If IsBothSelected Then
+            privacyFilter.AddRange({"Public", "Private"})
+        ElseIf IsPublicSelected Then
+            privacyFilter.Add("Public")
+        ElseIf IsPrivateSelected Then
+            privacyFilter.Add("Private")
+        End If
         filtered = filtered.Where(Function(f) privacyFilter.Contains(f.Privacy))
 
         Dim typeConditions As New List(Of String)

@@ -25,110 +25,128 @@
                 Text="Downloads" />
         </Border>
 
-        <Grid Grid.Row="1">
-            <ListView
-                Padding="32,32,32,0"
-                HorizontalAlignment="Stretch"
-                Background="Transparent"
-                BorderThickness="0"
-                ItemsSource="{Binding DownloadHistory, UpdateSourceTrigger=PropertyChanged}"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="BorderBrush" Value="Transparent" />
-                        <Setter Property="Focusable" Value="False" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListViewItem">
-                                    <ContentPresenter />
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Border HorizontalAlignment="Stretch" Style="{StaticResource DefaultBorder}">
-                            <Grid local:GridHelper.ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock
-                                        MaxWidth="250"
-                                        FontWeight="Bold"
-                                        Text="{Binding FileName}"
-                                        TextTrimming="WordEllipsis"
-                                        ToolTip="{Binding FileName}" />
-                                    <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding DownloadDate, StringFormat='Downloaded: {0:g}'}" />
-                                </StackPanel>
-                                <TextBlock
-                                    Grid.Column="2"
-                                    VerticalAlignment="Center"
-                                    FontFamily="{StaticResource InterRegular}"
-                                    FontStyle="Italic"
-                                    Text="{Binding Status}" />
-
-                                <StackPanel
-                                    Grid.Column="3"
-                                    local:StackPanelHelper.Spacing="16"
-                                    Orientation="Horizontal">
-                                    <Button
-                                        Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Content="Open File"
-                                        IsEnabled="{Binding IsFileExists}"
-                                        Style="{StaticResource DefaultButton}"
-                                        ToolTip="Opens the file directly" />
-
-                                    <Button
-                                        Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        IsEnabled="{Binding IsFileExists}"
-                                        Style="{StaticResource IconButton}"
-                                        ToolTip="Opens on folder">
-                                        <Button.Content>
-                                            <Image
-                                                Width="20"
-                                                Height="20"
-                                                Source="/Components/Images/accessed.png" />
-                                        </Button.Content>
-                                    </Button>
-                                    <Button
-                                        Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        Style="{StaticResource IconButton}"
-                                        ToolTip="Deletes the file">
-                                        <Button.Content>
-                                            <Image
-                                                Width="20"
-                                                Height="20"
-                                                Source="/Components/Images/bin.png" />
-                                        </Button.Content>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Border
-                Padding="{StaticResource Space-32}"
-                VerticalAlignment="Top"
-                Visibility="{Binding DownloadHistory, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Visible}">
-                <Border
-                    Padding="{StaticResource Space-16}"
-                    VerticalAlignment="Top"
-                    Style="{StaticResource DefaultBorder}">
-                    <TextBlock Style="{StaticResource BodyText}" Text="No records found" />
-                </Border>
+        <Grid Grid.Row="1" local:GridHelper.RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Padding="32,32,32,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource SubTitleText}"
+                        Text="{Binding DownloadCount}" />
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource SubTitleText}"
+                        Text=" Downloads found" />
+                </StackPanel>
             </Border>
+            <Grid Grid.Row="1">
+                <ListView
+                    Padding="32,0"
+                    HorizontalAlignment="Stretch"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    ItemsSource="{Binding DownloadHistory, UpdateSourceTrigger=PropertyChanged}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                            <Setter Property="Focusable" Value="False" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border HorizontalAlignment="Stretch" Style="{StaticResource DefaultBorder}">
+                                <Grid local:GridHelper.ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock
+                                            MaxWidth="250"
+                                            FontWeight="Bold"
+                                            Text="{Binding FileName}"
+                                            TextTrimming="WordEllipsis"
+                                            ToolTip="{Binding FileName}" />
+                                        <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding DownloadDate, StringFormat='Downloaded: {0:g}'}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{StaticResource InterRegular}"
+                                        FontStyle="Italic"
+                                        Text="{Binding Status}" />
+
+                                    <StackPanel
+                                        Grid.Column="3"
+                                        local:StackPanelHelper.Spacing="16"
+                                        Orientation="Horizontal">
+                                        <Button
+                                            Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Content="Open File"
+                                            IsEnabled="{Binding IsFileExists}"
+                                            Style="{StaticResource DefaultButton}"
+                                            ToolTip="Opens the file directly" />
+
+                                        <Button
+                                            Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding IsFileExists}"
+                                            Style="{StaticResource IconButton}"
+                                            ToolTip="Opens on folder">
+                                            <Button.Content>
+                                                <Image
+                                                    Width="20"
+                                                    Height="20"
+                                                    Source="/Components/Images/accessed.png" />
+                                            </Button.Content>
+                                        </Button>
+                                        <Button
+                                            Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IconButton}"
+                                            ToolTip="Deletes the file">
+                                            <Button.Content>
+                                                <Image
+                                                    Width="20"
+                                                    Height="20"
+                                                    Source="/Components/Images/bin.png" />
+                                            </Button.Content>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <Border
+                    Padding="32,0"
+                    VerticalAlignment="Top"
+                    Visibility="{Binding DownloadHistory, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Visible}">
+                    <Border
+                        Padding="{StaticResource Space-16}"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource DefaultBorder}">
+                        <TextBlock Style="{StaticResource BodyText}" Text="No downloads found" />
+                    </Border>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

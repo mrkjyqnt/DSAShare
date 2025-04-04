@@ -18,8 +18,15 @@ Public Class DashboardViewModel
     Public Sub New(regionManager As IRegionManager, navigationService As INavigationService, sessionManager As ISessionManager)
         _regionManager = regionManager
         _navigationService = navigationService
-        _sessionManager = sessionManager   
+        _sessionManager = sessionManager
         Try
+            If _sessionManager.CurrentUser.Role = "Guest" Then
+                _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
+                _regionManager.RegisterViewWithRegion("PageRegion", "PublicFilesView")
+                _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
+                Return
+            End If
+
             _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
             _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
             _navigationService.Start("PageRegion", "HomeView", "Home")
