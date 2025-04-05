@@ -87,19 +87,19 @@ Public Class FileDetailsViewModel
     End Sub
 
     ' Command implementations
-    Private Sub OnBack()
+    Private Async Sub OnBack()
         _navigationService.GoBack()
     End Sub
 
-    Public Sub OnDetailsSelected()
+    Public Async Sub OnDetailsSelected()
         Try
-            _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
+           _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnDetailsSelected Error navigating to FileDetailsContentView")
         End Try
     End Sub
 
-    Public Sub OnSettingSelected()
+    Public Async Sub OnSettingSelected()
         Try
             _regionManager.RequestNavigate("FileDetailsRegion", "FileSettingsView", _parameters)
         Catch ex As Exception
@@ -107,7 +107,7 @@ Public Class FileDetailsViewModel
         End Try
     End Sub
 
-    Public Sub OnDangerZoneSelected()
+    Public Async Sub OnDangerZoneSelected()
         Try
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDangerZoneView", _parameters)
         Catch ex As Exception
@@ -143,9 +143,6 @@ Public Class FileDetailsViewModel
     ' Navigation implementation
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(100).ConfigureAwait(True)
-
             If Not Await Fallback.CheckConnection() Then
                 Return
             End If
@@ -190,11 +187,9 @@ Public Class FileDetailsViewModel
                 _parameters.Add("fileId", navigationContext.Parameters.GetValue(Of Integer)("fileId"))
                 _parameters.Add("openedFrom", navigationContext.Parameters.GetValue(Of String)("openedFrom"))
 
-                Load()
+                Await Application.Current.Dispatcher.InvokeAsync(Sub() Load())
                 OnDetailsSelected()
             End If
-
-            Loading.Hide()
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error navigating to FileDetailsViewModel")
             _navigationService.GoBack()

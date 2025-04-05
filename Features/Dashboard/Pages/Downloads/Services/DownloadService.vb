@@ -10,8 +10,8 @@ Public Class DownloadService
 
     Private Shared ReadOnly HistoryFilePath As String = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "YourAppName",
-        "download_history.json")
+        "DSAShare",
+        "DownloadHistory.json")
 
     Private ReadOnly _activeDownloads As New ConcurrentDictionary(Of Guid, ActiveDownloadInfo)
     Private ReadOnly _history As New ObservableCollection(Of DownloadHistoryItem)

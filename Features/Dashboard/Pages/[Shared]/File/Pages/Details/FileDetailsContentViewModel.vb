@@ -466,8 +466,6 @@ Public Class FileDetailsContentViewModel
                 _filePath = _fileShared.FilePath
                 Await Application.Current.Dispatcher.InvokeAsync(Sub() Load())
             End If
-
-            Loading.Hide()
         Catch ex As Exception
             Debug.WriteLine($"[Debug] Error navigating to FileDetailsContentModel: {ex.Message}")
             PopUp.Information("Failed", "Theres an error while loading the file")

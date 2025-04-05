@@ -9,14 +9,14 @@
         <Setter Property="FontSize" Value="{StaticResource BodySize}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
-        <Setter Property="MinHeight" Value="50" />
+        <Setter Property="MinHeight" Value="52" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Grid VerticalAlignment="Stretch">
                         <Border
                             x:Name="Border"
-                            Margin="{TemplateBinding Margin}"
+                            Margin="0"
                             VerticalAlignment="Stretch"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"

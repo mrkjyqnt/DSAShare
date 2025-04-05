@@ -98,6 +98,12 @@ Public Class Bootstrapper
         containerRegistry.Register(Of FileDangerZoneViewModel)()
         containerRegistry.RegisterForNavigation(Of ShareFilesView)("ShareFilesView")
         containerRegistry.Register(Of ShareFilesViewModel)()
+        containerRegistry.RegisterForNavigation(Of UserInformationsView)("UserInformationsView")
+        containerRegistry.Register(Of UserInformationsViewModel)()
+        containerRegistry.RegisterForNavigation(Of UserInformationView)("UserInformationView")
+        containerRegistry.Register(Of UserInformationViewModel)()
+        'containerRegistry.RegisterForNavigation(Of AccountDangerZoneView)("AccountDangerZoneView")
+        'containerRegistry.Register(Of AccountDangerZoneViewModel)()
 
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")
@@ -113,8 +119,6 @@ Public Class Bootstrapper
         ' Register the Dashboard Pages
         containerRegistry.RegisterForNavigation(Of HomeView)("HomeView")
         containerRegistry.Register(Of HomeViewModel)()
-        containerRegistry.RegisterForNavigation(Of AccountView)("AccountView")
-        'containerRegistry.Register(Of AccountViewModel)()
         containerRegistry.RegisterForNavigation(Of PublicFilesView)("PublicFilesView")
         containerRegistry.Register(Of PublicFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of SharedFilesView)("SharedFilesView")
@@ -127,6 +131,8 @@ Public Class Bootstrapper
         'containerRegistry.Register(Of ManageFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of DownloadsView)("DownloadsView")
         containerRegistry.Register(Of DownloadsViewModel)()
+        containerRegistry.RegisterForNavigation(Of AccountView)("AccountView")
+        containerRegistry.Register(Of AccountViewModel)()
 
 
     End Sub

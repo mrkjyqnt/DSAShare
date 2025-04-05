@@ -12,7 +12,7 @@ Partial Public Class SignInViewModel
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _regionManager As IRegionManager
 
-    Public ReadOnly Property SignInCommand As IAsyncRelayCommand
+    Public ReadOnly Property SignInCommand As AsyncRelayCommand
     Public ReadOnly Property SignUpCommand As DelegateCommand
     Public ReadOnly Property GuestLoginCommand As DelegateCommand
 

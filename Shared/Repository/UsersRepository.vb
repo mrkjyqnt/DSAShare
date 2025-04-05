@@ -53,6 +53,35 @@ Public Class UsersRepository
         If _connection.HasRecord Then
             Return New Users() With {
                 .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
+                .Username = _connection.DataRow("username").ToString(),
+                .PasswordHash = _connection.DataRow("password_hash").ToString(),
+                .Role = _connection.DataRow("role").ToString(),
+                .Status = _connection.DataRow("status").ToString(),
+                .CreatedAt = _connection.DataRow("created_at")
+            }
+        End If
+
+        ' User not found
+        Return Nothing
+    End Function
+
+    Public Function GetById(user As Users) As Users
+        _connection.Prepare("SELECT * 
+                            FROM users 
+                            WHERE id = @id ORDER BY id DESC")
+        _connection.AddParam("@id", user.Id)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return Nothing
+        End If
+
+        If _connection.HasRecord Then
+            Return New Users() With {
+                .Id = _connection.DataRow("id"),
+                .Name = _connection.DataRow("name").ToString(),
                 .Username = _connection.DataRow("username").ToString(),
                 .PasswordHash = _connection.DataRow("password_hash").ToString(),
                 .Role = _connection.DataRow("role").ToString(),
@@ -83,13 +112,14 @@ Public Class UsersRepository
         For Each record As DataRow In _connection.FetchAll()
             Dim user As New Users() With {
                 .Id = record("id"),
+                .Name = record("name").ToString(),
                 .Username = record("username").ToString(),
                 .PasswordHash = record("password_hash").ToString(),
                 .Role = record("role").ToString(),
                 .Status = record("status").ToString(),
                 .CreatedAt = record("created_at")
                 }
-                usersList.Add(user)
+            usersList.Add(user)
         Next
 
         Return usersList
@@ -116,8 +146,8 @@ Public Class UsersRepository
 
         ' Insert the new user
         _connection.Prepare("INSERT INTO users (name, username, password_hash, role, status, created_at) VALUES (@name, @username, @password, @role, @status, @createdAt)")
-        
-        _connection.AddParam("@name", user.Username)
+
+        _connection.AddParam("@name", user.Name)
         _connection.AddParam("@username", user.Username)
         _connection.AddParam("@password", user.PasswordHash)
         _connection.AddParam("@role", user.Role)
@@ -134,25 +164,30 @@ Public Class UsersRepository
     ''' </summary>
     ''' <param name="user">The Users object containing updated user data.</param>
     Public Function Update(user As Users) As Boolean
-        _connection.Prepare("SELECT * FROM users WHERE username = @username ORDER BY id DESC")
-        _connection.AddParam("@username", user.Username)
+        _connection.Prepare("SELECT * 
+                            FROM users 
+                            WHERE id = @id")
+        _connection.AddParam("@id", user.Id)
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] Update Error: {_connection.ErrorMessage}")
             Return False
         End If
 
         If Not _connection.HasRecord Then
+            Debug.WriteLine($"[UserRepository] HasRecord: False")
             Return False
         End If
 
         ' Update the user
-        _connection.Prepare("UPDATE users SET username = @username, password_hash = @password, role = @role, status = @status WHERE id = @id")
+        _connection.Prepare("UPDATE users SET name = @name, username = @username, password_hash = @password, role = @role, status = @status, created_at = @createdAt WHERE id = @id")
+        _connection.AddParam("@name", user.Name)
         _connection.AddParam("@username", user.Username)
-        _connection.AddParam("@password", HashPassword(user.PasswordHash))
+        _connection.AddParam("@password", (user.PasswordHash))
         _connection.AddParam("@role", user.Role)
         _connection.AddParam("@status", user.Status)
+        _connection.AddParam("@createdAt", user.CreatedAt)
         _connection.AddParam("@id", user.Id)
         _connection.Execute()
 
@@ -167,7 +202,7 @@ Public Class UsersRepository
     ''' Deletes a user from the database.
     ''' </summary>
     ''' <param name="userId">The ID of the user to delete.</param>
-    Public Function Delete(user As Users)  As Boolean
+    Public Function Delete(user As Users) As Boolean
         _connection.Prepare("SELECT * FROM users WHERE username = @username")
         _connection.AddParam("@username", user.Username)
         _connection.Execute()

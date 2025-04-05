@@ -33,4 +33,31 @@
         End Try
     End Function
 
+    Public Function GetUserById(userId As Users) As Users Implements IUserService.GetUserById
+        Try
+            Dim user = _userRepository.GetById(userId)
+            If user IsNot Nothing Then
+                Return user
+            End If
+            Return Nothing
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Error getting user by ID: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    Public Function UpdateUser(user As Users) As Boolean Implements IUserService.UpdateUser
+        Try
+            If user.Id Is Nothing Then
+                Debug.WriteLine($"[UserService] UpdateUser Error: User is nothing")
+                Return False
+            End If
+
+            Return _userRepository.Update(user)
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Error updating user: {ex.Message}")
+            Return False
+        End Try
+    End Function
+
 End Class

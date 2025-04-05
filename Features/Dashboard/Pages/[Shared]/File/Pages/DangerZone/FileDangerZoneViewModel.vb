@@ -316,7 +316,12 @@ Public Class FileDangerZoneViewModel
 
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(100).ConfigureAwait(True)
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If navigationContext.Parameters.ContainsKey("fileId") Then
                 Dim file = New FilesShared With {
