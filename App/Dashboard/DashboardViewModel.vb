@@ -19,19 +19,34 @@ Public Class DashboardViewModel
         _regionManager = regionManager
         _navigationService = navigationService
         _sessionManager = sessionManager
+
+        Load()
+    End Sub
+
+    Private Async Sub Load()
         Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+
             If _sessionManager.CurrentUser.Role = "Guest" Then
-                _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
-                _regionManager.RegisterViewWithRegion("PageRegion", "PublicFilesView")
-                _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
+
+                Await Task.Run(Sub()
+                                   _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
+                                   _regionManager.RegisterViewWithRegion("PageRegion", "PublicFilesView")
+                                   _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
+                               End Sub).ConfigureAwait(True)
                 Return
             End If
 
-            _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
-            _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
-            _navigationService.Start("PageRegion", "HomeView", "Home")
+            Await Task.Run(Sub()
+                               _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
+                               _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
+                               _navigationService.Start("PageRegion", "HomeView", "Home")
+                           End Sub).ConfigureAwait(True)
         Catch ex As Exception
             Debug.WriteLine($"[ERROR] Theres an error occured: {ex.Message}")
+        Finally
+            Loading.Hide()
         End Try
     End Sub
 End Class

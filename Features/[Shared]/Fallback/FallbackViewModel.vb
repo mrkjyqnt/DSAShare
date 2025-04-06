@@ -17,6 +17,7 @@ Public Class FallbackViewModel
             Application.Current.Dispatcher.Invoke(Sub()
                                                       Loading.Show()
                                                   End Sub)
+            Await Task.Run(Sub() GetSettings()).ConfigureAwait(True)
             Await Task.Run(Sub() Fallback.Retry()).ConfigureAwait(True)
         Catch ex As Exception
         Finally

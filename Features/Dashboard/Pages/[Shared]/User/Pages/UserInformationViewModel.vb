@@ -381,6 +381,8 @@ Public Class UserInformationViewModel
                         Return
                     End If
 
+                Else
+                    _userDetails = _sessionManager.CurrentUser
                 End If
 
                 Await Application.Current.Dispatcher.InvokeAsync(Sub() Load())

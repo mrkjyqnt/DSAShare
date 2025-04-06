@@ -2,21 +2,14 @@
 Imports System.Security.Cryptography
 Imports System.Text
 Imports System.Text.Json
-Imports System.Security.Principal
-Imports System.Diagnostics
+Imports System.Net
+Imports System.Net.NetworkInformation
+Imports System.Net.Sockets
+Imports System.Linq
 
-#Disable Warning
 Module ConfigurationModule
-    ' Debug mode flag
-#If DEBUG Then
-    Private Const DebugMode As Boolean = True
-#Else
-    Private Const DebugMode As Boolean = False
-#End If
-
     ' File paths
-    Private ReadOnly DebugConfigPath As String = "AppConfig.debug.json"
-    Private ReadOnly RuntimeConfigPath As String = Path.Combine(
+    Private ReadOnly ConfigPath As String = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "DSAShare",
         "AppConfig.secure")
@@ -25,19 +18,7 @@ Module ConfigurationModule
     Private ReadOnly SecretKey As String = "DSAShare"
 
     ' Default configuration
-    Private ReadOnly DefaultConfig As New AppSettings With {
-        .Database = New DatabaseSettings With {
-            .Server = "192.168.8.10\SQLEXPRESS",
-            .Name = "dsa_share_database",
-            .Username = "member",
-            .Password = "member"
-        },
-        .Network = New NetworkSettings With {
-            .FolderPath = "\\192.168.8.10\ServerStorage\",
-            .Username = "user",
-            .Password = "user"
-        }
-    }
+    Private DefaultConfig As AppSettings = Nothing
 
     ' Configuration classes
     Public Class AppSettings
@@ -65,127 +46,211 @@ Module ConfigurationModule
         .Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     }
 
+    ' Initialize default config with dynamic IP
+    Private Sub InitializeDefaultConfig()
+        If DefaultConfig IsNot Nothing Then Return
+
+        Dim ipBase As String = GetLocalIpBase()
+        If String.IsNullOrEmpty(ipBase) Then
+            ipBase = "192.168.8"
+        End If
+
+        DefaultConfig = New AppSettings With {
+            .Database = New DatabaseSettings With {
+                .Server = $"{ipBase}.10\SQLEXPRESS",
+                .Name = "dsa_share_database",
+                .Username = "member",
+                .Password = "member"
+            },
+            .Network = New NetworkSettings With {
+                .FolderPath = $"\\{ipBase}.10\ServerStorage",
+                .Username = "user",
+                .Password = "user"
+            }
+        }
+    End Sub
+
+    ' Gets the first 3 octets of the active IPv4 address
+    Private Function GetLocalIpBase() As String
+        Try
+            Dim interfaces = NetworkInterface.GetAllNetworkInterfaces().
+                Where(Function(ni) ni.OperationalStatus = OperationalStatus.Up AndAlso
+                                  ni.NetworkInterfaceType <> NetworkInterfaceType.Loopback)
+
+            For Each ni In interfaces
+                Dim ipProps = ni.GetIPProperties()
+                If ipProps.GatewayAddresses.Count = 0 Then Continue For
+
+                Dim ipv4Addresses = ipProps.UnicastAddresses.
+                    Where(Function(addr) addr.Address.AddressFamily = AddressFamily.InterNetwork)
+
+                For Each addr In ipv4Addresses
+                    Dim parts = addr.Address.ToString().Split("."c)
+                    If parts.Length = 4 Then
+                        Return $"{parts(0)}.{parts(1)}.{parts(2)}"
+                    End If
+                Next
+            Next
+
+            Dim host = Dns.GetHostEntry(Dns.GetHostName())
+            For Each ip In host.AddressList
+                If ip.AddressFamily = AddressFamily.InterNetwork Then
+                    Dim parts = ip.ToString().Split("."c)
+                    If parts.Length = 4 Then
+                        Return $"{parts(0)}.{parts(1)}.{parts(2)}"
+                    End If
+                End If
+            Next
+
+            Return "192.168.8"
+        Catch
+            Return "192.168.8"
+        End Try
+    End Function
+
     ' Public interface
     Public Function GetSettings() As AppSettings
         Try
-            Debug.WriteLine($"Loading configuration in {(If(DebugMode, "DEBUG", "RELEASE"))} mode")
-            Return If(DebugMode, LoadDebugConfig(), LoadRuntimeConfig())
+            InitializeDefaultConfig()
+
+            ' Check if config exists
+            If Not File.Exists(ConfigPath) Then
+                ' Save default settings if config doesn't exist
+                SaveConfig(DefaultConfig)
+            End If
+
+            ' Load settings
+            Return LoadConfig()
         Catch ex As Exception
-            ErrorHandler.SetError($"Failed to load configuration: {ex.Message}")
-            Debug.WriteLine($"GetSettings error: {ex.ToString()}")
+            ' Fallback to default if anything fails
             Return DefaultConfig
         End Try
     End Function
 
+
     Public Sub SaveSettings(settings As AppSettings)
         Try
-            Debug.WriteLine($"Saving configuration in {(If(DebugMode, "DEBUG", "RELEASE"))} mode")
-            If DebugMode Then
-                SaveDebugConfig(settings)
-            Else
-                SaveRuntimeConfig(settings)
-            End If
-            VerifyFileCreation()
+            InitializeDefaultConfig()
+            SaveConfig(settings)
+            VerifyConfigFileExistence()
         Catch ex As Exception
-            ErrorHandler.SetError($"Failed to save configuration: {ex.Message}")
-            Debug.WriteLine($"SaveSettings error: {ex.ToString()}")
-            Throw
+            Throw New ApplicationException("Failed to save configuration", ex)
         End Try
     End Sub
 
     Public Sub ResetToDefaults()
         Try
-            Debug.WriteLine("Resetting configuration to defaults")
-            If DebugMode Then
-                SaveDebugConfig(DefaultConfig)
-            Else
-                SaveRuntimeConfig(DefaultConfig)
-            End If
+            InitializeDefaultConfig()
+            SaveConfig(DefaultConfig)
         Catch ex As Exception
-            ErrorHandler.SetError($"Failed to reset configuration: {ex.Message}")
-            Debug.WriteLine($"ResetToDefaults error: {ex.ToString()}")
+            Throw New ApplicationException("Failed to reset configuration", ex)
+        End Try
+    End Sub
+
+#Region "Config File Operations"
+    Private Function LoadConfig() As AppSettings
+        Try
+            Dim configDir = Path.GetDirectoryName(ConfigPath)
+            If Not Directory.Exists(configDir) Then
+                Directory.CreateDirectory(configDir)
+            End If
+
+            If File.Exists(ConfigPath) Then
+                Dim encryptedBytes = File.ReadAllBytes(ConfigPath)
+                If encryptedBytes.Length > 0 Then
+                    Dim json = DecryptStringFromBytes(encryptedBytes)
+                    Return JsonSerializer.Deserialize(Of AppSettings)(json, JsonOptions)
+                End If
+            End If
+            Return DefaultConfig
+        Catch cryptoEx As CryptographicException
+            File.Delete(ConfigPath)
+            Return DefaultConfig
+        Catch
+            Return DefaultConfig
+        End Try
+    End Function
+
+    Private Sub SaveConfig(config As AppSettings)
+        Try
+            Dim configDir = Path.GetDirectoryName(ConfigPath)
+            If Not Directory.Exists(configDir) Then
+                Directory.CreateDirectory(configDir)
+            End If
+
+            ' Test directory permissions
+            TestDirectoryPermissions(configDir)
+
+            Dim json = JsonSerializer.Serialize(config, JsonOptions)
+            Dim encryptedBytes = EncryptStringToBytes(json)
+
+            ' Atomic write operation
+            Dim tempFile = Path.Combine(configDir, Path.GetRandomFileName())
+            File.WriteAllBytes(tempFile, encryptedBytes)
+
+            If Not File.Exists(tempFile) Then
+                Throw New IOException("Failed to create temporary config file")
+            End If
+
+            If File.Exists(ConfigPath) Then
+                File.Delete(ConfigPath)
+            End If
+            File.Move(tempFile, ConfigPath)
+
+            If Not File.Exists(ConfigPath) Then
+                Throw New IOException("Final config file not created after move")
+            End If
+
+            File.SetAttributes(ConfigPath, FileAttributes.Hidden)
+        Catch ex As Exception
             Throw
         End Try
     End Sub
 
-#Region "Debug Mode Implementation"
-    Private Function LoadDebugConfig() As AppSettings
+    Private Sub TestDirectoryPermissions(dir As String)
+        Dim testFile = Path.Combine(dir, "perm_test.tmp")
         Try
-            If File.Exists(DebugConfigPath) Then
-                Dim json As String = File.ReadAllText(DebugConfigPath)
-                Debug.WriteLine($"Loaded debug config from: {Path.GetFullPath(DebugConfigPath)}")
-                Return JsonSerializer.Deserialize(Of AppSettings)(json, JsonOptions)
-            Else
-                Debug.WriteLine("Debug config not found, creating with defaults")
-                SaveDebugConfig(DefaultConfig)
-                Return DefaultConfig
+            File.WriteAllText(testFile, "test")
+            If Not File.Exists(testFile) Then
+                Throw New IOException("Test file not created")
             End If
+            File.Delete(testFile)
         Catch ex As Exception
-            Debug.WriteLine($"Debug config load failed: {ex.Message}")
-            Throw New ApplicationException("Failed to load debug configuration", ex)
+            Throw New IOException($"Permission test failed in {dir}", ex)
         End Try
-    End Function
+    End Sub
 
-    Private Sub SaveDebugConfig(config As AppSettings)
+    Public Sub VerifyConfigFileExistence()
         Try
-            Dim json As String = JsonSerializer.Serialize(config, JsonOptions)
-            File.WriteAllText(DebugConfigPath, json)
-            Debug.WriteLine($"Debug config saved to: {Path.GetFullPath(DebugConfigPath)}")
+            If Not File.Exists(ConfigPath) Then
+                Throw New FileNotFoundException($"Config file missing at: {ConfigPath}")
+            End If
+
+            Dim fileInfo As New FileInfo(ConfigPath)
+            Dim attrs = fileInfo.Attributes
+            Dim isHidden = (attrs And FileAttributes.Hidden) = FileAttributes.Hidden
+
+            Debug.WriteLine($"Config file verification:")
+            Debug.WriteLine($"- Path: {ConfigPath}")
+            Debug.WriteLine($"- Size: {fileInfo.Length} bytes")
+            Debug.WriteLine($"- Hidden: {isHidden}")
+            Debug.WriteLine($"- Last Write: {fileInfo.LastWriteTime}")
+
+            Dim bytes = File.ReadAllBytes(ConfigPath)
+            Debug.WriteLine($"- Read {bytes.Length} bytes successfully")
+
         Catch ex As Exception
-            Debug.WriteLine($"Debug config save failed: {ex.Message}")
-            Throw New ApplicationException("Failed to save debug configuration", ex)
+            Debug.WriteLine($"VERIFICATION FAILED: {ex.Message}")
+            Throw
         End Try
     End Sub
 #End Region
 
-#Region "Runtime (Secure) Mode Implementation"
-    Private Function LoadRuntimeConfig() As AppSettings
-        Try
-            If File.Exists(RuntimeConfigPath) Then
-                Dim encryptedBytes As Byte() = File.ReadAllBytes(RuntimeConfigPath)
-                If encryptedBytes.Length = 0 Then
-                    Debug.WriteLine("Empty config file detected, using defaults")
-                    Return DefaultConfig
-                End If
-
-                Dim json As String = DecryptStringFromBytes(encryptedBytes)
-                Debug.WriteLine($"Loaded secure config from: {RuntimeConfigPath}")
-                Return JsonSerializer.Deserialize(Of AppSettings)(json, JsonOptions)
-            End If
-        Catch cryptoEx As CryptographicException
-            Debug.WriteLine($"Invalid config encryption: {cryptoEx.Message}")
-            File.Delete(RuntimeConfigPath)
-            Throw New ApplicationException("Configuration corrupted - reset to defaults", cryptoEx)
-        Catch ex As Exception
-            Debug.WriteLine($"Runtime config load failed: {ex.Message}")
-            Throw New ApplicationException("Failed to load runtime configuration", ex)
-        End Try
-
-        Debug.WriteLine("No config file found, using defaults")
-        Return DefaultConfig
-    End Function
-
-    Private Sub SaveRuntimeConfig(config As AppSettings)
-        Try
-            Directory.CreateDirectory(Path.GetDirectoryName(RuntimeConfigPath))
-            
-            Dim json As String = JsonSerializer.Serialize(config, JsonOptions)
-            Dim encryptedBytes As Byte() = EncryptStringToBytes(json)
-            
-            File.WriteAllBytes(RuntimeConfigPath, encryptedBytes)
-            File.SetAttributes(RuntimeConfigPath, FileAttributes.Hidden)
-            
-            Debug.WriteLine($"Secure config saved to: {RuntimeConfigPath}")
-        Catch ex As Exception
-            Debug.WriteLine($"Runtime config save failed: {ex.Message}")
-            Throw New ApplicationException("Failed to save runtime configuration", ex)
-        End Try
-    End Sub
-
+#Region "Encryption"
     Private Function EncryptStringToBytes(plainText As String) As Byte()
         Using aes As Aes = Aes.Create()
             Dim keyMaterial = $"{SecretKey}-{Environment.MachineName}-{Environment.UserName}"
-            Using rfc As New Rfc2898DeriveBytes(keyMaterial, Encoding.UTF8.GetBytes("DSAShareSalt"), 10000)
+            Using rfc = New Rfc2898DeriveBytes(keyMaterial, Encoding.UTF8.GetBytes("DSAShareSalt"), 10000)
                 aes.Key = rfc.GetBytes(32)
                 aes.IV = rfc.GetBytes(16)
             End Using
@@ -193,7 +258,6 @@ Module ConfigurationModule
             Using encryptor = aes.CreateEncryptor()
                 Using ms = New MemoryStream()
                     ms.Write(aes.IV, 0, aes.IV.Length)
-                    
                     Using cs = New CryptoStream(ms, encryptor, CryptoStreamMode.Write)
                         Using sw = New StreamWriter(cs)
                             sw.Write(plainText)
@@ -214,9 +278,9 @@ Module ConfigurationModule
             Dim iv(15) As Byte
             Array.Copy(cipherText, 0, iv, 0, iv.Length)
             aes.IV = iv
-            
+
             Dim keyMaterial = $"{SecretKey}-{Environment.MachineName}-{Environment.UserName}"
-            Using rfc As New Rfc2898DeriveBytes(keyMaterial, Encoding.UTF8.GetBytes("DSAShareSalt"), 10000)
+            Using rfc = New Rfc2898DeriveBytes(keyMaterial, Encoding.UTF8.GetBytes("DSAShareSalt"), 10000)
                 aes.Key = rfc.GetBytes(32)
             End Using
 
@@ -231,25 +295,21 @@ Module ConfigurationModule
             End Using
         End Using
     End Function
-
-    Private Sub VerifyFileCreation()
-        Try
-            Dim targetPath = If(DebugMode, DebugConfigPath, RuntimeConfigPath)
-            If File.Exists(targetPath) Then
-                Debug.WriteLine($"Config verification: File exists at {targetPath}")
-                If Not DebugMode Then
-                    Debug.WriteLine($"Hidden attribute: {(File.GetAttributes(targetPath) And FileAttributes.Hidden) = FileAttributes.Hidden}")
-                End If
-            Else
-                Debug.WriteLine($"Config verification: FILE NOT FOUND at {targetPath}")
-                Debug.WriteLine($"Possible causes:")
-                Debug.WriteLine($"1. Missing write permissions")
-                Debug.WriteLine($"2. Anti-virus blocking")
-                Debug.WriteLine($"3. Path: {Path.GetDirectoryName(targetPath)}")
-            End If
-        Catch ex As Exception
-            Debug.WriteLine($"Verification error: {ex.Message}")
-        End Try
-    End Sub
 #End Region
+
+    Public Sub CheckAppDataFolder()
+        Dim dir = Path.GetDirectoryName(ConfigPath)
+        Debug.WriteLine($"Checking folder: {dir}")
+
+        If Not Directory.Exists(dir) Then
+            Debug.WriteLine("Folder does not exist!")
+            Return
+        End If
+
+        Debug.WriteLine("Folder contents:")
+        For Each file In Directory.GetFiles(dir)
+            Dim fileInfo As New FileInfo(file)
+            Debug.WriteLine($"- {fileInfo.Name} (Size: {fileInfo.Length} bytes, Hidden: {(fileInfo.Attributes And FileAttributes.Hidden) = FileAttributes.Hidden})")
+        Next
+    End Sub
 End Module

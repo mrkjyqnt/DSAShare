@@ -1,5 +1,6 @@
 ﻿Imports System.Windows.Threading
 Imports CommunityToolkit.Mvvm.Input
+Imports Microsoft.Office.Interop.Excel
 Imports Prism.Commands
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
@@ -92,7 +93,9 @@ Partial Public Class SignInViewModel
 
     Private Sub OnGuestLogin()
         Dim guestUser As New Users() With {
+            .Id = 0,
             .Username = "Guest",
+            .Name = "Guest User",
             .Role = "Guest",
             .Status = "Active"
         }

@@ -116,7 +116,7 @@ Public Class UserInformationsViewModel
                     DefaultSettingsVisibility = Visibility.Collapsed
                 End If
 
-                If Not _sessionManager.CurrentUser.Role = "Guest" Then
+                If _sessionManager.CurrentUser.Role = "Guest" Then
                     DangerZoneButtonVisibility = Visibility.Collapsed
                 End If
 
@@ -168,7 +168,8 @@ Public Class UserInformationsViewModel
                         _navigationService.GoBack()
                         Return
                     End If
-
+                Else
+                    _userDetails = _sessionManager.CurrentUser
                 End If
 
                 _parameters.Add("userId", navigationContext.Parameters.GetValue(Of Integer)("userId"))

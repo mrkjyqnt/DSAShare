@@ -149,6 +149,7 @@ Public Class Bootstrapper
 
         sessionManager.LoadSession()
         ConfigurationModule.GetSettings()
+        VerifyConfigFileExistence
 
         Try
             Loading.StartUp()
