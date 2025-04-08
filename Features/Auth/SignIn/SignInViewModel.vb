@@ -91,8 +91,9 @@ Partial Public Class SignInViewModel
         End Try
     End Function
 
-    Private Sub OnGuestLogin()
-        Dim guestUser As New Users() With {
+    Private Async Sub OnGuestLogin()
+        Try
+            Dim guestUser As New Users() With {
             .Id = 0,
             .Username = "Guest",
             .Name = "Guest User",
@@ -100,9 +101,14 @@ Partial Public Class SignInViewModel
             .Status = "Active"
         }
 
-        _sessionManager.Login(guestUser)
-        PopUp.Information("Success", "Logged in as Guest.")
-        _regionManager.RequestNavigate("MainRegion", "DashboardView")
+            Await Task.Run(Sub()
+                               _sessionManager.Login(guestUser)
+                           End Sub).ConfigureAwait(True)
+            Await PopUp.Information("Success", "Logged in as Guest.").ConfigureAwait(True)
+            _regionManager.RequestNavigate("MainRegion", "DashboardView")
+        Catch ex As Exception
+
+        End Try
     End Sub
 
     Private Sub OnSignUp()

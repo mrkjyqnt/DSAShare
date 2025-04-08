@@ -55,7 +55,7 @@ Public Class DownloadsViewModel
 
         OpenFileCommand = New DelegateCommand(Of DownloadHistoryItem)(AddressOf OpenFile, Function(item) item IsNot Nothing AndAlso item.IsFileExists)
         OpenFolderCommand = New DelegateCommand(Of DownloadHistoryItem)(AddressOf OpenFolder, Function(item) item IsNot Nothing AndAlso item.IsFileExists)
-        DeleteFileCommand = New AsyncDelegateCommand(Of DownloadHistoryItem)(AddressOf DeleteFile, Function(item) item IsNot Nothing)
+        DeleteFileCommand = New AsyncDelegateCommand(Of DownloadHistoryItem)(AddressOf OnDeleteFile, Function(item) item IsNot Nothing)
 
         _eventAggregator.GetEvent(Of DownloadCompletedEvent).Subscribe(AddressOf OnDownloadCompleted)
 
@@ -137,7 +137,7 @@ Public Class DownloadsViewModel
         End Try
     End Sub
 
-    Private Async Function DeleteFile(item As DownloadHistoryItem) As Task
+    Private Async Function OnDeleteFile(item As DownloadHistoryItem) As Task
         Try
             If Not item.IsFileExists Then
                 _downloadService.Remove(item)

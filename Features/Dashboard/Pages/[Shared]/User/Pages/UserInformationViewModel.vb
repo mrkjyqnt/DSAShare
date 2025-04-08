@@ -12,6 +12,7 @@ Public Class UserInformationViewModel
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _userService As IUserService
     Private ReadOnly _navigationService As INavigationService
+    Private ReadOnly _regionManager As IRegionManager
 
     Private _openedFrom As String
     Private _userDetails As Users
@@ -123,10 +124,14 @@ Public Class UserInformationViewModel
     Public ReadOnly Property RoleSaveButtonCommand As AsyncDelegateCommand
     Public ReadOnly Property SignOutButtonCommand As AsyncDelegateCommand
 
-    Public Sub New(sessionManager As ISessionManager, userService As IUserService, navigationService As INavigationService)
+    Public Sub New(sessionManager As ISessionManager,
+                   userService As IUserService,
+                   navigationService As INavigationService,
+                   regionManager As IRegionManager)
         _sessionManager = sessionManager
         _userService = userService
         _navigationService = navigationService
+        _regionManager = regionManager
 
         ' Initialize commands
         InformationSaveButtonCommand = New AsyncDelegateCommand(AddressOf OnSaveInformation)
@@ -288,16 +293,25 @@ Public Class UserInformationViewModel
             End If
 
             _sessionManager.Logout()
-            Await PopUp.Information("Success", "You have been signed out successfully.")
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() _navigationService.Go("MainRegion", "AuthenticationView"))
+            For Each region In _regionManager.Regions
+                region.RemoveAll()
+            Next
+
+            _regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+            Await Task.Delay(300)
+            GC.Collect()
+            GC.WaitForPendingFinalizers()
+
         Catch ex As Exception
-            Debug.WriteLine($"[UserInformationView] OnSignOut Error: {ex.Message}")
+            Debug.WriteLine($"[LogoutReset] Error: {ex.Message}")
+            _regionManager.RequestNavigate("MainRegion", "AuthenticationView")
         End Try
     End Function
 
     Private Sub Load()
         Try
             If Not _openedFrom = "ManageUsersView" Then
+
                 If _sessionManager.CurrentUser.Id = _userDetails.Id Then
                     RoleSectionVisibility = Visibility.Collapsed
                 End If
@@ -381,12 +395,9 @@ Public Class UserInformationViewModel
                         Return
                     End If
 
-                Else
-                    _userDetails = _sessionManager.CurrentUser
                 End If
 
-                Await Application.Current.Dispatcher.InvokeAsync(Sub() Load())
-                Await Task.Delay(1000).ConfigureAwait(True)
+                Await Task.Delay(1000).ContinueWith(Sub() Application.Current.Dispatcher.InvokeAsync(Sub() Load()))
                 Loading.Hide()
             End If
         Catch ex As Exception
@@ -403,6 +414,6 @@ Public Class UserInformationViewModel
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget
-        Throw New NotImplementedException()
+        Return True
     End Function
 End Class

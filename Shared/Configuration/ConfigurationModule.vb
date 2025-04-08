@@ -7,6 +7,7 @@ Imports System.Net.NetworkInformation
 Imports System.Net.Sockets
 Imports System.Linq
 
+#Disable Warning
 Module ConfigurationModule
     ' File paths
     Private ReadOnly ConfigPath As String = Path.Combine(

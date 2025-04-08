@@ -12,6 +12,7 @@ Public Class AccessedFilesViewModel
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _userService As IUserService
 
     Private _sharedFiles As List(Of FilesShared)
     Private _accessedFiles As List(Of FilesAccessed)
@@ -256,45 +257,110 @@ Public Class AccessedFilesViewModel
     End Property
 
     Public Property SearchCommand As DelegateCommand
-    Public Property AccessFileCommand As DelegateCommand
+    Public Property AccessFileCommand As AsyncDelegateCommand
     Public Property ViewCommand As DelegateCommand(Of Integer?)
 
-    Public Sub New(fileDataService As IFileDataService, navigationService As INavigationService, sessionManager As ISessionManager)
+    Public Sub New(fileDataService As IFileDataService,
+                   navigationService As INavigationService,
+                   sessionManager As ISessionManager,
+                   userService As IUserService)
         _fileDataService = fileDataService
         _navigationService = navigationService
         _sessionManager = sessionManager
+        _userService = userService
 
         DataGridFiles = New ObservableCollection(Of FilesShared)
         SearchCommand = New DelegateCommand(AddressOf OnSearchCommand)
-        AccessFileCommand = New DelegateCommand(AddressOf OnAccessFileCommand)
+        AccessFileCommand = New AsyncDelegateCommand(AddressOf OnAccessFileCommand)
         ViewCommand = New DelegateCommand(Of Integer?)(AddressOf OnViewCommand)
 
         LoadData()
     End Sub
 
-    Private Sub OnViewCommand(fileId As Integer?)
-        If Not fileId.HasValue Then
-            Debug.WriteLine("[WARN] Tried to view a file with NULL ID")
-            Return
-        End If
+    Private Async Sub OnViewCommand(fileId As Integer?)
+        Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(50)
 
-        Debug.WriteLine($"[DEBUG] Viewing file ID: {fileId.Value}")
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
-        Dim parameters = New NavigationParameters From {
-            {"fileId", fileId.Value},
-            {"openedFrom", "AccessedFilesView"}
-        }
+            If Not fileId.HasValue Then
+                Debug.WriteLine("[WARN] Tried to view a file with NULL ID")
+                Return
+            End If
 
-        _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+            Debug.WriteLine($"[DEBUG] Viewing file ID: {fileId.Value}")
+
+            Dim parameters = New NavigationParameters From {
+                {"fileId", fileId.Value},
+                {"openedFrom", "AccessedFilesView"}
+            }
+
+            _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+        Catch ex As Exception
+
+        End Try
     End Sub
 
     Private Sub OnSearchCommand()
         ApplyFilters()
     End Sub
 
-    Private Sub OnAccessFileCommand()
-        _navigationService.Go("PageRegion", "AccessedFilesView", "Accessed")
-    End Sub
+    Private Async Function OnAccessFileCommand() As Task
+        Try
+            Dim file As FilesShared
+
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(50)
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            Dim popUpResult As PopupResult = Await PopUp.Selection()
+
+            If popUpResult Is Nothing Then
+                Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
+                Return
+            End If
+
+            Dim input = popUpResult.GetValue(Of String)("Input")
+            Dim selectedOption = popUpResult.GetValue(Of String)("SelectedOption")
+
+            Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(_sessionManager.CurrentUser)).ConfigureAwait(True)
+            If Not hasPermission Then
+                Await PopUp.Information("Failed", "You do not have permission to access this file.").ConfigureAwait(True)
+                Return
+            End If
+
+            Dim fileShare = New FilesShared With {
+                .ShareType = selectedOption,
+                .ShareValue = input,
+                .UploadedBy = _sessionManager.CurrentUser.Id
+            }
+
+            file = Await Task.Run(Function() _fileDataService.GetSharedFileByPrivate(fileShare)).ConfigureAwait(True)
+
+            If file Is Nothing Then
+                Await PopUp.Information("Failed", "File not found.").ConfigureAwait(True)
+                Return
+            End If
+
+            Dim parameters = New NavigationParameters From {
+                {"fileId", file.Id},
+                {"openedFrom", "AccessedFilesView"}
+            }
+
+            _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+
+        Catch ex As Exception
+            Debug.WriteLine($"[AccessedFilesViewModel] OnAccessFileCommand Error: {ex.Message}")
+        Finally
+            Loading.Hide
+        End Try
+    End Function
 
     Private Async Sub LoadData()
         Try

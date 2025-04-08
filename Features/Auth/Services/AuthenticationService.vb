@@ -17,14 +17,14 @@
 
         If _usersRepository.Auth(user) Then
             Dim loggedUser = _usersRepository.GetByUsername(user)
-            SetSession(loggedUser) ' Set the session after successful authentication
+            SetSession(loggedUser)
             Return True
         End If
 
         Return False
     End Function
 
-    Public Sub SetSession(user As Users) Implements IAuthenticationService.SetSession
+    Private Sub SetSession(user As Users)
         If user IsNot Nothing Then
             _sessionManager.Login(user)
         Else

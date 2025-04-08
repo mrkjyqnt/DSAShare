@@ -89,11 +89,11 @@ Public Class UserInformationsViewModel
         End Try
     End Sub
 
-    Public Async Sub OnInformationSelected()
+    Private Async Sub OnInformationSelected()
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserInformationView", _parameters))
-        Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] OnDetailsSelected Error navigating to FileDetailsContentView")
+    Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] OnInformationSelected Error navigating to UserInformationView: {ex.Message}")
         End Try
     End Sub
 
@@ -123,8 +123,7 @@ Public Class UserInformationsViewModel
             End If
 
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error loading navigation")
-            Debug.WriteLine($"[DEBUG] Message: {ex.Message}")
+            Debug.WriteLine($"[UserInformationsViewModel] Load Error: {ex.Message}")
         Finally
             RaisePropertyChanged(NameOf(NameText))
             RaisePropertyChanged(NameOf(DangerZoneButtonVisibility))
@@ -168,24 +167,36 @@ Public Class UserInformationsViewModel
                         _navigationService.GoBack()
                         Return
                     End If
-                Else
-                    _userDetails = _sessionManager.CurrentUser
+
                 End If
 
                 _parameters.Add("userId", navigationContext.Parameters.GetValue(Of Integer)("userId"))
                 _parameters.Add("openedFrom", navigationContext.Parameters.GetValue(Of String)("openedFrom"))
 
-                Await Application.Current.Dispatcher.InvokeAsync(Sub() Load())
-                Await Task.Delay(1000).ConfigureAwait(True)
-                OnInformationSelected()
-                Loading.Hide()
+                Await Application.Current.Dispatcher.InvokeAsync(Sub()
+                                                                     Load()
+                                                                     OnInformationSelected()
+                                                                 End Sub)
             End If
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationsViewModel] Error: {ex.Message}")
+        Finally
+            Loading.Hide()
         End Try
     End Sub
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedFrom
+        Try
+            If navigationContext IsNot Nothing Then
+                Dim region = _regionManager.Regions("UserPageRegion")
+                Dim view = region.Views.FirstOrDefault(Function(v) v.GetType().Name = "UserInformationView")
+                If view IsNot Nothing Then
+                    region.Remove(view)
+                End If
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Error navigating from UserInformationView: {ex.Message}")
+        End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements INavigationAware.IsNavigationTarget

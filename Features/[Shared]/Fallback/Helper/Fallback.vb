@@ -16,10 +16,8 @@ Public Class Fallback
 
     Public Shared Async Function CheckConnection() As Task(Of Boolean)
         Try
-            ' First immediate check
             If Await TestConnection() Then Return True
 
-            ' Show fallback and wait for retry
             Show()
             _tcs = New TaskCompletionSource(Of Boolean)()
             Return Await _tcs.Task
@@ -39,16 +37,12 @@ Public Class Fallback
     Public Shared Async Sub Retry()
         If _isChecking Then Return
         _isChecking = True
-
-        Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-
         Try
             If Await TestConnection() Then
                 _tcs?.TrySetResult(True)
             End If
         Finally
             _isChecking = False
-            Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Hide())
         End Try
     End Sub
 

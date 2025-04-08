@@ -22,7 +22,7 @@ Public Class UsersRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] Auth Error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -46,7 +46,7 @@ Public Class UsersRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] GetByUsername Error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -74,7 +74,7 @@ Public Class UsersRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] GetById Error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -105,7 +105,7 @@ Public Class UsersRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] Read Error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -136,7 +136,7 @@ Public Class UsersRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] Insert Error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -208,7 +208,7 @@ Public Class UsersRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            ErrorHandler.SetError(_connection.ErrorMessage)
+            Debug.WriteLine($"[UserRepository] Delete Error: {_connection.ErrorMessage}")
             Return False
         End If
 

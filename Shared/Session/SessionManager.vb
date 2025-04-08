@@ -50,6 +50,7 @@ Public Class SessionManager
 
     Public Sub Logout() Implements ISessionManager.Logout
         Debug.WriteLine($"[DEBUG] Logging out user: {_currentUser?.Username}")
+        Dim tempUser = _currentUser
         _currentUser = Nothing
         ClearSession()
     End Sub
@@ -133,16 +134,16 @@ Public Class SessionManager
     Private Sub SaveSecureSession()
         Try
             Directory.CreateDirectory(Path.GetDirectoryName(SecureSessionPath))
-            
+
             Dim options As New JsonSerializerOptions With {
                 .PropertyNameCaseInsensitive = True
             }
             Dim jsonString As String = JsonSerializer.Serialize(_currentUser, options)
-            
+
             Dim encryptedData As Byte() = EncryptStringToBytes(jsonString)
             File.WriteAllBytes(SecureSessionPath, encryptedData)
             File.SetAttributes(SecureSessionPath, FileAttributes.Hidden)
-            
+
             Debug.WriteLine($"Secure session saved to: {SecureSessionPath}")
         Catch ex As Exception
             Throw New ApplicationException("Failed to save secure session", ex)
@@ -171,14 +172,14 @@ Public Class SessionManager
         Using aes As Aes = Aes.Create()
             Dim keyMaterial = $"{SecretKey}-{Environment.MachineName}-{Environment.UserName}"
             Using rfc As New Rfc2898DeriveBytes(keyMaterial, Encoding.UTF8.GetBytes("DSAShareSalt"), 10000)
-                aes.Key = rfc.GetBytes(32) 
+                aes.Key = rfc.GetBytes(32)
                 aes.IV = rfc.GetBytes(16)
             End Using
 
             Using encryptor = aes.CreateEncryptor()
                 Using ms = New MemoryStream()
                     ms.Write(aes.IV, 0, aes.IV.Length)
-                    
+
                     Using cs = New CryptoStream(ms, encryptor, CryptoStreamMode.Write)
                         Using sw = New StreamWriter(cs)
                             sw.Write(plainText)
@@ -199,7 +200,7 @@ Public Class SessionManager
             Dim iv(15) As Byte
             Array.Copy(cipherText, 0, iv, 0, iv.Length)
             aes.IV = iv
-            
+
             Dim keyMaterial = $"{SecretKey}-{Environment.MachineName}-{Environment.UserName}"
             Using rfc As New Rfc2898DeriveBytes(keyMaterial, Encoding.UTF8.GetBytes("DSAShareSalt"), 10000)
                 aes.Key = rfc.GetBytes(32)

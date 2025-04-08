@@ -12,4 +12,6 @@
     Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean
     Function GetAccessedFileByUserFile(filesAccesed As FilesAccessed) As FilesAccessed
     Function RemoveAccessedFile(filesAccesed As FilesAccessed) As Boolean
+    Function GetAllAccessedFiles(filesAccessed As FilesAccessed) As List(Of FilesAccessed)
+    Function GetSharedFileByPrivate(fileShared As FilesShared) As FilesShared
 End Interface

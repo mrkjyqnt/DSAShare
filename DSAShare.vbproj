@@ -10,18 +10,22 @@
 
   <ItemGroup>
     <Compile Remove="Features\Dashboard\Pages\AccessedFiles\Services\**" />
+    <Compile Remove="Features\Dashboard\Pages\Helper\**" />
     <Compile Remove="Features\Dashboard\Pages\ManageFiles\Services\**" />
     <Compile Remove="Features\Dashboard\Pages\ManageUsers\Services\**" />
     <Compile Remove="Features\Dashboard\Pages\PublicFIles\Services\**" />
     <EmbeddedResource Remove="Features\Dashboard\Pages\AccessedFiles\Services\**" />
+    <EmbeddedResource Remove="Features\Dashboard\Pages\Helper\**" />
     <EmbeddedResource Remove="Features\Dashboard\Pages\ManageFiles\Services\**" />
     <EmbeddedResource Remove="Features\Dashboard\Pages\ManageUsers\Services\**" />
     <EmbeddedResource Remove="Features\Dashboard\Pages\PublicFIles\Services\**" />
     <None Remove="Features\Dashboard\Pages\AccessedFiles\Services\**" />
+    <None Remove="Features\Dashboard\Pages\Helper\**" />
     <None Remove="Features\Dashboard\Pages\ManageFiles\Services\**" />
     <None Remove="Features\Dashboard\Pages\ManageUsers\Services\**" />
     <None Remove="Features\Dashboard\Pages\PublicFIles\Services\**" />
     <Page Remove="Features\Dashboard\Pages\AccessedFiles\Services\**" />
+    <Page Remove="Features\Dashboard\Pages\Helper\**" />
     <Page Remove="Features\Dashboard\Pages\ManageFiles\Services\**" />
     <Page Remove="Features\Dashboard\Pages\ManageUsers\Services\**" />
     <Page Remove="Features\Dashboard\Pages\PublicFIles\Services\**" />

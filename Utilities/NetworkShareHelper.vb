@@ -24,9 +24,9 @@ Module NetworkShareHelper
             }
 
             Debug.WriteLine($"[DEBUG] Network Path: {_config.Network.FolderPath}")
-            Debug.WriteLine($"[DEBUG] Username: {_config.Network.UserName}")
+            Debug.WriteLine($"[DEBUG] Username: {_config.Network.Username}")
 
-            Dim result As Integer = WNetAddConnection2(netResource, _config.Network.Password, _config.Network.UserName, 0)
+            Dim result As Integer = WNetAddConnection2(netResource, _config.Network.Password, _config.Network.Username, 0)
 
             If result <> 0 Then
                 Debug.WriteLine($"[ERROR] Failed to connect to network share. Error Code: {result} - {GetErrorMessage(result)}")

@@ -18,6 +18,7 @@ Public Class HomeViewModel
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _fallBackService As IFallbackService
+    Private ReadOnly _userService As IUserService
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
@@ -84,7 +85,6 @@ Public Class HomeViewModel
                     End If
                 End If
             Finally
-                ' Delay the clearing to avoid interrupting navigation
                 Application.Current.Dispatcher.BeginInvoke(Sub()
                                                                SetProperty(_selectedActivity, Nothing)
                                                                _isProcessingSelection = False
@@ -107,13 +107,15 @@ Public Class HomeViewModel
                    activityService As IActivityService,
                    sessionManager As ISessionManager,
                    navigationService As INavigationService,
-                   fallBackService As IFallbackService)
+                   fallBackService As IFallbackService,
+                   userService As IUserService)
 
         _fileDataService = fileDataService
         _activityService = activityService
         _sessionManager = sessionManager
         _navigationService = navigationService
         _fallBackService = fallBackService
+        _userService = userService
 
         ' Initialize commands
         DataGridActivities = New ObservableCollection(Of ActivityServiceModel)()
@@ -138,19 +140,23 @@ Public Class HomeViewModel
             End If
 
             ' Get file data
-            Await Task.Run(Sub() _fileDataService.GetAllCount()).ConfigureAwait(True)
-            PublicText = _fileDataService.PublicFilesCount.ToString()
-            SharedText = _fileDataService.SharedFilesCount.ToString()
-            AccessedText = _fileDataService.AccessedFilesCount.ToString()
+            Await Task.Run(Sub() _fileDataService.GetAllCount())
+            PublicText = Await Task.Delay(50).Run(Function() _fileDataService.PublicFilesCount.ToString())
+            SharedText = Await Task.Delay(50).Run(Function() _fileDataService.SharedFilesCount.ToString())
+            AccessedText = Await Task.Delay(50).Run(Function() _fileDataService.AccessedFilesCount.ToString())
 
             DataGridActivities = New ObservableCollection(Of ActivityServiceModel)(
-                Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
+                Await Task.Delay(50).Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
             )
 
-        Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error loading data: {ex.Message}")
-        Finally
+            RaisePropertyChanged(NameOf(PublicText))
+            RaisePropertyChanged(NameOf(SharedText))
+            RaisePropertyChanged(NameOf(AccessedText))
+            RaisePropertyChanged(NameOf(DataGridActivities))
+
             Loading.Hide()
+        Catch ex As Exception
+            Debug.WriteLine($"[HomeViewModel] Error loading data: {ex.Message}")
         End Try
     End Sub
 
@@ -164,9 +170,59 @@ Public Class HomeViewModel
     ''' <summary>
     ''' Access files command
     ''' </summary>
-    Private Sub OnAccessFilesCommand()
-        _navigationService.Go("PageRegion", "AccessFilesView", "Accessed Files")
-    End Sub
+    Private Async Function OnAccessFilesCommand() As Task
+        Try
+            Dim file As FilesShared
+
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(50)
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            Dim popUpResult As PopupResult = Await PopUp.Selection()
+
+            If popUpResult Is Nothing Then
+                Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
+                Return
+            End If
+
+            Dim input = popUpResult.GetValue(Of String)("Input")
+            Dim selectedOption = popUpResult.GetValue(Of String)("SelectedOption")
+
+            Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(_sessionManager.CurrentUser)).ConfigureAwait(True)
+            If Not hasPermission Then
+                Await PopUp.Information("Failed", "You do not have permission to access this file.").ConfigureAwait(True)
+                Return
+            End If
+
+            Dim fileShare = New FilesShared With {
+                .ShareType = selectedOption,
+                .ShareValue = input,
+                .UploadedBy = _sessionManager.CurrentUser.Id
+            }
+
+            file = Await Task.Run(Function() _fileDataService.GetSharedFileByPrivate(fileShare)).ConfigureAwait(True)
+
+            If file Is Nothing Then
+                Await PopUp.Information("Failed", "File not found.").ConfigureAwait(True)
+                Return
+            End If
+
+            Dim parameters = New NavigationParameters From {
+                {"fileId", file.Id},
+                {"openedFrom", "AccessedFilesView"}
+            }
+
+            _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
+
+        Catch ex As Exception
+            Debug.WriteLine($"[AccessedFilesViewModel] OnAccessFileCommand Error: {ex.Message}")
+        Finally
+            Loading.Hide()
+        End Try
+    End Function
 
     ''' <summary>
     ''' On activity selected
@@ -258,5 +314,4 @@ Public Class HomeViewModel
             PopUp.Information("Error", "An unexpected error occurred while processing your request.")
         End Try
     End Sub
-
 End Class

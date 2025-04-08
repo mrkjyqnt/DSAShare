@@ -1,12 +1,7 @@
-﻿Imports DryIoc.FastExpressionCompiler.LightExpression
-Imports Prism.Commands
+﻿Imports Prism.Commands
 Imports Prism.Mvvm
 Imports Prism.Navigation
 Imports Prism.Navigation.Regions
-Imports System.IO
-Imports System.Net.WebRequestMethods
-Imports System.Windows
-Imports System.Windows.Interop
 
 #Disable Warning
 Public Class FileDetailsViewModel
@@ -197,6 +192,17 @@ Public Class FileDetailsViewModel
     End Sub
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedFrom
+        Try
+            If navigationContext IsNot Nothing Then
+                Dim region = _regionManager.Regions("FileDetailsRegion")
+                Dim view = region.Views.FirstOrDefault(Function(v) v.GetType().Name = "FileDetailsContentView")
+                If view IsNot Nothing Then
+                    region.Remove(view)
+                End If
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Error navigating from FileDetailsViewModel")
+        End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements INavigationAware.IsNavigationTarget

@@ -162,7 +162,11 @@ Public Class FileDangerZoneViewModel
 
     Private Async Function OnEnableFile() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If _file Is Nothing Then
                 PopUp.Information("Failed", "Theres an error while disabling the file, File reference is nothing")
@@ -235,7 +239,11 @@ Public Class FileDangerZoneViewModel
 
     Private Async Function OnDeleteFile() As Task
         Try
-            Loading.Show()
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
             If _file Is Nothing Then
                 PopUp.Information("Failed", "Theres an error while disabling the file, File reference is nothing")
@@ -279,7 +287,7 @@ Public Class FileDangerZoneViewModel
                 Return
             End If
 
-            Dim result = _fileService.DeleteFile(_file)
+            Dim result = Await Task.Run(Function() _fileService.DeleteFile(_file)).ConfigureAwait(True)
 
             If result.Success Then
                 Await PopUp.Information("Success", result.Message).ConfigureAwait(True)

@@ -75,7 +75,7 @@
 
         <!--  Content  -->
         <ContentControl
-            Grid.Row="2"
+            Grid.Row="1"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             prism:RegionManager.RegionName="UserPageRegion" />

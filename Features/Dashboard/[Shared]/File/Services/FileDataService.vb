@@ -2,6 +2,11 @@
 
 Public Class FileDataService
     Implements IFileDataService
+    Implements IDisposable
+
+    Private _disposed As Boolean = False
+    Private _cacheExpiryTime As DateTime = DateTime.MinValue
+    Private Const CacheDuration As Integer = 5 ' minutes
 
     Private ReadOnly _fileSharedRepository As FileSharedRepository
     Private ReadOnly _fileAccessedRepository As FileAccessedRepository
@@ -44,16 +49,34 @@ Public Class FileDataService
         _sessionManager = sessionManager
     End Sub
 
+    Private Sub ResetCache()
+        PublicFilesCount = 0
+        SharedFilesCount = 0
+        AccessedFilesCount = 0
+        _cacheExpiryTime = DateTime.MinValue
+    End Sub
+
     Public Sub GetAllCount() Implements IFileDataService.GetAllCount
+        If DateTime.Now > _cacheExpiryTime OrElse _disposed Then
+            ResetCache()
+        End If
+
         Try
-            PublicFilesCount = GetPublicFiles()?.Count
-            SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser)?.Count
-            AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser)?.Count
+            PublicFilesCount = GetPublicFiles().Count
+            SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser).Count
+            AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser).Count
+            _cacheExpiryTime = DateTime.Now.AddMinutes(CacheDuration)
         Catch ex As Exception
-            PublicFilesCount = 0
-            SharedFilesCount = 0
-            AccessedFilesCount = 0
+            Debug.WriteLine($"[FileDataService] Error in GetAllCount: {ex.Message}")
+            ResetCache()
         End Try
+    End Sub
+
+    Public Sub Dispose() Implements IDisposable.Dispose
+        If Not _disposed Then
+            ResetCache()
+            _disposed = True
+        End If
     End Sub
 
     Public Function GetPublicFiles() As List(Of FilesShared) Implements IFileDataService.GetPublicFiles
@@ -142,6 +165,20 @@ Public Class FileDataService
         End Try
     End Function
 
+    Public Function GetSharedFileByPrivate(fileShared As FilesShared) As FilesShared Implements IFileDataService.GetSharedFileByPrivate
+        Try
+            If fileShared Is Nothing Then
+                Debug.WriteLine("[FileDataService] GetSharedFileByPrivate: fileShared is nothing")
+                Return Nothing
+            End If
+
+            Return _fileSharedRepository.GetByShareType(fileShared)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] GetSharedFileByPrivate Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
     Public Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.SetAccessFile
         Try
             If filesAccesed Is Nothing Then
@@ -185,6 +222,22 @@ Public Class FileDataService
             Return _fileAccessedRepository.Delete(filesAccesed)
         Catch ex As Exception
             Debug.WriteLine($"[FileDataService] RemoveAccessedFile Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    Public Function GetAllAccessedFiles(filesAccessed As FilesAccessed) As List(Of FilesAccessed) Implements IFileDataService.GetAllAccessedFiles
+        Try
+            Dim result = _fileAccessedRepository.Read()
+
+            If result.Count = 0 Then
+                Debug.WriteLine("[FileDataService] GetAllAccessedFiles: No files accessed.")
+                Return Nothing
+            End If
+
+            Return If(result.Where(Function(f) f.FileId = filesAccessed.FileId).ToList(), Nothing)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] GetAllAccessedFiles Error: {ex.Message}")
             Return Nothing
         End Try
     End Function

@@ -1,9 +1,11 @@
 ﻿Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
+#Disable Warning
 Public Class DashboardViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
+    Implements INavigationAware
 
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
@@ -30,23 +32,39 @@ Public Class DashboardViewModel
 
             If _sessionManager.CurrentUser.Role = "Guest" Then
 
-                Await Task.Run(Sub()
-                                   _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
-                                   _regionManager.RegisterViewWithRegion("PageRegion", "PublicFilesView")
-                                   _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
-                               End Sub).ConfigureAwait(True)
+                _regionManager.RegisterViewWithRegion("NavigationRegion", GetType(NavigationView))
+                _regionManager.RegisterViewWithRegion("PageRegion", GetType(PublicFilesView))
+                _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
                 Return
             End If
 
-            Await Task.Run(Sub()
-                               _regionManager.RegisterViewWithRegion("NavigationRegion", "NavigationView")
-                               _regionManager.RegisterViewWithRegion("PageRegion", "HomeView")
-                               _navigationService.Start("PageRegion", "HomeView", "Home")
-                           End Sub).ConfigureAwait(True)
+            _regionManager.RegisterViewWithRegion("NavigationRegion", GetType(NavigationView))
+            _regionManager.RegisterViewWithRegion("PageRegion", GetType(HomeView))
+            _navigationService.Start("PageRegion", "HomeView", "Home")
         Catch ex As Exception
             Debug.WriteLine($"[ERROR] Theres an error occured: {ex.Message}")
         Finally
             Loading.Hide()
+        End Try
+    End Sub
+
+    Public Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget
+        Return True
+    End Function
+
+    Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
+        Try
+            Dim region = _regionManager.Regions("MainRegion")
+                Dim view = region.Views.FirstOrDefault(Function(v) v.GetType().Name = "DashboardRegion")
+                If view IsNot Nothing Then
+                    region.Remove(view)
+                End If
+        Catch ex As Exception
+
         End Try
     End Sub
 End Class

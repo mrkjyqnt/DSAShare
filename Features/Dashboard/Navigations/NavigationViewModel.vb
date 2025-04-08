@@ -73,28 +73,31 @@ Public Class NavigationViewModel
     Private Sub OnNavigationSelection(selectedItem As NavigationItemModel)
         If selectedItem Is Nothing Then Exit Sub
 
-        ' Deselect all buttons first
+        If selectedItem.IsSelected Then
+            Debug.WriteLine("[NavigationViewModel] Item already selected, skipping...")
+            Return
+        End If
+
         For Each item In MenuItems
             item.IsSelected = False
         Next
-        LastMenuItem.IsSelected = False ' Deselect the Account button too
+        LastMenuItem.IsSelected = False 
 
-        ' Mark the selected item
         selectedItem.IsSelected = True
 
-        ' Navigate to the selected view
         _regionManager.RequestNavigate("PageRegion", selectedItem.NavigationPath)
 
-        ' Notify UI of property changes
         RaisePropertyChanged(NameOf(MenuItems))
         RaisePropertyChanged(NameOf(LastMenuItem))
     End Sub
+
 
     Public Sub SetSelection(itemTitle As String)
         ' Deselect all items first
         For Each item In MenuItems
             item.IsSelected = False
         Next
+
         LastMenuItem.IsSelected = False
 
         ' Find the item to select by Title

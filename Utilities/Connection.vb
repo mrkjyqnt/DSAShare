@@ -6,7 +6,7 @@ Imports System.Data
 ''' </summary>
 Public Class Connection
     Private Config = ConfigurationModule.GetSettings()
-    Public ConnectString As String = $"Data Source={Config.Database.Server};Initial Catalog={Config.Database.Name};User ID={Config.Database.Username};Password={Config.Database.Password};Trust Server Certificate=True"
+    Public ConnectString As String = $"Data Source={Config.Database.Server};Initial Catalog={Config.Database.Name};User ID={Config.Database.Username};Password={Config.Database.Password};Trust Server Certificate=True;MultipleActiveResultSets=True"
 
     Public Connect As New SqlConnection(ConnectString)
     Public Command As New SqlCommand
@@ -23,7 +23,6 @@ Public Class Connection
     ''' <summary>
     ''' Prepares the query for execution.
     ''' </summary>
-    ''' <param name="query">The SQL query to prepare.</param>
     Public Sub Prepare(query As String)
         CommandString = query
     End Sub
@@ -31,7 +30,6 @@ Public Class Connection
     ''' <summary>
     ''' Executes the prepared query.
     ''' </summary>
-    ''' <returns>True if the query executed successfully; otherwise, False.</returns>
     Public Sub Execute()
         Try
             Query(CommandString)
@@ -41,7 +39,9 @@ Public Class Connection
         End Try
     End Sub
 
-    ' Open Connection with Checker
+    ''' <summary>
+    ''' Opens the connection safely.
+    ''' </summary>
     Public Sub Open()
         Try
             If Connect.State = ConnectionState.Closed Then
@@ -53,7 +53,9 @@ Public Class Connection
         End Try
     End Sub
 
-    ' Close Connection with Checker
+    ''' <summary>
+    ''' Closes the connection safely.
+    ''' </summary>
     Public Sub Close()
         Try
             If Connect.State = ConnectionState.Open Then
@@ -66,17 +68,17 @@ Public Class Connection
     End Sub
 
     ''' <summary>
-    ''' Add parameters to the query.
+    ''' Adds a parameter to the query.
     ''' </summary>
-    ''' <param name="key">The parameter name.</param>
-    ''' <param name="value">The parameter value.</param>
     Public Sub AddParam(ByVal key As String, ByVal value As Object)
         Try
-            If value Is Nothing Then
-                Parameters.Add(New SqlParameter(key, DBNull.Value))
-            Else
-                Parameters.Add(New SqlParameter(key, value))
+            Dim param As New SqlParameter(key, If(value IsNot Nothing, value, DBNull.Value))
+
+            ' Prevent duplicate parameters
+            If Not Parameters.Any(Function(p) p.ParameterName = key) Then
+                Parameters.Add(param)
             End If
+
         Catch ex As Exception
             HasError = True
             ErrorMessage = ex.Message
@@ -84,11 +86,9 @@ Public Class Connection
     End Sub
 
     ''' <summary>
-    ''' Query the database.
+    ''' Core method to run queries (SELECT/INSERT/UPDATE/DELETE).
     ''' </summary>
-    ''' <param name="command_query">The SQL query to execute.</param>
     Private Sub Query(ByVal command_query As String)
-        ' Reset error state
         HasError = False
         HasChanges = Nothing
         ErrorMessage = String.Empty
@@ -96,52 +96,61 @@ Public Class Connection
         HasRecord = False
 
         Try
-            Open()
-            Command = New SqlCommand(command_query, Connect)
+            Using conn As New SqlConnection(ConnectString)
+                conn.Open()
 
-            ' Add parameters to the command
-            If Parameters.Count > 0 Then
-                For Each param As SqlParameter In Parameters
-                    Command.Parameters.Add(param)
-                Next
-                Parameters.Clear()
-            End If
+                Using cmd As New SqlCommand(command_query, conn)
+                    ' Add fresh parameter copies to avoid reuse issues
+                    If Parameters.Count > 0 Then
+                        cmd.Parameters.Clear()
+                        For Each param As SqlParameter In Parameters
+                            cmd.Parameters.Add(New SqlParameter(param.ParameterName, param.Value))
+                        Next
+                        Parameters.Clear()
+                    End If
 
-            ' Execute the query based on its type
-            If command_query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase) OrElse
-               command_query.StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase) OrElse
-               command_query.StartsWith("DELETE", StringComparison.OrdinalIgnoreCase) Then
+                    If command_query.TrimStart().StartsWith("SELECT", StringComparison.OrdinalIgnoreCase) Then
+                        Dim adapter As New SqlDataAdapter(cmd)
+                        Data = New DataSet()
+                        DataCount = adapter.Fill(Data)
 
-                Dim rowsAffected As Integer = Command.ExecuteNonQuery()
-                HasChanges = (rowsAffected > 0)
+                        If DataCount > 0 Then
+                            ' Ensure that DataRow has data before accessing it
+                            If Data.Tables(0).Rows.Count > 0 Then
+                                DataRow = Data.Tables(0).Rows(0)
+                                HasRecord = True
+                            Else
+                                HasError = True
+                                ErrorMessage = "No data returned from SELECT query."
+                            End If
+                        Else
+                            HasError = True
+                            ErrorMessage = "No data found in the result set."
+                        End If
 
-            ElseIf command_query.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase) Then
-                Dim adapter As New SqlDataAdapter(Command)
-                Data = New DataSet()
-                DataCount = adapter.Fill(Data)
+                    ElseIf command_query.TrimStart().StartsWith("INSERT", StringComparison.OrdinalIgnoreCase) OrElse
+                           command_query.TrimStart().StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase) OrElse
+                           command_query.TrimStart().StartsWith("DELETE", StringComparison.OrdinalIgnoreCase) Then
 
-                If DataCount > 0 Then
-                    DataRow = Data.Tables(0).Rows(0)
-                    HasRecord = True
-                End If
-            End If
+                        Dim rowsAffected As Integer = cmd.ExecuteNonQuery()
+                        HasChanges = (rowsAffected > 0)
+                    End If
+                End Using
+            End Using
 
         Catch ex As Exception
             HasError = True
             ErrorMessage = ex.Message
-        Finally
-            Close()
         End Try
     End Sub
 
+
     ''' <summary>
-    ''' Fetches all records from the last executed query.
+    ''' Fetch all rows from last SELECT query.
     ''' </summary>
-    ''' <returns>List of DataRow containing all records.</returns>
     Public Function FetchAll() As List(Of DataRow)
         Dim rows As New List(Of DataRow)()
 
-        ' Ensure data exists
         If Data IsNot Nothing AndAlso Data.Tables.Count > 0 Then
             For Each row As DataRow In Data.Tables(0).Rows
                 rows.Add(row)
@@ -151,27 +160,16 @@ Public Class Connection
         Return rows
     End Function
 
-
     ''' <summary>
-    ''' Tests the database connection.
+    ''' Tests if the connection is successful.
     ''' </summary>
-    ''' <returns>True if the connection is successful; otherwise, False.</returns>
     Public Function TestConnection() As Boolean
         Try
-            ' Open the connection
-            If Connect.State = ConnectionState.Closed Then
-                Connect.Open()
-            End If
-
-            ' Close the connection
-            If Connect.State = ConnectionState.Open Then
-                Connect.Close()
-            End If
-
-            ' Connection successful
-            Return True
+            Using conn As New SqlConnection(ConnectString)
+                conn.Open()
+                Return (conn.State = ConnectionState.Open)
+            End Using
         Catch ex As Exception
-            ' Connection failed
             HasError = True
             ErrorMessage = ex.Message
             Return False

@@ -1,8 +1,10 @@
-﻿Imports CommunityToolkit.Mvvm.Input
+﻿Imports System.IO
+Imports CommunityToolkit.Mvvm.Input
 Imports Prism.Commands
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
+#Disable Warning
 Public Class ShareFilesViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
@@ -316,6 +318,13 @@ Public Class ShareFilesViewModel
             If Not IsPrivateSelected Then
                 file.ShareValue = Nothing
                 file.ShareType = Nothing
+            End If
+
+            Dim shareTypeExist = Await Task.Run(Function() _fileDataService.GetSharedFileByPrivate(file)).ConfigureAwait(True)
+
+            If shareTypeExist IsNot Nothing Then
+                Await PopUp.Information("Failed", "Code is already taken, please create another one or change selection").ConfigureAwait(True)
+                Return
             End If
 
             Dim result = Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True)

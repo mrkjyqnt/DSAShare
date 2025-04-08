@@ -65,8 +65,8 @@
                         </Grid>
                     </Border>
                     <Button
-                        Command="{Binding ShareFileCommand}"
-                        Content="Share File"
+                        Command="{Binding AccessFileCommand}"
+                        Content="Access File"
                         Style="{StaticResource DefaultButton}" />
                 </StackPanel>
             </Grid>

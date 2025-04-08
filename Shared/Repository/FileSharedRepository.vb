@@ -22,7 +22,7 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileSharedRepository] GetById error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -61,7 +61,7 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileSharedRepository] GetByExact error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -102,7 +102,7 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileSharedRepository] GetByPrivacy error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -147,8 +147,8 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
-            Return Nothing
+            Debug.WriteLine($"[FileSharedRepository] GetByUploader error: {_connection.ErrorMessage}")
+            Return New List(Of FilesShared)()
         End If
 
         Dim records = _connection.FetchAll()
@@ -179,6 +179,42 @@ Public Class FileSharedRepository
         Return filesList
     End Function
 
+    Public Function GetByShareType(filesShared As FilesShared) As FilesShared
+        _connection.Prepare("SELECT * FROM files_shared WHERE share_type = @share_type AND share_value = @share_value AND uploaded_by <> @uploaded_by  ORDER BY id DESC")
+        _connection.AddParam("@share_type", filesShared.ShareType)
+        _connection.AddParam("@share_value", filesShared.ShareValue)
+        _connection.AddParam("@uploaded_by", filesShared.UploadedBy)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileSharedRepository] GetByShareType error: {_connection.ErrorMessage}")
+            Return Nothing
+        End If
+
+        If _connection.HasRecord Then
+            Return New FilesShared() With {
+                .Id = If(_connection.DataRow.IsNull("id"), Nothing, _connection.DataRow("id")),
+                .Name = If(_connection.DataRow.IsNull("name"), Nothing, _connection.DataRow("name").ToString()),
+                .FileName = If(_connection.DataRow.IsNull("file_name"), Nothing, _connection.DataRow("file_name").ToString()),
+                .FileDescription = If(_connection.DataRow.IsNull("file_description"), Nothing, _connection.DataRow("file_description").ToString()),
+                .FilePath = If(_connection.DataRow.IsNull("file_path"), Nothing, _connection.DataRow("file_path").ToString()),
+                .FileSize = If(_connection.DataRow.IsNull("file_size"), Nothing, _connection.DataRow("file_size").ToString()),
+                .FileType = If(_connection.DataRow.IsNull("file_type"), Nothing, _connection.DataRow("file_type").ToString().Trim()),
+                .UploadedBy = If(_connection.DataRow.IsNull("uploaded_by"), Nothing, _connection.DataRow("uploaded_by")),
+                .ShareType = If(_connection.DataRow.IsNull("share_type"), Nothing, _connection.DataRow("share_type").ToString()),
+                .ShareValue = If(_connection.DataRow.IsNull("share_value"), Nothing, _connection.DataRow("share_value").ToString()),
+                .ExpiryDate = If(_connection.DataRow.IsNull("expiry_date"), Nothing, _connection.DataRow("expiry_date")),
+                .Privacy = If(_connection.DataRow.IsNull("privacy"), Nothing, _connection.DataRow("privacy").ToString()),
+                .DownloadCount = If(_connection.DataRow.IsNull("download_count"), Nothing, _connection.DataRow("download_count")),
+                .Availability = If(_connection.DataRow.IsNull("availability"), Nothing, _connection.DataRow("availability").ToString()),
+                .CreatedAt = If(_connection.DataRow.IsNull("created_at"), Nothing, _connection.DataRow("created_at")),
+                .UpdatedAt = If(_connection.DataRow.IsNull("updated_at"), Nothing, _connection.DataRow("updated_at"))
+            }
+        End If
+
+        Return Nothing
+    End Function
+
 
     ''' <summary>
     ''' Updates the download count of a file shared record.
@@ -192,7 +228,7 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileSharedRepository] Read error: {_connection.ErrorMessage}")
             Return Nothing
         End If
 
@@ -253,7 +289,7 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileSharedRepository] Insert error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -277,13 +313,13 @@ Public Class FileSharedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileSharedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileSharedRepository] Update error: {_connection.ErrorMessage}")
             Return False
         End If
 
 
         If Not _connection.HasRecord Then
-            Debug.WriteLine($"[DEBUG] Error: File doesn't exist")
+            Debug.WriteLine($"[FileSharedRepository] Update Error: File doesn't exist")
             Return True
         End If
 

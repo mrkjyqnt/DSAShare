@@ -10,14 +10,16 @@ Public Class FileService
     Private ReadOnly _folderPath As String = ConfigurationModule.GetSettings().Network.FolderPath
     Private ReadOnly _fileSharedRepository As FileSharedRepository
     Private ReadOnly _fileInfoService As IFileInfoService
+    Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _downloadService As IDownloadService
 
     Public Property Success As Boolean
 
-    Public Sub New(fileSharedRepository As FileSharedRepository, fileInfoService As IFileInfoService, sessionManager As ISessionManager, downloadService As IDownloadService)
+    Public Sub New(fileSharedRepository As FileSharedRepository, fileInfoService As IFileInfoService, fileDataService As IFileDataService, sessionManager As ISessionManager, downloadService As IDownloadService)
         _fileSharedRepository = fileSharedRepository
         _fileInfoService = fileInfoService
+        _fileDataService = fileDataService
         _sessionManager = sessionManager
         _downloadService = downloadService
     End Sub
@@ -131,6 +133,11 @@ Public Class FileService
                 Return New FileResult With {.Success = False, .Message = "File data is null"}
             End If
 
+            ' Connect to the network share
+            If Not ConnectToNetworkShare() Then
+                Return New FileResult With {.Success = False, .Message = "Failed to connect to the Server"}
+            End If
+
             If _fileSharedRepository.Update(filesShared) Then
                 Debug.WriteLine($"[File Service - UpdateFile] File updated successfully")
                 Return New FileResult With {.Success = True, .Message = "File updated successfully"}
@@ -154,20 +161,35 @@ Public Class FileService
                 Return New FileResult With {.Success = False, .Message = "Failed to connect to the Server"}
             End If
 
+            ' Remove all the reference access on database
+            Dim accessFiles = _fileDataService.GetAllAccessedFiles(New FilesAccessed With {.FileId = filesShared.Id})
+            If accessFiles IsNot Nothing Then
+                For Each accessFile In accessFiles
+                    If Not _fileDataService.RemoveAccessedFile(accessFile) Then
+                        Return New FileResult With {.Success = False, .Message = "Failed to delete file access reference"}
+                    End If
+                Next
+            End If
+
+
+
+            ' First delete the database reference regardless of file existence
             If Not _fileSharedRepository.Delete(filesShared) Then
                 Return New FileResult With {.Success = False, .Message = "Failed to delete file in repository"}
             End If
 
-            If Not File.Exists(filesShared.FilePath) Then
-                Return New FileResult With {.Success = False, .Message = "File not found on server"}
+            ' Then check if physical file exists and delete it
+            If File.Exists(filesShared.FilePath) Then
+                File.Delete(filesShared.FilePath)
             End If
-
-            File.Delete(filesShared.FilePath)
 
             Return New FileResult With {.Success = True, .Message = "File successfully removed"}
 
         Catch ex As Exception
-            _fileSharedRepository.Insert(filesShared)
+            ' Rollback: Reinsert the record if something went wrong during physical deletion
+            If Not File.Exists(filesShared.FilePath) Then
+                _fileSharedRepository.Insert(filesShared)
+            End If
 
             Debug.WriteLine($"[DEBUG] Delete error: {ex.Message}")
             Return New FileResult With {.Success = False, .Message = $"Error deleting file: {ex.Message}"}
