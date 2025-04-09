@@ -5,6 +5,7 @@ Imports Prism.Commands
 Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
+#Disable Warning
 Partial Public Class SignInViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
@@ -29,7 +30,9 @@ Partial Public Class SignInViewModel
             Return _username
         End Get
         Set(value As String)
-            SetProperty(_username, value)
+            If ValidateInput(value, "Username") Then
+                SetProperty(_username, value)
+            End If
         End Set
     End Property
 
@@ -65,18 +68,20 @@ Partial Public Class SignInViewModel
 
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(1000).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
             End If
 
             Dim isAuthenticated = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True)
+            Await Task.Delay(1000).ConfigureAwait(True)
 
             If isAuthenticated Then
                 Await PopUp.Information("Success", "Login Success").ConfigureAwait(True)
 
                 Try
-                    _regionManager.RequestNavigate("MainRegion", "DashboardView")
+                    Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("MainRegion", "DashboardView"))
                 Catch ex As Exception
                     Debug.WriteLine($"[DEBUG] Theres an error while navigating: {ex.Message}")
                 End Try

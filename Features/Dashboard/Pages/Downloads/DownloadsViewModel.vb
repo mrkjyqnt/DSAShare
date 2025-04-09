@@ -8,6 +8,7 @@ Imports System.Threading.Tasks
 Imports Prism.Navigation.Regions
 Imports System.Collections
 Imports System.Collections.Specialized
+Imports Microsoft.VisualBasic.ApplicationServices
 
 #Disable Warning CRR0029
 Public Class DownloadsViewModel
@@ -147,37 +148,10 @@ Public Class DownloadsViewModel
                 Return
             End If
 
-            Dim maxAttempts As Integer = 3
-            Dim attempts As Integer = 0
-            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
-
-            While attempts < maxAttempts
-                attempts += 1
-                Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
-
-                If popUpResult Is Nothing Then
-                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
-                    Exit Function
-                Else
-                    Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
-                    Dim user = New Users With {.PasswordHash = HashPassword(enteredPassword)}
-
-                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
-                    If hasPermission Then
-                        _downloadService.Remove(item)
-                        RefreshCommands()
-                        Await PopUp.Information("Success", $"The file has been removed successfully").ConfigureAwait(True)
-                        LoadDownloadHistory()
-                        Exit While
-                    Else
-                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
-                    End If
-                End If
-            End While
-
-            If attempts = maxAttempts Then
-                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
-            End If
+            _downloadService.Remove(item)
+            RefreshCommands()
+            Await PopUp.Information("Success", $"The file has been removed successfully").ConfigureAwait(True)
+            LoadDownloadHistory()
         Catch ex As Exception
             Debug.WriteLine($"[DEBU] Error deleting the file: {ex.Message}")
         End Try

@@ -71,6 +71,9 @@
                             Content="Save Changes"
                             Style="{StaticResource DefaultButton}"
                             ToolTip="Save Information Changes" />
+                        <Grid.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding InformationSaveButtonCommand}" />
+                        </Grid.InputBindings>
                     </Grid>
                 </Grid>
                 <Rectangle
@@ -144,6 +147,9 @@
                             Content="Save Chnages"
                             Style="{StaticResource DefaultButton}"
                             ToolTip="Save Password Changes" />
+                        <Grid.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding PasswordSaveButtonCommand}" />
+                        </Grid.InputBindings>
                     </Grid>
                 </Grid>
                 <Rectangle VerticalAlignment="Center" Stroke="{StaticResource SecondaryBrush}" />
@@ -197,9 +203,12 @@
                             Grid.Row="2"
                             HorizontalAlignment="Stretch"
                             Command="{Binding RoleSaveButtonCommand}"
-                            Content="Save Chnages"
+                            Content="Save Changes"
                             Style="{StaticResource DefaultButton}"
                             ToolTip="Save Password Changes" />
+                        <Grid.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding RoleSaveButtonCommand}" />
+                        </Grid.InputBindings>
                     </Grid>
                 </Grid>
                 <Rectangle VerticalAlignment="Center" Stroke="{StaticResource SecondaryBrush}" />

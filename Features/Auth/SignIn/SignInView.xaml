@@ -16,6 +16,9 @@
         BorderBrush="{StaticResource BorderBrush}"
         BorderThickness="1">
         <Grid ClipToBounds="False">
+            <Grid.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding SignInCommand}" />
+            </Grid.InputBindings>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="16" />
@@ -61,8 +64,6 @@
                     Style="{StaticResource DefaultPasswordBox}"
                     TabIndex="1"
                     Tag="Password" />
-
-
             </Grid>
 
             <Grid Grid.Row="4">

@@ -297,11 +297,8 @@ Public Class UserInformationViewModel
                 region.RemoveAll()
             Next
 
-            _regionManager.RequestNavigate("MainRegion", "AuthenticationView")
-            Await Task.Delay(300)
-            GC.Collect()
-            GC.WaitForPendingFinalizers()
-
+            Await PopUp.Information("Success", "Application will restart for data refresh").ConfigureAwait(True)
+            RestartApplication()
         Catch ex As Exception
             Debug.WriteLine($"[LogoutReset] Error: {ex.Message}")
             _regionManager.RequestNavigate("MainRegion", "AuthenticationView")

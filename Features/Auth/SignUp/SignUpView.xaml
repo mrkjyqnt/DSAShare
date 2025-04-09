@@ -16,6 +16,9 @@
             BorderBrush="{StaticResource BorderBrush}"
             BorderThickness="1">
             <Grid>
+                <Grid.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding SignUpCommand}" />
+                </Grid.InputBindings>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="16" />

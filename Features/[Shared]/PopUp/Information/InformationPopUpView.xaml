@@ -38,7 +38,15 @@
                 HorizontalAlignment="Stretch"
                 Command="{Binding CloseCommand}"
                 Content="Close"
-                Style="{StaticResource DefaultButton}" />
+                KeyboardNavigation.TabNavigation="Continue"
+                Style="{StaticResource DefaultButton}"
+                TabIndex="0" />
+            <Grid.InputBindings>
+                <KeyBinding
+                    Key="Enter"
+                    Command="{Binding CloseCommand}"
+                    FocusManager.IsFocusScope="True" />
+            </Grid.InputBindings>
         </Grid>
     </Border>
 </UserControl>

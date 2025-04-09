@@ -9,6 +9,10 @@
     prism:ViewModelLocator.AutoWireViewModel="True"
     UseLayoutRounding="True"
     mc:Ignorable="d">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding EnterCommand}" />
+        <KeyBinding Key="Esc" Command="{Binding CancelCommand}" />
+    </UserControl.InputBindings>
     <Border
         Width="300"
         Padding="{StaticResource Space-16}"

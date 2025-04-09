@@ -36,7 +36,9 @@ Public Class SignUpViewModel
             Return _username
         End Get
         Set(value As String)
-            SetProperty(_username, value)
+            If ValidateInput(value, "Username") Then
+                SetProperty(_username, value)
+            End If
         End Set
     End Property
 

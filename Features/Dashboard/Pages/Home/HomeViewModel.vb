@@ -7,6 +7,7 @@ Imports System.Collections.ObjectModel
 Imports DryIoc.FastExpressionCompiler.LightExpression
 Imports System.IO
 Imports Prism.Navigation
+Imports System.Windows.Interop
 
 #Disable Warning
 Public Class HomeViewModel
@@ -20,23 +21,19 @@ Public Class HomeViewModel
     Private ReadOnly _fallBackService As IFallbackService
     Private ReadOnly _userService As IUserService
 
+    Private _isInitialized As Boolean = False
+    Private _sharedText As String
+    Private _accessedText As String
+    Private _dataGridActivities As ObservableCollection(Of ActivityServiceModel)
+    Private _isProcessingSelection As Boolean = False
+    Private _selectedActivity As ActivityServiceModel
+
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
         Get
             Return False
         End Get
     End Property
 
-    Private _publicText As String
-    Public Property PublicText As String
-        Get
-            Return _publicText
-        End Get
-        Set(value As String)
-            SetProperty(_publicText, value)
-        End Set
-    End Property
-
-    Private _sharedText As String
     Public Property SharedText As String
         Get
             Return _sharedText
@@ -46,7 +43,6 @@ Public Class HomeViewModel
         End Set
     End Property
 
-    Private _accessedText As String
     Public Property AccessedText As String
         Get
             Return _accessedText
@@ -56,8 +52,6 @@ Public Class HomeViewModel
         End Set
     End Property
 
-
-    Private _dataGridActivities As ObservableCollection(Of ActivityServiceModel)
     Public Property DataGridActivities As ObservableCollection(Of ActivityServiceModel)
         Get
             Return _dataGridActivities
@@ -66,9 +60,6 @@ Public Class HomeViewModel
             SetProperty(_dataGridActivities, value)
         End Set
     End Property
-
-    Private _selectedActivity As ActivityServiceModel
-    Private _isProcessingSelection As Boolean = False
 
     Public Property SelectedActivity As ActivityServiceModel
         Get
@@ -124,39 +115,49 @@ Public Class HomeViewModel
         AccessFilesCommand = New DelegateCommand(AddressOf OnAccessFilesCommand)
 
         ' Load data
-        _navigationService.Start("PageRegion", "HomeView", "Home")
         Load()
+    End Sub
+
+    Private Sub Load()
+        If _isInitialized Then Return
+        _isInitialized = True
+
+        LoadAsync()
     End Sub
 
     ''' <summary>
     ''' Load data
     ''' </summary>
-    Private Async Sub Load()
+    Private Async Sub LoadAsync()
+        _navigationService.Start("PageRegion", "HomeView", "Home")
+
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(100)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
             End If
 
-            ' Get file data
-            Await Task.Run(Sub() _fileDataService.GetAllCount())
-            PublicText = Await Task.Delay(50).Run(Function() _fileDataService.PublicFilesCount.ToString())
-            SharedText = Await Task.Delay(50).Run(Function() _fileDataService.SharedFilesCount.ToString())
-            AccessedText = Await Task.Delay(50).Run(Function() _fileDataService.AccessedFilesCount.ToString())
+            Debug.WriteLine("Called 1")
+            Dim ShareCount = Await Task.Run(Function() _fileDataService.GetSharedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
+            Dim AccessCount = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
+
+            SharedText = ShareCount.Count
+            AccessedText = AccessCount.Count
 
             DataGridActivities = New ObservableCollection(Of ActivityServiceModel)(
-                Await Task.Delay(50).Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
+                Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
             )
-
-            RaisePropertyChanged(NameOf(PublicText))
-            RaisePropertyChanged(NameOf(SharedText))
-            RaisePropertyChanged(NameOf(AccessedText))
-            RaisePropertyChanged(NameOf(DataGridActivities))
 
             Loading.Hide()
         Catch ex As Exception
             Debug.WriteLine($"[HomeViewModel] Error loading data: {ex.Message}")
+        Finally
+
+            RaisePropertyChanged(NameOf(SharedText))
+            RaisePropertyChanged(NameOf(AccessedText))
+            RaisePropertyChanged(NameOf(DataGridActivities))
         End Try
     End Sub
 

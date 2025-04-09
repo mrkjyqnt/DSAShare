@@ -80,15 +80,8 @@ Module Tools
         Return newPath
     End Function
 
-    Public Async Function ShowLoading() As Task
-        Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-        Await Task.Delay(100).ConfigureAwait(True)
-    End Function
-
-    Public Async Function ValidateConnection() As Task(Of Boolean)
-        If Not Await Fallback.CheckConnection() Then Return False
-        Return True
-    End Function
-
-
+    Public Sub RestartApplication()
+        Process.Start("DSAShare")
+        Application.Current.Shutdown()
+    End Sub
 End Module

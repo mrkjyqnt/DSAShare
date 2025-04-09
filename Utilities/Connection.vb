@@ -175,4 +175,41 @@ Public Class Connection
             Return False
         End Try
     End Function
+
+    ''' <summary>
+    ''' Resets the internal state of the Connection object.
+    ''' </summary>
+    Public Sub Reset()
+        Try
+            ' Close connection if open
+            If Connect.State = ConnectionState.Open Then
+                Connect.Close()
+            End If
+
+            ' Reset flags
+            HasError = False
+            HasRecord = False
+            HasChanges = False
+            ErrorMessage = String.Empty
+            DataCount = 0
+
+            ' Clear data
+            If Data IsNot Nothing Then
+                Data.Dispose()
+            End If
+            Data = Nothing
+            DataRow = Nothing
+
+            ' Clear parameters
+            Parameters.Clear()
+
+            ' Reset command info
+            CommandString = String.Empty
+            Command = New SqlCommand()
+
+        Catch ex As Exception
+            HasError = True
+            ErrorMessage = ex.Message
+        End Try
+    End Sub
 End Class

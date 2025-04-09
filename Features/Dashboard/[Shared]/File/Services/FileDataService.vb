@@ -2,11 +2,6 @@
 
 Public Class FileDataService
     Implements IFileDataService
-    Implements IDisposable
-
-    Private _disposed As Boolean = False
-    Private _cacheExpiryTime As DateTime = DateTime.MinValue
-    Private Const CacheDuration As Integer = 5 ' minutes
 
     Private ReadOnly _fileSharedRepository As FileSharedRepository
     Private ReadOnly _fileAccessedRepository As FileAccessedRepository
@@ -16,67 +11,10 @@ Public Class FileDataService
     Public Property SharedFilesCount As Integer
     Public Property AccessedFilesCount As Integer
 
-    Private Property IFileDataService_PublicFilesCount As Integer Implements IFileDataService.PublicFilesCount
-        Get
-            Return PublicFilesCount
-        End Get
-        Set(value As Integer)
-            PublicFilesCount = value
-        End Set
-    End Property
-
-    Private Property IFileDataService_SharedFilesCount As Integer Implements IFileDataService.SharedFilesCount
-        Get
-            Return SharedFilesCount
-        End Get
-        Set(value As Integer)
-            SharedFilesCount = value
-        End Set
-    End Property
-
-    Private Property IFileDataService_AccessedFilesCount As Integer Implements IFileDataService.AccessedFilesCount
-        Get
-            Return AccessedFilesCount
-        End Get
-        Set(value As Integer)
-            AccessedFilesCount = value
-        End Set
-    End Property
-
     Public Sub New(fileSharedRepository As FileSharedRepository, fileAccessedRepository As FileAccessedRepository, sessionManager As ISessionManager)
         _fileAccessedRepository = fileAccessedRepository
         _fileSharedRepository = fileSharedRepository
         _sessionManager = sessionManager
-    End Sub
-
-    Private Sub ResetCache()
-        PublicFilesCount = 0
-        SharedFilesCount = 0
-        AccessedFilesCount = 0
-        _cacheExpiryTime = DateTime.MinValue
-    End Sub
-
-    Public Sub GetAllCount() Implements IFileDataService.GetAllCount
-        If DateTime.Now > _cacheExpiryTime OrElse _disposed Then
-            ResetCache()
-        End If
-
-        Try
-            PublicFilesCount = GetPublicFiles().Count
-            SharedFilesCount = GetSharedFiles(_sessionManager.CurrentUser).Count
-            AccessedFilesCount = GetAccessedFiles(_sessionManager.CurrentUser).Count
-            _cacheExpiryTime = DateTime.Now.AddMinutes(CacheDuration)
-        Catch ex As Exception
-            Debug.WriteLine($"[FileDataService] Error in GetAllCount: {ex.Message}")
-            ResetCache()
-        End Try
-    End Sub
-
-    Public Sub Dispose() Implements IDisposable.Dispose
-        If Not _disposed Then
-            ResetCache()
-            _disposed = True
-        End If
     End Sub
 
     Public Function GetPublicFiles() As List(Of FilesShared) Implements IFileDataService.GetPublicFiles
@@ -103,7 +41,13 @@ Public Class FileDataService
                 .UploadedBy = users.Id
             }
 
-            Return _fileSharedRepository.GetByUploader(_fileShared)
+            Dim result = _fileSharedRepository.GetByUploader(_fileShared)
+
+            If result.Count = 0 Or result Is Nothing Then
+                result = _fileSharedRepository.GetByUploader(_fileShared)
+            End If
+
+            Return result
         Catch ex As Exception
             Debug.WriteLine("[FileDataService] Failed to retrieve shared files. " & ex.Message)
             Return New List(Of FilesShared)()
@@ -121,7 +65,13 @@ Public Class FileDataService
                 .UserId = users.Id
             }
 
-            Return _fileAccessedRepository.GetAllByUserId(filesAccessed)
+            Dim result = _fileAccessedRepository.GetAllByUserId(filesAccessed)
+
+            If result.Count = 0 Or result Is Nothing Then
+                result = _fileAccessedRepository.GetAllByUserId(filesAccessed)
+            End If
+
+            Return result
         Catch ex As Exception
             Debug.WriteLine($"[FileDataService] GetAccessedFiles Error: {ex.Message}")
             Return New List(Of FilesAccessed)()

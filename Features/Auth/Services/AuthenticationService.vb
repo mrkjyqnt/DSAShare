@@ -24,11 +24,17 @@
         Return False
     End Function
 
-    Private Sub SetSession(user As Users)
-        If user IsNot Nothing Then
-            _sessionManager.Login(user)
-        Else
-            Throw New ArgumentNullException(NameOf(user), "User cannot be null.")
-        End If
+    Private Async Sub SetSession(user As Users)
+        Try
+            If user IsNot Nothing Then
+                _sessionManager.Login(user)
+                Await Task.Delay(1000).ConfigureAwait(True)
+                _sessionManager.LoadSession()
+            Else
+                Throw New ArgumentNullException(NameOf(user), "User cannot be null.")
+            End If
+        Catch ex As Exception
+
+        End Try
     End Sub
 End Class
