@@ -10,4 +10,7 @@
     Function RemoveAccessedFile(filesAccesed As FilesAccessed) As Boolean
     Function GetAllAccessedFiles(filesAccessed As FilesAccessed) As List(Of FilesAccessed)
     Function GetSharedFileByPrivate(fileShared As FilesShared) As FilesShared
+    Function RemoveSharedFile(filesShared As FilesShared) As Boolean
+    Function GetAccessedFileByFileId(filesAccesed As FilesAccessed) As FilesAccessed
+    Function GetAllSharedFiles() As List(Of FilesShared)
 End Interface

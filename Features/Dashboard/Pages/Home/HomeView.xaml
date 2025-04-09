@@ -156,9 +156,9 @@
                                                         <TextBlock
                                                             MaxWidth="250"
                                                             FontFamily="{StaticResource InterMedium}"
-                                                            Text="{Binding FileName}"
+                                                            Text="{Binding Name}"
                                                             TextTrimming="CharacterEllipsis"
-                                                            ToolTip="{Binding FileName}" />
+                                                            ToolTip="{Binding Name}" />
                                                     </StackPanel>
                                                     <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
                                                 </StackPanel>

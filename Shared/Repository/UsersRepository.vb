@@ -130,33 +130,40 @@ Public Class UsersRepository
     ''' </summary>
     ''' <param name="user">The Users object containing user data.</param>
     Public Function Insert(user As Users) As Boolean
-        ' Check if the username already exists
-        _connection.Prepare("SELECT * FROM users WHERE username = @username ORDER BY id DESC")
-        _connection.AddParam("@username", user.Username)
-        _connection.Execute()
+        Try
+            _connection.Prepare("SELECT * FROM users WHERE username = @username")
+            _connection.AddParam("@username", user.Username)
+            _connection.Execute()
 
-        If _connection.HasError Then
-            Debug.WriteLine($"[UserRepository] Insert Error: {_connection.ErrorMessage}")
+            If _connection.HasRecord Then
+                Debug.WriteLine($"[UserRepository] Username already exists: {user.Username}")
+                Return False
+            End If
+
+            ' Insert the new user
+            _connection.Prepare("INSERT INTO users (name, username, password_hash, role, status, created_at) " &
+                               "VALUES (@name, @username, @password, @role, @status, @createdAt)")
+
+            _connection.AddParam("@name", user.Name)
+            _connection.AddParam("@username", user.Username)
+            _connection.AddParam("@password", user.PasswordHash)
+            _connection.AddParam("@role", user.Role)
+            _connection.AddParam("@status", user.Status)
+            _connection.AddParam("@createdAt", DateTime.Now)
+
+            _connection.Execute()
+
+            If _connection.HasError Then
+                Debug.WriteLine($"[UserRepository] Insert Error: {_connection.ErrorMessage}")
+                Return False
+            End If
+
+            Return _connection.HasChanges
+
+        Catch ex As Exception
+            Debug.WriteLine($"[UserRepository] Insert Exception: {ex.Message}")
             Return False
-        End If
-
-        If _connection.HasRecord Then
-            Return False
-        End If
-
-        ' Insert the new user
-        _connection.Prepare("INSERT INTO users (name, username, password_hash, role, status, created_at) VALUES (@name, @username, @password, @role, @status, @createdAt)")
-
-        _connection.AddParam("@name", user.Name)
-        _connection.AddParam("@username", user.Username)
-        _connection.AddParam("@password", user.PasswordHash)
-        _connection.AddParam("@role", user.Role)
-        _connection.AddParam("@status", user.Status)
-        _connection.AddParam("@createdAt", DateTime.Now)
-
-        _connection.Execute()
-
-        Return _connection.HasChanges
+        End Try
     End Function
 
     ''' <summary>

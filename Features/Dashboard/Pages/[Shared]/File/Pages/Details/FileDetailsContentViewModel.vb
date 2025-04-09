@@ -294,7 +294,7 @@ Public Class FileDetailsContentViewModel
                     .ActionIn = "Public Files",
                     .ActionAt = Date.Now,
                     .FileId = _fileShared.Id,
-                    .FileName = $"{_fileShared.FileName}{_fileShared.FileType}",
+                    .Name = $"{_fileShared.FileName}{_fileShared.FileType}",
                     .UserId = _sessionManager.CurrentUser.Id
                 }
 
@@ -351,7 +351,7 @@ Public Class FileDetailsContentViewModel
                             .ActionIn = "Public Files",
                             .ActionAt = Date.Now,
                             .FileId = _fileShared.Id,
-                            .FileName = $"{_fileShared.FileName}{_fileShared.FileType}",
+                            .Name = $"{_fileShared.FileName}{_fileShared.FileType}",
                             .UserId = _sessionManager.CurrentUser.Id
                         }
 

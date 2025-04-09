@@ -29,7 +29,8 @@ Public Class ActivitiesRepository
                 .ActionIn = If(record.IsNull("action_in"), Nothing, record("action_in").ToString()),
                 .ActionAt = If(record.IsNull("action_at"), Nothing, record("action_at").ToString()),
                 .FileId = If(record.IsNull("file_id"), Nothing, record("file_id")),
-                .FileName = If(record.IsNull("file_name"), Nothing, record("file_name").ToString()),
+                .AccountId = If(record.IsNull("account_id"), Nothing, record("account_id")),
+                .Name = If(record.IsNull("name"), Nothing, record("name").ToString()),
                 .UserId = If(record.IsNull("user_id"), Nothing, record("user_id"))
             }
 
@@ -59,7 +60,8 @@ Public Class ActivitiesRepository
                 .ActionIn = If(record.IsNull("action_in"), Nothing, record("action_in").ToString()),
                 .ActionAt = If(record.IsNull("action_at"), Nothing, record("action_at").ToString()),
                 .FileId = If(record.IsNull("file_id"), Nothing, record("file_id")),
-                .FileName = If(record.IsNull("file_name"), Nothing, record("file_name").ToString()),
+                .AccountId = If(record.IsNull("account_id"), Nothing, record("account_id")),
+                .Name = If(record.IsNull("name"), Nothing, record("name").ToString()),
                 .UserId = If(record.IsNull("user_id"), Nothing, record("user_id"))
             }
             activityList.Add(activity)
@@ -69,12 +71,13 @@ Public Class ActivitiesRepository
 
     ' Rest of your methods remain unchanged
     Public Function Insert(activities As Activities) As Boolean
-        _connection.Prepare("INSERT INTO activities (action, action_in, action_at, file_id, file_name, user_id) VALUES (@action, @action_in, @action_at, @file_id, @file_name, @user_id)")
+        _connection.Prepare("INSERT INTO activities (action, action_in, action_at, file_id, account_id,  name, user_id) VALUES (@action, @action_in, @action_at, @file_id, @account_id, @name, @user_id)")
         _connection.AddParam("@action", activities.Action)
         _connection.AddParam("@action_in", activities.ActionIn)
         _connection.AddParam("@action_at", activities.ActionAt)
         _connection.AddParam("@file_id", activities.FileId)
-        _connection.AddParam("@file_name", activities.FileName)
+        _connection.AddParam("@account_id", activities.AccountId)
+        _connection.AddParam("@name", activities.Name)
         _connection.AddParam("@user_id", activities.UserId)
         _connection.Execute()
 
@@ -99,6 +102,19 @@ Public Class ActivitiesRepository
 
         _connection.Prepare("DELETE FROM activities WHERE id = @id")
         _connection.AddParam("@id", activities.Id)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            ErrorHandler.SetError(_connection.ErrorMessage)
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    Public Function DeleteAll(activities As Activities) As Boolean
+        _connection.Prepare("DELETE FROM activities WHERE user_id = @user_id")
+        _connection.AddParam("@user_id", activities.UserId)
         _connection.Execute()
 
         If _connection.HasError Then

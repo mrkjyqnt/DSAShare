@@ -319,7 +319,7 @@ Public Class FileSettingsViewModel
                 .ActionIn = "Shared Files",
                 .ActionAt = Date.Now,
                 .FileId = file.Id,
-                .FileName = $"{file.FileName}{file.FileType}",
+                .Name = $"{file.FileName}{file.FileType}",
                 .UserId = _sessionManager.CurrentUser.Id
             }
 

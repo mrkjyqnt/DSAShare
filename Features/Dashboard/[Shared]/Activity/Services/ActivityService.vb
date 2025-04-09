@@ -39,7 +39,7 @@ Public Class ActivityService
                     .FileId = 0,
                     .Action = "No recent",
                     .ActionIn = "No Reference",
-                    .FileName = "",
+                    .Name = "",
                     .ActionAt = DateTime.Now
                 })
                 Return result
@@ -54,7 +54,7 @@ Public Class ActivityService
                     .FileId = activity.FileId,
                     .Action = activity.Action,
                     .ActionIn = activity.ActionIn,
-                    .FileName = activity.FileName,
+                    .Name = activity.Name,
                     .ActionAt = activity.ActionAt
                 })
             Next
@@ -82,4 +82,13 @@ Public Class ActivityService
             Return False
         End Try
     End Function
+
+    Public Sub DeleteAllActivity(user As Users) Implements IActivityService.DeleteAllActivity
+        Try
+            _activitiesRepository.DeleteAll(New Activities With {.UserId = user.Id})
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] Theres an error deleting the user activities")
+            Debug.WriteLine(ex.Message)
+        End Try
+    End Sub
 End Class

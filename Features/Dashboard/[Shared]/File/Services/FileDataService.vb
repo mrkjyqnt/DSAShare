@@ -129,6 +129,34 @@ Public Class FileDataService
         End Try
     End Function
 
+    Public Function GetAllSharedFiles() As List(Of FilesShared) Implements IFileDataService.GetAllSharedFiles
+        Try
+            Dim result = _fileSharedRepository.Read()
+            If result.Count = 0 Then
+                Debug.WriteLine("[FileDataService] GetAllSharedFiles: No files shared.")
+                Return Nothing
+            End If
+            Return result
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] GetAllSharedFiles Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    Public Function RemoveSharedFile(filesShared As FilesShared) As Boolean Implements IFileDataService.RemoveSharedFile
+        Try
+            If filesShared Is Nothing Then
+                Debug.WriteLine("[FileDataService] RemoveSharedFile: filesShared is nothing.")
+                Return False
+            End If
+
+            Return _fileSharedRepository.Delete(filesShared)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] RemoveAccessedFile Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
     Public Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.SetAccessFile
         Try
             If filesAccesed Is Nothing Then
@@ -156,6 +184,20 @@ Public Class FileDataService
             End If
 
             Return Nothing
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] GetAccessedFileByUserFile Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    Public Function GetAccessedFileByFileId(filesAccesed As FilesAccessed) As FilesAccessed Implements IFileDataService.GetAccessedFileByFileId
+        Try
+            If filesAccesed Is Nothing Then
+                Debug.WriteLine("[FileDataService] GetAccessedFileByUserFile: filesAccesed is nothing.")
+                Return Nothing
+            End If
+
+            Return _fileAccessedRepository.GetByFileId(filesAccesed)
         Catch ex As Exception
             Debug.WriteLine($"[FileDataService] GetAccessedFileByUserFile Error: {ex.Message}")
             Return Nothing

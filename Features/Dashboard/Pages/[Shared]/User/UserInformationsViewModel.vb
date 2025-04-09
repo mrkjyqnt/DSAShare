@@ -81,9 +81,9 @@ Public Class UserInformationsViewModel
     End Sub
 
     ' Command implementations
-    Private Async Sub OnBack()
+    Private Sub OnBack()
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() _navigationService.GoBack())
+            _navigationService.GoBack()
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationViewModel] OnBack Error: {ex.Message}")
         End Try
@@ -92,14 +92,14 @@ Public Class UserInformationsViewModel
     Private Async Sub OnInformationSelected()
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserInformationView", _parameters))
-    Catch ex As Exception
+        Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnInformationSelected Error navigating to UserInformationView: {ex.Message}")
         End Try
     End Sub
 
     Public Async Sub OnDangerZoneSelected()
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserInformationView", _parameters))
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserDangerZoneView", _parameters))
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to FileDangerZoneView")
         End Try

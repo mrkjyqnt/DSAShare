@@ -15,12 +15,12 @@ Public Class FileAccessedRepository
     Public Function GetByFileId(filesAccessed As FilesAccessed) As FilesAccessed
         Dim accessList As New List(Of FilesAccessed)()
 
-        _connection.Prepare("SELECT * FROM files_accessed WHERE file_id = @file_id ORDER BY id DESC")
+        _connection.Prepare("SELECT * FROM files_accessed WHERE file_id = @file_id")
         _connection.AddParam("@file_id", filesAccessed.FileId)
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileAccessedRepository] GetByFileId error: {_connection.ErrorMessage}")
             Return New FilesAccessed
         End If
 
@@ -49,7 +49,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileAccessedRepository] GetAllByUserId error: {_connection.ErrorMessage}")
             Return New List(Of FilesAccessed)
         End If
 
@@ -113,11 +113,6 @@ Public Class FileAccessedRepository
         _connection.AddParam("@file_id", filesAccessed.FileId)
         _connection.Execute()
 
-        If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
-            Return False
-        End If
-
         If _connection.HasRecord Then
             Return False
         End If
@@ -130,12 +125,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
-            Return False
-        End If
-
-        If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileAccessedRepository] Insert error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -158,7 +148,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileAccessedRepository] Update error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -175,7 +165,7 @@ Public Class FileAccessedRepository
         _connection.Execute()
 
         If _connection.HasError Then
-            Debug.WriteLine($"[FileAccessedRepository] Theres an error: {_connection.ErrorMessage}")
+            Debug.WriteLine($"[FileAccessedRepository] Update error: {_connection.ErrorMessage}")
             Return False
         End If
 
@@ -212,6 +202,23 @@ Public Class FileAccessedRepository
 
         If _connection.HasError Then
             Debug.WriteLine($"[FileAccessedRepository] Delete error: {_connection.ErrorMessage}")
+            Return False
+        End If
+
+        If _connection.HasChanges Then
+            Return True
+        End If
+
+        Return False
+    End Function
+
+    Public Function DeleteAll(filesAccessed As FilesAccessed) As Boolean
+        _connection.Prepare("DELETE FROM files_accessed WHERE user_id = @user_id")
+        _connection.AddParam("@user_id", filesAccessed.UserId)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileAccessedRepository] DeleteAll error: {_connection.ErrorMessage}")
             Return False
         End If
 

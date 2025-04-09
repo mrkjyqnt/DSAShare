@@ -28,7 +28,7 @@
 
             Return False
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error checking permission: {ex.Message}")
+            Debug.WriteLine($"[UserService] Error checking permission: {ex.Message}")
             Return False
         End Try
     End Function
@@ -41,7 +41,7 @@
             End If
             Return Nothing
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error getting user by ID: {ex.Message}")
+            Debug.WriteLine($"[UserService] Error getting user by ID: {ex.Message}")
             Return Nothing
         End Try
     End Function
@@ -55,7 +55,21 @@
 
             Return _userRepository.Update(user)
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error updating user: {ex.Message}")
+            Debug.WriteLine($"[UserService] Error updating user: {ex.Message}")
+            Return False
+        End Try
+    End Function
+
+    Public Function DeleteUser(user As Users) As Boolean Implements IUserService.DeleteUser
+        Try
+            If user.Id Is Nothing Then
+                Debug.WriteLine($"[UserService] DeleteUser Error: User is nothing")
+                Return False
+            End If
+
+            Return _userRepository.Delete(user)
+        Catch ex As Exception
+            Debug.WriteLine($"[UserService] DeleteUser Error deleting user: {ex.Message}")
             Return False
         End Try
     End Function

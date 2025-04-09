@@ -102,8 +102,8 @@ Public Class Bootstrapper
         containerRegistry.Register(Of UserInformationsViewModel)()
         containerRegistry.RegisterForNavigation(Of UserInformationView)("UserInformationView")
         containerRegistry.Register(Of UserInformationViewModel)()
-        'containerRegistry.RegisterForNavigation(Of AccountDangerZoneView)("AccountDangerZoneView")
-        'containerRegistry.Register(Of AccountDangerZoneViewModel)()
+        containerRegistry.RegisterForNavigation(Of UserDangerZoneView)("UserDangerZoneView")
+        containerRegistry.Register(Of UserDangerZoneViewModel)()
 
         ' Register the Dashboard
         containerRegistry.RegisterForNavigation(Of DashboardView)("DashboardView")

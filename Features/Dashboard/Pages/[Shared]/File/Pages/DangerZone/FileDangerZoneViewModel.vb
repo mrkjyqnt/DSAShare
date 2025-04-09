@@ -145,7 +145,7 @@ Public Class FileDangerZoneViewModel
                 .ActionIn = "Shared Files",
                 .ActionAt = Date.Now,
                 .FileId = _file.Id,
-                .FileName = $"{_file.FileName}{_file.FileType}",
+                .Name = $"{_file.FileName}{_file.FileType}",
                 .UserId = _file.UploadedBy
             }
 
@@ -222,7 +222,7 @@ Public Class FileDangerZoneViewModel
                 .ActionIn = "Shared Files",
                 .ActionAt = Date.Now,
                 .FileId = _file.Id,
-                .FileName = $"{_file.FileName}{_file.FileType}",
+                .Name = $"{_file.FileName}{_file.FileType}",
                 .UserId = _file.UploadedBy
             }
 
@@ -301,7 +301,7 @@ Public Class FileDangerZoneViewModel
                 .ActionIn = "Shared Files",
                 .ActionAt = Date.Now,
                 .FileId = _file.Id,
-                .FileName = $"{_file.FileName}{_file.FileType}",
+                .Name = $"{_file.FileName}{_file.FileType}",
                 .UserId = _file.UploadedBy
             }
 

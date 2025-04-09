@@ -406,4 +406,21 @@ Public Class FileSharedRepository
 
         Return False
     End Function
+
+    Public Function DeleteAll(filesShared As FilesShared) As Boolean
+        _connection.Prepare("DELETE FROM files_shared WHERE uploaded_by = @uploaded_by")
+        _connection.AddParam("@uploaded_by", filesShared.UploadedBy)
+        _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[FileSharedRepository] DeleteAll error: {_connection.ErrorMessage}")
+            Return False
+        End If
+
+        If _connection.HasChanges Then
+            Return True
+        End If
+
+        Return False
+    End Function
 End Class

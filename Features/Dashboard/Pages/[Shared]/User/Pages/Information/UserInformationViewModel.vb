@@ -301,7 +301,7 @@ Public Class UserInformationViewModel
             RestartApplication()
         Catch ex As Exception
             Debug.WriteLine($"[LogoutReset] Error: {ex.Message}")
-            _regionManager.RequestNavigate("MainRegion", "AuthenticationView")
+            RestartApplication()
         End Try
     End Function
 
@@ -407,7 +407,17 @@ Public Class UserInformationViewModel
     End Sub
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
-        Throw New NotImplementedException()
+        Try
+            If navigationContext IsNot Nothing Then
+                Dim region = _regionManager.Regions("UserPageRegion")
+                Dim view = region.Views.FirstOrDefault(Function(v) v.GetType().Name = "UserInformationView")
+                If view IsNot Nothing Then
+                    region.Remove(view)
+                End If
+            End If
+        Catch ex As Exception
+            Debug.WriteLine($"[UserInformationView] OnNavigatedFrom Error: {ex.Message}")
+        End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget

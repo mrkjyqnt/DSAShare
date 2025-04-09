@@ -118,7 +118,7 @@ Public Class SignUpViewModel
                 _regionManager.Regions("AuthenticationRegion").Remove("SignUpView")
                 Return
             Else
-                Await PopUp.Information("Error", "An error occurred during login.").ConfigureAwait(True)
+                Await PopUp.Information("Error", "An error occurred during registration.").ConfigureAwait(True)
             End If
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] There was an error while signing up: {ex.Message}")

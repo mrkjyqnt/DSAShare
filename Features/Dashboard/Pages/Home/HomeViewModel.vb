@@ -139,7 +139,6 @@ Public Class HomeViewModel
                 Return
             End If
 
-            Debug.WriteLine("Called 1")
             Dim ShareCount = Await Task.Run(Function() _fileDataService.GetSharedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
             Dim AccessCount = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
 
@@ -240,21 +239,34 @@ Public Class HomeViewModel
                 .FileId = selectedActivity.FileId
             }
 
+            Dim user = New Users With {
+                .Id = selectedActivity.AccountId
+            }
+
             Dim fileSharedInfo = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
             Dim fileAccessedInfo = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(True)
+            Dim userAccountInfo = Await Task.Run(Function() _userService.GetUserById(user)).ConfigureAwait(True)
 
             If fileSharedInfo Is Nothing Then
                 PopUp.Information("Failed", "Selected file was either removed or changed")
                 Return
             End If
 
-            ' Validate the activity exists
+            If fileAccessedInfo Is Nothing Then
+                PopUp.Information("Failed", "Selected file was either removed or changed")
+                Return
+            End If
+
+            If userAccountInfo Is Nothing Then
+                PopUp.Information("Failed", "Selected user was either deleted or changed")
+                Return
+            End If
+
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
                 PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
                 Return
             End If
 
-            ' Handle special cases
             If selectedActivity.Action = "No recent" Then
                 PopUp.Information("Information", "No recent activities found")
                 Return
@@ -277,6 +289,13 @@ Public Class HomeViewModel
                 End If
             End If
 
+            If selectedActivity.Action = "Banned a user" Then
+                If fileAccessedInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Return
+                End If
+            End If
+
             If Not _sessionManager.CurrentUser.Id = fileSharedInfo.UploadedBy Then
 
 
@@ -293,7 +312,6 @@ Public Class HomeViewModel
 
             End If
 
-            ' Validate FileId for actions that require it
             If (selectedActivity.Action = "Accessed a file" OrElse
             selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file" OrElse
             selectedActivity.Action = "Save Access a file") AndAlso
