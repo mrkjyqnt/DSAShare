@@ -13,6 +13,7 @@ Public Class FileDangerZoneViewModel
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _userService As IUserService
+    Private ReadOnly _sessionManager As ISessionManager
 
     Private _file As FilesShared
 
@@ -55,12 +56,14 @@ Public Class FileDangerZoneViewModel
                    fileDataService As IFileDataService,
                    navigationService As INavigationService,
                    activityService As IActivityService,
-                   userService As IUserService)
+                   userService As IUserService,
+                   sessionManager As ISessionManager)
         _fileService = fileService
         _fileDataService = fileDataService
         _navigationService = navigationService
         _activityService = activityService
         _userService = userService
+        _sessionManager = sessionManager
 
         DisableFileCommand = New AsyncDelegateCommand(AddressOf OnDisableFile)
         EnableFileCommand = New AsyncDelegateCommand(AddressOf OnEnableFile)
@@ -146,7 +149,7 @@ Public Class FileDangerZoneViewModel
                 .ActionAt = Date.Now,
                 .FileId = _file.Id,
                 .Name = $"{_file.FileName}{_file.FileType}",
-                .UserId = _file.UploadedBy
+                .UserId = _sessionManager.CurrentUser.Id
             }
 
             If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then
@@ -302,7 +305,7 @@ Public Class FileDangerZoneViewModel
                 .ActionAt = Date.Now,
                 .FileId = _file.Id,
                 .Name = $"{_file.FileName}{_file.FileType}",
-                .UserId = _file.UploadedBy
+                .UserId = _sessionManager.CurrentUser.Id
             }
 
             If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then

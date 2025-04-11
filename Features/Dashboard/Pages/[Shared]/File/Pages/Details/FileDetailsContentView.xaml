@@ -137,48 +137,86 @@
                                 Visibility="{Binding DownloadButtonVisibility}" />
                         </StackPanel>
                     </StackPanel>
+                    <Grid
+                        Margin="0,0,0,32"
+                        HorizontalAlignment="Stretch"
+                        local:GridHelper.RowSpacing="8"
+                        Visibility="{Binding EncryptionSectionVisibility}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            FontFamily="{StaticResource InterMedium}"
+                            Text="Encryption" />
+                        <Border
+                            Grid.Row="1"
+                            Padding="0"
+                            Style="{StaticResource DefaultBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border
+                                    Grid.Column="0"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,1,0">
+                                    <TextBlock
+                                        Padding="{StaticResource Space-16}"
+                                        FontFamily="{StaticResource InterMedium}"
+                                        Text="{Binding ShareTypeText}" />
+                                </Border>
+                                <Border Grid.Column="1">
+                                    <TextBlock
+                                        Padding="{StaticResource Space-16}"
+                                        Style="{StaticResource BodyText}"
+                                        Text="{Binding ShareValueText}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
                     <StackPanel local:StackPanelHelper.Spacing="8" Orientation="Vertical">
                         <TextBlock FontFamily="{StaticResource InterMedium}" Text="Description" />
                         <TextBlock
                             Style="{StaticResource BodyText}"
                             Text="{Binding DescriptionText}"
                             TextWrapping="Wrap" />
+                        <DataGrid
+                            local:ScrollHelper.BubbleScroll="True"
+                            AutoGenerateColumns="False"
+                            ItemsSource="{Binding DataGridFileDetails}"
+                            Style="{StaticResource DefaultDataGrid}">
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn
+                                    Width="*"
+                                    Binding="{Binding Key}"
+                                    FontFamily="{StaticResource InterMedium}">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter Property="ToolTip" Value="{Binding Key}" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Width="*" Binding="{Binding Value}">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter Property="ToolTip" Value="{Binding Value}" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </StackPanel>
-                    <DataGrid
-                        local:ScrollHelper.BubbleScroll="True"
-                        AutoGenerateColumns="False"
-                        ItemsSource="{Binding DataGridFileDetails}"
-                        Style="{StaticResource DefaultDataGrid}">
-
-                        <DataGrid.Columns>
-                            <!--  Text Column with Text Trimming & Tooltip  -->
-                            <DataGridTextColumn
-                                Width="*"
-                                Binding="{Binding Key}"
-                                FontFamily="{StaticResource InterMedium}">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                                        <Setter Property="ToolTip" Value="{Binding Key}" />
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <DataGridTextColumn Width="*" Binding="{Binding Value}">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                                        <Setter Property="ToolTip" Value="{Binding Value}" />
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
                 </StackPanel>
             </Border>
         </ScrollViewer>
 
-        <!--  Right side: Preview area with loading text overlay  -->
         <Border
             Grid.Column="1"
             Width="400"

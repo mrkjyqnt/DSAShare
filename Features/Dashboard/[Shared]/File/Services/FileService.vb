@@ -139,15 +139,23 @@ Public Class FileService
                 Return New FileResult With {.Success = False, .Message = "Failed to connect to the Server"}
             End If
 
+            ' Remove all the reference access on database
+            Dim accessFiles = _fileDataService.GetAllAccessedFiles(New FilesAccessed With {.FileId = filesShared.Id})
+            If accessFiles IsNot Nothing Then
+                For Each accessFile In accessFiles
+                    _fileDataService.RemoveAccessedFile(accessFile)
+                Next
+            End If
+
             If _fileSharedRepository.Update(filesShared) Then
-                Debug.WriteLine($"[File Service - UpdateFile] File updated successfully")
+                Debug.WriteLine($"[File Service] UpdateFile File updated successfully")
                 Return New FileResult With {.Success = True, .Message = "File updated successfully"}
             Else
-                Debug.WriteLine($"[File Service - UpdateFile] Failed to update file in repository")
+                Debug.WriteLine($"[File Service] UpdateFile Failed to update file in repository")
                 Return New FileResult With {.Success = False, .Message = "Failed to update file"}
             End If
         Catch ex As Exception
-            Debug.WriteLine($"[File Service - UpdateFile] Error: {ex.Message}")
+            Debug.WriteLine($"[File Service] UpdateFile Error: {ex.Message}")
             Return New FileResult With {.Success = False, .Message = $"Error updating file: {ex.Message}"}
         End Try
     End Function
@@ -164,11 +172,9 @@ Public Class FileService
 
             ' Remove all the reference access on database
             Dim accessFiles = _fileDataService.GetAllAccessedFiles(New FilesAccessed With {.FileId = filesShared.Id})
-            If accessFiles IsNot Nothing And accessFiles.Count > 0 Then
+            If accessFiles IsNot Nothing Then
                 For Each accessFile In accessFiles
-                    If Not _fileDataService.RemoveAccessedFile(accessFile) Then
-                        Return New FileResult With {.Success = False, .Message = "Failed to delete file access reference"}
-                    End If
+                    _fileDataService.RemoveAccessedFile(accessFile)
                 Next
             End If
 
@@ -213,13 +219,13 @@ Public Class FileService
                     _fileDataService.RemoveAccessedFile(accessFile)
                 Next
             End If
-                
+
             ' Remove all the reference files on database
             Dim sharedFiles = _fileDataService.GetSharedFiles(New Users With {.Id = user.Id})
-            If sharedFiles IsNot Nothing And sharedFiles.Count > 0 Then
+            If sharedFiles IsNot Nothing And sharedFiles?.Count > 0 Then
                 For Each files In sharedFiles
                     _fileDataService.RemoveSharedFile(files)
-                    
+
                     _fileDataService.RemoveAccessedFile(_fileDataService.GetAccessedFileByUserFile(New FilesAccessed With {.FileId = files.Id}))
 
                     If File.Exists(files.FilePath) Then

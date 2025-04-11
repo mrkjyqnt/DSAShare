@@ -88,7 +88,7 @@ Public Class FileDetailsViewModel
 
     Public Async Sub OnDetailsSelected()
         Try
-           _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
+            _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnDetailsSelected Error navigating to FileDetailsContentView")
         End Try
@@ -112,21 +112,15 @@ Public Class FileDetailsViewModel
 
     Private Sub Load()
         Try
-            If Not _openedFrom = "ManageFilesView" Then
-
-                If Not _sessionManager.CurrentUser.Id = _file.UploadedBy Or _sessionManager.CurrentUser.Role = "Guest" Then
-                    SettingsButtonVisibility = Visibility.Collapsed
-                    DangerZoneButtonVisibility = Visibility.Collapsed
-
-                    Return
-                End If
-
+            If _openedFrom = "ManageFilesView" Then
+                SettingsButtonVisibility = Visibility.Collapsed
+                Return
             End If
 
-            If _sessionManager.CurrentUser.Role = "Admin" Then
+            If Not _sessionManager.CurrentUser.Id = _file.UploadedBy OrElse _sessionManager.CurrentUser.Role = "Guest" Then
                 SettingsButtonVisibility = Visibility.Collapsed
-
-                Return
+                DangerZoneButtonVisibility = Visibility.Collapsed
+                Exit Sub
             End If
 
         Catch ex As Exception

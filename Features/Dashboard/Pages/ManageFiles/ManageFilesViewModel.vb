@@ -298,7 +298,7 @@ Public Class ManageFilesViewModel
                 Return
             End If
 
-            _navigationService.Start("PageRegion", "SharedFilesView", "Manage Files")
+            _navigationService.Start("PageRegion", "ManageFilesView", "Manage Files")
 
             _sharedFiles = Await Task.Run(Function() _fileDataService.GetAllSharedFiles()).ConfigureAwait(True)
 
@@ -406,6 +406,7 @@ Public Class ManageFilesViewModel
             filtered = filtered.Where(Function(f)
                                           Return typeConditions.Contains(FileTypeModel.GetCategoryByExtension(f.FileType))
                                       End Function)
+            filtered = filtered.Where(Function(f) f.UploadedBy <> _sessionManager.CurrentUser.Id)
         End If
 
         ResultCount = filtered.Count

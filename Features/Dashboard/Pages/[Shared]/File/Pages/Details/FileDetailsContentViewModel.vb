@@ -30,6 +30,8 @@ Public Class FileDetailsContentViewModel
     Private _previewContent As Object
     Private _syntaxHighlighting As IHighlightingDefinition
     Private _filePath As String
+    Private _shareTypeText As String
+    Private _shareValueText As String
 
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _fileService As IFileService
@@ -41,6 +43,7 @@ Public Class FileDetailsContentViewModel
     Private _downloadButtonVisibility As Visibility = Visibility.Collapsed
     Private _removeAccessButtonVisibility As Visibility = Visibility.Collapsed
     Private _saveAccessButtonVisibility As Visibility = Visibility.Collapsed
+    Private _encryptionSectionVisibility As Visibility = Visibility.Collapsed
 
     Public Property DescriptionText As String
         Get
@@ -48,6 +51,24 @@ Public Class FileDetailsContentViewModel
         End Get
         Set(value As String)
             SetProperty(_descriptionText, value)
+        End Set
+    End Property
+
+    Public Property ShareTypeText As String
+        Get
+            Return _shareTypeText
+        End Get
+        Set(value As String)
+            SetProperty(_shareTypeText, value)
+        End Set
+    End Property
+
+    Public Property ShareValueText As String
+        Get
+            Return _shareValueText
+        End Get
+        Set(value As String)
+            SetProperty(_shareValueText, value)
         End Set
     End Property
 
@@ -114,6 +135,15 @@ Public Class FileDetailsContentViewModel
         End Set
     End Property
 
+    Public Property EncryptionSectionVisibility As Visibility
+        Get
+            Return _encryptionSectionVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_encryptionSectionVisibility, value)
+        End Set
+    End Property
+
     Public ReadOnly Property DataGridFileDetails As ObservableCollection(Of KeyValuePair(Of String, String))
         Get
             If _dataGridFileDetails Is Nothing Then Return Nothing
@@ -162,9 +192,12 @@ Public Class FileDetailsContentViewModel
             _dataGridFileDetails.Availability = If(_fileShared?.Availability, "Unknown")
             _dataGridFileDetails.FileType = If(_fileShared?.FileType, "Unknown")
 
-            DescriptionText = If(_fileShared?.FileDescription, "No description available.")
 
-            ChangeButtonVisibility()
+            DescriptionText = If(_fileShared?.FileDescription, "No description available.")
+            ShareValueText = If(_fileShared?.ShareValue, "N/A")
+            ShareTypeText = If(_fileShared?.ShareType, "N/A")
+
+            ChangeVisibility()
             RaisePropertyChanged(NameOf(DataGridFileDetails))
             Await LoadPreviewAsync().ConfigureAwait(True)
         Catch ex As Exception
@@ -301,8 +334,8 @@ Public Class FileDetailsContentViewModel
                 Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
 
                 Await PopUp.Information("Success", "File has been added to your Accessed Files")
-                _fileAccessed = New FilesAccessed With {.FileId = _fileShared.Id }
-                ChangeButtonVisibility()
+                _fileAccessed = New FilesAccessed With {.FileId = _fileShared.Id}
+                ChangeVisibility()
             End If
 
         Catch ex As Exception
@@ -379,11 +412,19 @@ Public Class FileDetailsContentViewModel
         End Try
     End Function
 
-    Private Sub ChangeButtonVisibility()
+    Private Sub ChangeVisibility()
         Try
-            If _sessionManager.CurrentUser.Id = _fileShared.UploadedBy OrElse _sessionManager.CurrentUser.Role = "Guest" Then
+            If _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
                 DownloadButtonVisibility = Visibility.Visible
-                Return
+
+                If _fileShared?.ShareValue = "Private" Then
+                    EncryptionSectionVisibility = Visibility.Visible
+                End If
+
+            End If
+
+            If _sessionManager.CurrentUser.Role = "Guest" Then
+                DownloadButtonVisibility = Visibility.Visible
             End If
 
             If Not _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then

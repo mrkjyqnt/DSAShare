@@ -229,6 +229,8 @@ Public Class HomeViewModel
     ''' </summary>
     ''' <param name="selectedActivity"></param>
     Private Async Sub OnActivitySelected(selectedActivity As ActivityServiceModel)
+        Dim parameters = New NavigationParameters()
+
         Try
             Dim fileShared = New FilesShared With {
                 .Id = selectedActivity.FileId
@@ -247,28 +249,12 @@ Public Class HomeViewModel
             Dim fileAccessedInfo = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(True)
             Dim userAccountInfo = Await Task.Run(Function() _userService.GetUserById(user)).ConfigureAwait(True)
 
-            If fileSharedInfo Is Nothing Then
-                PopUp.Information("Failed", "Selected file was either removed or changed")
-                Return
-            End If
-
-            If fileAccessedInfo Is Nothing Then
-                PopUp.Information("Failed", "Selected file was either removed or changed")
-                Return
-            End If
-
-            If userAccountInfo Is Nothing Then
-                PopUp.Information("Failed", "Selected user was either deleted or changed")
-                Return
-            End If
-
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
                 PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
                 Return
             End If
 
             If selectedActivity.Action = "No recent" Then
-                PopUp.Information("Information", "No recent activities found")
                 Return
             End If
 
@@ -282,52 +268,83 @@ Public Class HomeViewModel
                 Return
             End If
 
-            If selectedActivity.Action = "Save Access a file" Then
-                If fileAccessedInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
-                    Return
-                End If
-            End If
-
             If selectedActivity.Action = "Banned a user" Then
-                If fileAccessedInfo Is Nothing Then
+                PopUp.Information("Failed", "Referenced file access was removed")
+                Return
+            End If
+
+            If (selectedActivity.Action = "Updated a user" OrElse selectedActivity.Action = "Unbanned a user") AndAlso
+            selectedActivity.AccountId Is Nothing Then
+
+                If userAccountInfo Is Nothing Then
                     PopUp.Information("Failed", "Referenced file access was removed")
                     Return
                 End If
+
+                parameters = New NavigationParameters()
+                parameters.Add("userId", selectedActivity.AccountId)
+
+                If _sessionManager.CurrentUser.Role = "Admin" And Not userAccountInfo.Id = _sessionManager.CurrentUser.Id Then
+                    parameters.Add("openedFrom", "ManageUsersViews")
+                    _navigationService.Go("PageRegion", "UserInformationsView", "Manage Users", parameters)
+                Else
+                    parameters.Add("openedFrom", "HomeView")
+                    _navigationService.Go("PageRegion", "AccountView", "Account", parameters)
+                End If
+
+                Return
             End If
 
-            If Not _sessionManager.CurrentUser.Id = fileSharedInfo.UploadedBy Then
-
-
+            If Not _sessionManager.CurrentUser.Id = fileSharedInfo?.UploadedBy And 
+                Not _sessionManager.CurrentUser.Role = "Admin" Then
 
                 If fileSharedInfo.Availability = "Disabled" Then
                     PopUp.Information("Failed", "Referenced file has been disabled by the uploader")
                     Return
                 End If
 
-                If fileSharedInfo.Availability = "Deleted" Then
-                    PopUp.Information("Failed", "Referenced file has been deleted by the uploader")
+            End If
+
+            If selectedActivity.Action = "Shared a file" OrElse
+                selectedActivity.Action = "Enabled a file" OrElse
+                selectedActivity.Action = "Disabled a file" OrElse
+                selectedActivity.Action = "Updated a file" Then
+                parameters = New NavigationParameters()
+                parameters.Add("fileId", selectedActivity.FileId)
+
+                If fileSharedInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced file access was removed")
                     Return
                 End If
 
+                If _sessionManager.CurrentUser.Role = "Admin" And Not fileSharedInfo.UploadedBy = _sessionManager.CurrentUser.Id Then
+                    parameters.Add("openedFrom", "ManageFilesView")
+                    _navigationService.Go("PageRegion", "FileDetailsView", "Manage Files", parameters)
+                Else
+                    parameters.Add("openedFrom", "HomeView")
+                    _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+                End If
             End If
 
-            If (selectedActivity.Action = "Accessed a file" OrElse
-            selectedActivity.Action = "Shared a file" OrElse selectedActivity.Action = "Updated a file" OrElse
-            selectedActivity.Action = "Save Access a file") AndAlso
-            (selectedActivity.FileId Is Nothing OrElse selectedActivity.FileId Is Nothing) Then
-                PopUp.Information("Failed", "The selected file is no longer available")
+            If selectedActivity.Action = "Save Access a file" Then
+                parameters = New NavigationParameters()
+                parameters.Add("fileId", selectedActivity.FileId)
+
+                If fileAccessedInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Return
+                End If
+
+                If fileSharedInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Return
+                End If
+
+                parameters.Add("openedFrom", "HomeView")
+                _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+
                 Return
             End If
-
-            ' Prepare navigation
-            Dim parameters = New NavigationParameters()
-            parameters.Add("fileId", selectedActivity.FileId)
-            parameters.Add("openedFrom", "HomeView")
-
-            ' Navigate with error handling
-            _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
-
         Catch ex As Exception
             Debug.WriteLine($"[ERROR] Activity selection failed: {ex.Message}")
             PopUp.Information("Error", "An unexpected error occurred while processing your request.")
