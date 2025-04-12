@@ -37,6 +37,7 @@ Public Class ActivityService
                 result.Add(New ActivityServiceModel With {
                     .Id = 0,
                     .FileId = 0,
+                    .AccountId = 0,
                     .Action = "No recent",
                     .ActionIn = "No Reference",
                     .Name = "",
@@ -52,6 +53,7 @@ Public Class ActivityService
                 result.Add(New ActivityServiceModel With {
                     .Id = activity.Id,
                     .FileId = activity.FileId,
+                    .AccountId = activity.AccountId,
                     .Action = activity.Action,
                     .ActionIn = activity.ActionIn,
                     .Name = activity.Name,

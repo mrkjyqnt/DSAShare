@@ -18,6 +18,7 @@ Public Class DownloadsViewModel
     Private ReadOnly _userService As IUserService
     Private ReadOnly _downloadService As IDownloadService
     Private ReadOnly _eventAggregator As IEventAggregator
+    Private ReadOnly _sessionManager As ISessionManager
 
 
     Private _downloadHistory As ObservableCollection(Of DownloadHistoryItem)
@@ -48,10 +49,11 @@ Public Class DownloadsViewModel
         End Get
     End Property
 
-    Public Sub New(downloadService As IDownloadService, eventAggregator As IEventAggregator, userService As IUserService)
+    Public Sub New(downloadService As IDownloadService, eventAggregator As IEventAggregator, userService As IUserService, sessionManager As ISessionManager)
         _downloadService = downloadService
         _eventAggregator = eventAggregator
         _userService = userService
+        _sessionManager = sessionManager
         _downloadHistory = New ObservableCollection(Of DownloadHistoryItem)()
 
         OpenFileCommand = New DelegateCommand(Of DownloadHistoryItem)(AddressOf OpenFile, Function(item) item IsNot Nothing AndAlso item.IsFileExists)
@@ -68,6 +70,13 @@ Public Class DownloadsViewModel
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
             Await Task.Delay(50)
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
 
             Dim history = Await Task.Run(Function() _downloadService.DownloadHistory.ToList()).ConfigureAwait(True)
             DownloadCount = history.Count

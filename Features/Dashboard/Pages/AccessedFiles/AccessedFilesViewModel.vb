@@ -371,6 +371,13 @@ Public Class AccessedFilesViewModel
                 Return
             End If
 
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             _navigationService.Start("PageRegion", "AccessedFilesView", "Accessed Files")
 
             _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)

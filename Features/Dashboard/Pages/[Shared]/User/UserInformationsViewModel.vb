@@ -91,6 +91,13 @@ Public Class UserInformationsViewModel
 
     Private Async Sub OnInformationSelected()
         Try
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserInformationView", _parameters))
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnInformationSelected Error navigating to UserInformationView: {ex.Message}")
@@ -99,6 +106,13 @@ Public Class UserInformationsViewModel
 
     Public Async Sub OnDangerZoneSelected()
         Try
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserDangerZoneView", _parameters))
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to FileDangerZoneView")
@@ -108,20 +122,20 @@ Public Class UserInformationsViewModel
     Private Sub Load()
         Try
             If Not _openedFrom = "ManageUsersView" Then
-                NameText = _userDetails.Name
 
                 If _sessionManager.CurrentUser.Id = _userDetails.Id Then
                     OtherSettingsVisibility = Visibility.Collapsed
-                Else
-                    DefaultSettingsVisibility = Visibility.Collapsed
                 End If
 
                 If _sessionManager.CurrentUser.Role = "Guest" Then
                     DangerZoneButtonVisibility = Visibility.Collapsed
                 End If
 
+                Return
             End If
 
+            NameText = _userDetails.Name
+            DefaultSettingsVisibility = Visibility.Collapsed
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationsViewModel] Load Error: {ex.Message}")
         Finally
@@ -139,6 +153,13 @@ Public Class UserInformationsViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

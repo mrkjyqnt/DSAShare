@@ -13,9 +13,11 @@ Public Class UserInformationViewModel
     Private ReadOnly _userService As IUserService
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _regionManager As IRegionManager
+    Private ReadOnly _activityService As IActivityService
 
     Private _openedFrom As String
     Private _userDetails As Users
+    Private _activity As Activities
 
     Private _informationSectionVisibility As Visibility
     Private _passwordSectionVisibility As Visibility
@@ -127,11 +129,13 @@ Public Class UserInformationViewModel
     Public Sub New(sessionManager As ISessionManager,
                    userService As IUserService,
                    navigationService As INavigationService,
-                   regionManager As IRegionManager)
+                   regionManager As IRegionManager,
+                   activityService As IActivityService)
         _sessionManager = sessionManager
         _userService = userService
         _navigationService = navigationService
         _regionManager = regionManager
+        _activityService = activityService
 
         ' Initialize commands
         InformationSaveButtonCommand = New AsyncDelegateCommand(AddressOf OnSaveInformation)
@@ -146,6 +150,13 @@ Public Class UserInformationViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -178,7 +189,25 @@ Public Class UserInformationViewModel
                 Await PopUp.Information("Success", "Information updated successfully")
             Else
                 Await PopUp.Information("Failed", "Failed to update user information")
+                Return
             End If
+
+            _activity = New Activities With {
+                .ActionAt = Date.Now,
+                .AccountId = user.Id,
+                .Name = user.Name,
+                .UserId = _sessionManager.CurrentUser.Id
+            }
+
+            If _openedFrom = "ManageUsersView" Then
+                _activity.Action = "Change information a user"
+                _activity.ActionIn = "Manage Users"
+            Else
+                _activity.Action = "Change information"
+                _activity.ActionIn = "Account"
+            End If
+
+            Await Task.Run(Function() _activityService.AddActivity(_activity)).ConfigureAwait(True)
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationView] OnSaveInformation Error: {ex.Message}")
         Finally
@@ -188,6 +217,21 @@ Public Class UserInformationViewModel
 
     Private Async Function OnSavePassword() As Task
         Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(100).ConfigureAwait(True)
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If CurrentPasswordText Is Nothing Or NewPasswordText Is Nothing Or RePasswordText Is Nothing Then
                 Await PopUp.Information("Failed", "Please fill in all fields")
                 Return
@@ -237,7 +281,25 @@ Public Class UserInformationViewModel
                 Await PopUp.Information("Success", "Password updated successfully")
             Else
                 Await PopUp.Information("Failed", "Failed to update password")
+                Return
             End If
+
+            _activity = New Activities With {
+                .ActionAt = Date.Now,
+                .AccountId = user.Id,
+                .Name = user.Name,
+                .UserId = _sessionManager.CurrentUser.Id
+            }
+
+            If _openedFrom = "ManageUsersView" Then
+                _activity.Action = "Change password a user"
+                _activity.ActionIn = "Manage Users"
+            Else
+                _activity.Action = "Change password"
+                _activity.ActionIn = "Account"
+            End If
+
+            Await Task.Run(Function() _activityService.AddActivity(_activity)).ConfigureAwait(True)
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationView] OnSavePassword Error: {ex.Message}")
         Finally
@@ -247,6 +309,21 @@ Public Class UserInformationViewModel
 
     Private Async Function OnSaveRole() As Task
         Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Await Task.Delay(100).ConfigureAwait(True)
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If False = IsMemberSelected And False = IsAdminSelected Then
                 Await PopUp.Information("Failed", "Please select a role")
                 Return
@@ -277,7 +354,25 @@ Public Class UserInformationViewModel
                 Await PopUp.Information("Success", "Role updated successfully")
             Else
                 Await PopUp.Information("Failed", "Failed to update role")
+                Return
             End If
+
+            _activity = New Activities With {
+                .ActionAt = Date.Now,
+                .AccountId = user.Id,
+                .Name = user.Name,
+                .UserId = _sessionManager.CurrentUser.Id
+            }
+
+            If _openedFrom = "ManageUsersView" Then
+                _activity.Action = "Change role a user"
+                _activity.ActionIn = "Manage Users"
+            Else
+                _activity.Action = "Change role"
+                _activity.ActionIn = "Account"
+            End If
+
+            Await Task.Run(Function() _activityService.AddActivity(_activity)).ConfigureAwait(True)
         Catch ex As Exception
 
         End Try
@@ -319,15 +414,14 @@ Public Class UserInformationViewModel
                     PasswordSectionVisibility = Visibility.Collapsed
                 End If
 
-                UpdateValues()
             End If
 
-        Catch ex As Exception
-            Debug.WriteLine($"[UserInformationView] Load Error: {ex.Message}")
-        Finally
+            UpdateValues()
             RaisePropertyChanged(NameOf(InformationSectionVisibility))
             RaisePropertyChanged(NameOf(RoleSectionVisibility))
             RaisePropertyChanged(NameOf(PasswordSectionVisibility))
+        Catch ex As Exception
+            Debug.WriteLine($"[UserInformationView] Load Error: {ex.Message}")
         End Try
     End Sub
 
@@ -336,22 +430,22 @@ Public Class UserInformationViewModel
             UsernameText = _userDetails.Username
             NameText = _userDetails.Name
 
-            If _sessionManager.CurrentUser.Role = "Member" Then
+            If _userDetails.Role = "Member" Then
                 IsMemberSelected = True
                 IsAdminSelected = False
             End If
 
-            If _sessionManager.CurrentUser.Role = "Admin" Then
+            If _userDetails.Role = "Admin" Then
                 IsMemberSelected = False
                 IsAdminSelected = True
             End If
-        Catch ex As Exception
-            Debug.WriteLine($"[UserInformationView] UpdateValues Error: {ex.Message}")
-        Finally
+
             RaisePropertyChanged(NameOf(UsernameText))
             RaisePropertyChanged(NameOf(NameText))
             RaisePropertyChanged(NameOf(IsMemberSelected))
             RaisePropertyChanged(NameOf(IsAdminSelected))
+        Catch ex As Exception
+            Debug.WriteLine($"[UserInformationView] UpdateValues Error: {ex.Message}")
         End Try
     End Sub
 
@@ -367,6 +461,13 @@ Public Class UserInformationViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -394,7 +495,7 @@ Public Class UserInformationViewModel
 
                 End If
 
-                Await Task.Delay(1000).ContinueWith(Sub() Application.Current.Dispatcher.InvokeAsync(Sub() Load()))
+                Await Task.Run(Sub() Application.Current.Dispatcher.InvokeAsync(Sub() Load()))
                 Loading.Hide()
             End If
         Catch ex As Exception

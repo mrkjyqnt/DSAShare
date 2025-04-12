@@ -145,7 +145,7 @@ Public Class Bootstrapper
 
         Dim regionManager = Container.Resolve(Of IRegionManager)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
-        Dim navigation = Container.Resolve(Of INavigationService)
+        Dim navigation = Container.Resolve(Of INavigationService)()
 
         sessionManager.LoadSession()
         ConfigurationModule.GetSettings()

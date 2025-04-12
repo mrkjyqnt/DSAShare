@@ -94,6 +94,13 @@ Public Class FileDangerZoneViewModel
                 Return
             End If
 
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
             Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
@@ -171,6 +178,13 @@ Public Class FileDangerZoneViewModel
                 Return
             End If
 
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If _file Is Nothing Then
                 PopUp.Information("Failed", "Theres an error while disabling the file, File reference is nothing")
                 Return
@@ -245,6 +259,13 @@ Public Class FileDangerZoneViewModel
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -331,6 +352,13 @@ Public Class FileDangerZoneViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

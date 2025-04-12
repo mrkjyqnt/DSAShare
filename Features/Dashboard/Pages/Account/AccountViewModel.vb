@@ -10,6 +10,7 @@ Public Class AccountViewModel
 
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _userService As IUserService
     Private _parameters As NavigationParameters
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
@@ -18,9 +19,10 @@ Public Class AccountViewModel
         End Get
     End Property
 
-    Public Sub New(regionManager As IRegionManager, sessionManager As ISessionManager)
+    Public Sub New(regionManager As IRegionManager, sessionManager As ISessionManager, userService As IUserService)
         _regionManager = regionManager
         _sessionManager = sessionManager
+        _userService = userService
 
         Load()
     End Sub
@@ -31,6 +33,13 @@ Public Class AccountViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

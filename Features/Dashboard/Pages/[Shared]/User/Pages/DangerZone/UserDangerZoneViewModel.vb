@@ -17,6 +17,7 @@ Public Class UserDangerZoneViewModel
     Private ReadOnly _regionManager As IRegionManager
 
     Private _user As Users
+    Private _openedFrom As String
 
     Private _banningSectionVisibility As Visibility = Visibility.Collapsed
     Private _unBanAccountButtonVisibility As Visibility = Visibility.Collapsed
@@ -88,6 +89,13 @@ Public Class UserDangerZoneViewModel
                 Return
             End If
 
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
             Await PopUp.Information("Confirmation", "Please enter your password to confirm the e updating of the user.").ConfigureAwait(True)
@@ -146,10 +154,7 @@ Public Class UserDangerZoneViewModel
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
-            If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then
-                _navigationService.GoBack()
-            End If
-
+            Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
         Catch ex As Exception
 
         Finally
@@ -163,6 +168,13 @@ Public Class UserDangerZoneViewModel
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -224,10 +236,7 @@ Public Class UserDangerZoneViewModel
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
-            If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then
-                _navigationService.GoBack()
-            End If
-
+            Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
         Catch ex As Exception
 
         Finally
@@ -241,6 +250,13 @@ Public Class UserDangerZoneViewModel
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -296,15 +312,28 @@ Public Class UserDangerZoneViewModel
                 Return
             End If
 
-            Await PopUp.Information("Success", "Account has been permanently deleted").ConfigureAwait(True)
-            Await PopUp.Information("Success", "Application will restart for data refresh").ConfigureAwait(True)
-            _sessionManager.Logout
-            RestartApplication()
+            If _openedFrom = "ManageUsersView" Then
+                Dim activity = New Activities With {
+                    .Action = "Deleted a user",
+                    .ActionIn = "Manage Users",
+                    .ActionAt = Date.Now,
+                    .AccountId = _user.Id,
+                    .Name = _user.Name,
+                    .UserId = _sessionManager.CurrentUser.Id
+                }
+
+                Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
+                _navigationService.GoBack()
+            Else
+                Await PopUp.Information("Success", "Account has been permanently deleted").ConfigureAwait(True)
+                Await PopUp.Information("Success", "Application will restart for data refresh").ConfigureAwait(True)
+                _sessionManager.Logout()
+                RestartApplication()
+            End If
+
         Catch ex As Exception
             Debug.WriteLine($"[Debug] Error deleting user: {ex.Message}")
-            _sessionManager.Logout
-
-            RestartApplication()
+            PopUp.Information("Error", "Unable to delete the user")
         Finally
             Loading.Hide()
         End Try
@@ -312,16 +341,20 @@ Public Class UserDangerZoneViewModel
 
     Public Sub UpdateVisibility()
         Try
-            If _user.Status = "Banned" Then
-                _unBanAccountButtonVisibility = Visibility.Visible
+            If _openedFrom = "ManageUsersView" Then
+                If _sessionManager.CurrentUser.Role = "Admin" Then
+                    BanningSectionVisibility = Visibility.Visible
+                End If
+
+                If _user.Status = "Banned" Then
+                    UnBanAccountButtonVisibility = Visibility.Visible
+                End If
+
+                If _user.Status = "Active" Then
+                    BanAccountButtonVisibility = Visibility.Visible
+                End If
             End If
 
-            If _user.Status = "Active" Then
-                _banAccountButtonVisibility = Visibility.Visible
-            End If
-
-            RaisePropertyChanged(NameOf(_unBanAccountButtonVisibility))
-            RaisePropertyChanged(NameOf(_banAccountButtonVisibility))
         Catch ex As Exception
 
         End Try
@@ -336,11 +369,12 @@ Public Class UserDangerZoneViewModel
                 Return
             End If
 
-            If navigationContext.Parameters.ContainsKey("userId") Then
+            If navigationContext.Parameters.ContainsKey("userId") And navigationContext.Parameters.ContainsKey("openedFrom") Then
                 Dim user = New Users With {
                     .Id = navigationContext.Parameters.GetValue(Of Integer)("userId")
                 }
 
+                _openedFrom = navigationContext.Parameters.GetValue(Of String)("openedFrom")
                 _user = Await Task.Run(Function() _userService.GetUserById(user)).ConfigureAwait(True)
 
                 If String.IsNullOrEmpty(_user?.Id) Then

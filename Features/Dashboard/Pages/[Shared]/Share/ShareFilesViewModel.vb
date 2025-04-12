@@ -15,6 +15,7 @@ Public Class ShareFilesViewModel
     Private ReadOnly _fileUploadService As IFileService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _activityService As IActivityService
+    Private ReadOnly _userService As IUserService
 
     Private _encryptionInput As String
     Private _nameInput As String
@@ -229,14 +230,16 @@ Public Class ShareFilesViewModel
                    fileInfoService As IFileInfoService,
                    fileDataService As IFileDataService,
                    fileUploadService As IFileService,
-                   ActivityService As IActivityService,
-                   SessionManager As ISessionManager)
+                   activityService As IActivityService,
+                   sessionManager As ISessionManager,
+                   userService As UserService)
         _navigationService = navigationService
         _fileInfoService = fileInfoService
         _fileUploadService = fileUploadService
-        _activityService = ActivityService
-        _sessionManager = SessionManager
+        _activityService = activityService
+        _sessionManager = sessionManager
         _fileDataService = fileDataService
+        _userService = userService
 
         SelectedOption = "Code"
         EncryptionInput = ""
@@ -259,6 +262,13 @@ Public Class ShareFilesViewModel
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

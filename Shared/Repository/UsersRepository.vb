@@ -191,12 +191,17 @@ Public Class UsersRepository
         _connection.Prepare("UPDATE users SET name = @name, username = @username, password_hash = @password, role = @role, status = @status, created_at = @createdAt WHERE id = @id")
         _connection.AddParam("@name", user.Name)
         _connection.AddParam("@username", user.Username)
-        _connection.AddParam("@password", (user.PasswordHash))
+        _connection.AddParam("@password", user.PasswordHash)
         _connection.AddParam("@role", user.Role)
         _connection.AddParam("@status", user.Status)
         _connection.AddParam("@createdAt", user.CreatedAt)
         _connection.AddParam("@id", user.Id)
         _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[UserRepository] Update Error: {_connection.ErrorMessage}")
+            Return False
+        End If
 
         If _connection.HasChanges Then
             Return True
@@ -227,6 +232,12 @@ Public Class UsersRepository
         _connection.Prepare("DELETE FROM users WHERE id = @id")
         _connection.AddParam("@id", user.Id)
         _connection.Execute()
+
+        If _connection.HasError Then
+            Debug.WriteLine($"[UserRepository] Delete Error: {_connection.ErrorMessage}")
+            Return False
+        End If
+
 
         If _connection.HasChanges Then
             Return True

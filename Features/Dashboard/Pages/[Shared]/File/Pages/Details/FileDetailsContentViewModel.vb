@@ -38,6 +38,7 @@ Public Class FileDetailsContentViewModel
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _navigationService As INavigationService
+    Private ReadOnly _userService As IUserService
 
     Private _accessButtonVisibility As Visibility = Visibility.Collapsed
     Private _downloadButtonVisibility As Visibility = Visibility.Collapsed
@@ -168,13 +169,15 @@ Public Class FileDetailsContentViewModel
                    fileService As IFileService,
                    sessionManager As ISessionManager,
                    activityService As IActivityService,
-                   navigationService As INavigationService)
+                   navigationService As INavigationService,
+                   userService As IUserService)
         _fileDataService = fileDataService
         _fileService = fileService
         _sessionManager = sessionManager
         _dataGridFileDetails = New FileDetailsContentModel()
         _activityService = activityService
         _navigationService = navigationService
+        _userService = userService
 
         DownloadCommand = New AsyncDelegateCommand(AddressOf OnDownload)
         SaveAccessCommand = New AsyncDelegateCommand(AddressOf OnSaveAccess)
@@ -188,7 +191,7 @@ Public Class FileDetailsContentViewModel
             _dataGridFileDetails.AccessLevel = If(_fileShared?.Privacy, "Unknown")
             _dataGridFileDetails.DownloadCount = If(_fileShared?.DownloadCount, 0)
             _dataGridFileDetails.PublishDate = If(_fileShared?.CreatedAt, DateTime.Now)
-            _dataGridFileDetails.ExpirationDate = If(_fileShared?.ExpiryDate, DateTime.Now)
+            _dataGridFileDetails.ExpirationDate = If(_fileShared?.ExpiryDate, Nothing)
             _dataGridFileDetails.Availability = If(_fileShared?.Availability, "Unknown")
             _dataGridFileDetails.FileType = If(_fileShared?.FileType, "Unknown")
 
@@ -270,7 +273,13 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
 
-            ' Recheck the file availavility before the action
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If Not Await CheckFileAvailability() Then
                 _navigationService.GoBack()
                 Return
@@ -301,7 +310,13 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
 
-            ' Recheck the file availavility before the action
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If Not Await CheckFileAvailability() Then
                 _navigationService.GoBack()
                 Return
@@ -313,7 +328,6 @@ Public Class FileDetailsContentViewModel
                 .AccessedAt = Date.Now
             }
 
-            'Check if file accessed already exist on accessed list
             Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile)).ConfigureAwait(True)
 
             If _accessedFiles Is Nothing Then
@@ -354,7 +368,13 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
 
-            ' Recheck the file availavility before the action
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If Not Await CheckFileAvailability() Then
                 _navigationService.GoBack()
                 Return
@@ -366,12 +386,10 @@ Public Class FileDetailsContentViewModel
                 .AccessedAt = Date.Now
             }
 
-            'Check if theres recent user accessed files
             Dim accessedFilesList = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
 
             If accessedFilesList.Count > 0 Then
 
-                'Check if file accessed already exist on accessed list
                 Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile)).ConfigureAwait(True)
 
                 If _accessedFiles IsNot Nothing Then
@@ -454,7 +472,7 @@ Public Class FileDetailsContentViewModel
     Private Async Function CheckFileAvailability() As Task(Of Boolean)
         Dim fileShared = Await Task.Run(Function() _fileDataService.GetSharedFileById(_fileShared)).ConfigureAwait(True)
 
-        If fileShared IsNot Nothing And fileShared.Availability = "Available" Then
+        If fileShared.Availability = "Available" Then
             Return True
         End If
 
@@ -468,6 +486,13 @@ Public Class FileDetailsContentViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -520,7 +545,7 @@ Public Class FileDetailsContentViewModel
         Return False
     End Function
 
-    Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
+    Public Async Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
     End Sub
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive

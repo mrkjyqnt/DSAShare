@@ -15,7 +15,11 @@
                 Return False
             End If
 
-            If _sessionManager.CurrentUser.Role = "Member" OrElse _sessionManager.CurrentUser.Role = "Admin" Then
+            If _sessionManager.CurrentUser.Role = "Admin" Then
+                Return True
+            End If
+
+            If _sessionManager.CurrentUser.Role = "Member" Then
                 Dim user = _userRepository.GetByUsername(_sessionManager.CurrentUser)
 
                 If user IsNot Nothing AndAlso
@@ -30,6 +34,37 @@
         Catch ex As Exception
             Debug.WriteLine($"[UserService] Error checking permission: {ex.Message}")
             Return False
+        End Try
+    End Function
+
+    Public Function CheckStatus() As Boolean Implements IUserService.CheckStatus
+        Try
+            Dim user = _userRepository.GetByUsername(_sessionManager.CurrentUser)
+            If user IsNot Nothing Then
+                If user.Status = "Active" Then
+                    Return True
+                ElseIf user.Status = "Banned" Then
+                    Debug.WriteLine($"[UserService] User is banned: {user.Username}")
+                    Return False
+                End If
+            End If
+            Return False
+        Catch ex As Exception
+            Debug.WriteLine($"[UserService] Error checking status: {ex.Message}")
+            Return False
+        End Try
+    End Function
+
+    Public Function GetAllUsers() As List(Of Users) Implements IUserService.GetAllUsers
+        Try
+            Dim users = _userRepository.Read()
+            If users IsNot Nothing Then
+                Return users.Where(Function(u) u.Role <> "Admin").ToList()
+            End If
+            Return New List(Of Users)()
+        Catch ex As Exception
+            Debug.WriteLine($"[UserService] Error getting all users: {ex.Message}")
+            Return New List(Of Users)()
         End Try
     End Function
 

@@ -3,4 +3,6 @@
     Function GetUserById(userId As Users) As Users
     Function UpdateUser(user As Users) As Boolean
     Function DeleteUser(user As Users) As Boolean
+    Function GetAllUsers() As List(Of Users)
+    Function CheckStatus() As Boolean
 End Interface

@@ -14,6 +14,7 @@ Public Class SharedFilesViewModel
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _userService As IUserService
 
     Private _sharedFiles As List(Of FilesShared)
 
@@ -260,10 +261,14 @@ Public Class SharedFilesViewModel
     Public Property ShareFileCommand As DelegateCommand
     Public Property ViewCommand As DelegateCommand(Of Integer?)
 
-    Public Sub New(fileDataService As IFileDataService, navigationService As INavigationService, sessionManager As ISessionManager)
+    Public Sub New(fileDataService As IFileDataService,
+                   navigationService As INavigationService,
+                   sessionManager As ISessionManager,
+                   userService As IUserService)
         _fileDataService = fileDataService
         _navigationService = navigationService
         _sessionManager = sessionManager
+        _userService = userService
 
         DataGridFiles = New ObservableCollection(Of FilesShared)
         SearchCommand = New DelegateCommand(AddressOf OnSearchCommand)
@@ -303,6 +308,13 @@ Public Class SharedFilesViewModel
             Await Task.Delay(50)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

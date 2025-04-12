@@ -139,6 +139,13 @@ Public Class HomeViewModel
                 Return
             End If
 
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             Dim ShareCount = Await Task.Run(Function() _fileDataService.GetSharedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
             Dim AccessCount = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
 
@@ -232,23 +239,6 @@ Public Class HomeViewModel
         Dim parameters = New NavigationParameters()
 
         Try
-            Dim fileShared = New FilesShared With {
-                .Id = selectedActivity.FileId
-            }
-
-            Dim fileAccessed = New FilesAccessed With {
-                .UserId = _sessionManager.CurrentUser.Id,
-                .FileId = selectedActivity.FileId
-            }
-
-            Dim user = New Users With {
-                .Id = selectedActivity.AccountId
-            }
-
-            Dim fileSharedInfo = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
-            Dim fileAccessedInfo = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(True)
-            Dim userAccountInfo = Await Task.Run(Function() _userService.GetUserById(user)).ConfigureAwait(True)
-
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
                 PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
                 Return
@@ -263,39 +253,74 @@ Public Class HomeViewModel
                 Return
             End If
 
+            If selectedActivity.Action = "Deleted a user" Then
+                PopUp.Information("Information", "This user has been deleted")
+                Return
+            End If
+
             If selectedActivity.Action = "Removed Access a file" Then
+                Debug.WriteLine($"[DEBUG] Removed access file: {selectedActivity.FileId}")
                 PopUp.Information("Failed", "Referenced file access was removed ")
                 Return
             End If
 
-            If selectedActivity.Action = "Banned a user" Then
-                PopUp.Information("Failed", "Referenced file access was removed")
-                Return
-            End If
+            Dim userAccountInfo = Await Task.Run(Function() _userService.GetUserById(New Users With {.Id = selectedActivity.AccountId})).ConfigureAwait(True)
 
-            If (selectedActivity.Action = "Updated a user" OrElse selectedActivity.Action = "Unbanned a user") AndAlso
-            selectedActivity.AccountId Is Nothing Then
+            If selectedActivity.Action = "Updated a user" OrElse
+                selectedActivity.Action = "Unbanned a user" OrElse
+                selectedActivity.Action = "Banned a user" OrElse
+                selectedActivity.Action = "Change role a user" OrElse
+                selectedActivity.Action = "Change information a user" OrElse
+                selectedActivity.Action = "Change password a user" Then
 
                 If userAccountInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
+                    PopUp.Information("Failed", "Referenced user was removed")
                     Return
                 End If
 
                 parameters = New NavigationParameters()
                 parameters.Add("userId", selectedActivity.AccountId)
 
-                If _sessionManager.CurrentUser.Role = "Admin" And Not userAccountInfo.Id = _sessionManager.CurrentUser.Id Then
-                    parameters.Add("openedFrom", "ManageUsersViews")
+                If _sessionManager.CurrentUser.Role = "Admin" And Not userAccountInfo?.Id = _sessionManager.CurrentUser.Id Then
+                    parameters.Add("openedFrom", "ManageUsersView")
                     _navigationService.Go("PageRegion", "UserInformationsView", "Manage Users", parameters)
                 Else
-                    parameters.Add("openedFrom", "HomeView")
-                    _navigationService.Go("PageRegion", "AccountView", "Account", parameters)
+                    PopUp.Information("Failed", "You dont have permission to access")
                 End If
 
                 Return
             End If
 
-            If Not _sessionManager.CurrentUser.Id = fileSharedInfo?.UploadedBy And 
+            If selectedActivity.Action = "Change information" OrElse
+                selectedActivity.Action = "Change role" OrElse
+                selectedActivity.Action = "Change password" Then
+
+                If userAccountInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced user was removed")
+                    Return
+                End If
+
+                parameters = New NavigationParameters()
+                parameters.Add("userId", selectedActivity.AccountId)
+                parameters.Add("openedFrom", "AccountView")
+                _navigationService.Go("PageRegion", "UserInformationsView", "Account", parameters)
+
+                Return
+            End If
+
+            Dim fileShared = New FilesShared With {
+                .Id = selectedActivity.FileId
+            }
+
+            Dim fileAccessed = New FilesAccessed With {
+                .UserId = _sessionManager.CurrentUser.Id,
+                .FileId = selectedActivity.FileId
+            }
+
+            Dim fileSharedInfo = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
+            Dim fileAccessedInfo = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(True)
+
+            If Not _sessionManager.CurrentUser.Id = fileSharedInfo?.UploadedBy And
                 Not _sessionManager.CurrentUser.Role = "Admin" Then
 
                 If fileSharedInfo.Availability = "Disabled" Then
@@ -311,6 +336,8 @@ Public Class HomeViewModel
                 selectedActivity.Action = "Updated a file" Then
                 parameters = New NavigationParameters()
                 parameters.Add("fileId", selectedActivity.FileId)
+
+
 
                 If fileSharedInfo Is Nothing Then
                     PopUp.Information("Failed", "Referenced file access was removed")

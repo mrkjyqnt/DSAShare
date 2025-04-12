@@ -14,6 +14,7 @@ Public Class PublicFilesViewModel
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _userService As IUserService
 
     Private _publicFiles As List(Of FilesShared)
     Private _resultCount As String
@@ -233,11 +234,13 @@ Public Class PublicFilesViewModel
     Public Sub New(fileDataService As IFileDataService,
                    navigationService As INavigationService,
                    activityService As IActivityService,
-                   sessionManager As ISessionManager)
+                   sessionManager As ISessionManager,
+                   userService As IUserService)
         _fileDataService = fileDataService
         _navigationService = navigationService
         _activityService = activityService
         _sessionManager = sessionManager
+        _userService = userService
 
         DataGridFiles = New ObservableCollection(Of FilesShared)
         SearchCommand = New DelegateCommand(AddressOf OnSearchCommand)
@@ -252,6 +255,13 @@ Public Class PublicFilesViewModel
             Await Task.Delay(50)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
@@ -299,6 +309,13 @@ Public Class PublicFilesViewModel
             Await Task.Delay(50)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

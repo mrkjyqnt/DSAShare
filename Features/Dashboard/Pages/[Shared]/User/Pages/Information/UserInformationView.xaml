@@ -189,12 +189,14 @@
                                     <RadioButton
                                         Margin="{StaticResource Space-16}"
                                         Content="Member"
+                                        GroupName="Role"
                                         IsChecked="{Binding IsMemberSelected, UpdateSourceTrigger=PropertyChanged}"
                                         Style="{StaticResource DefaultRadioButton}" />
                                 </Border>
                                 <RadioButton
                                     Margin="{StaticResource Space-16}"
                                     Content="Administrator"
+                                    GroupName="Role"
                                     IsChecked="{Binding IsAdminSelected, UpdateSourceTrigger=PropertyChanged}"
                                     Style="{StaticResource DefaultRadioButton}" />
                             </StackPanel>

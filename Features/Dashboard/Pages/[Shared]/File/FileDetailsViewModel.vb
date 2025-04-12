@@ -13,6 +13,7 @@ Public Class FileDetailsViewModel
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationService As INavigationService
+    Private ReadOnly _userService As IUserService
 
     Private _openedFrom As String
     Private _parameters As NavigationParameters
@@ -67,11 +68,13 @@ Public Class FileDetailsViewModel
     Public Sub New(sessionManager As ISessionManager,
                     fileDataService As IFileDataService,
                     regionManager As IRegionManager,
-                    navigationService As INavigationService)
+                    navigationService As INavigationService,
+                    userService As IUserService)
         _sessionManager = sessionManager
         _fileDataService = fileDataService
         _regionManager = regionManager
         _navigationService = navigationService
+        _userService = userService
 
         _parameters = New NavigationParameters()
 
@@ -88,6 +91,13 @@ Public Class FileDetailsViewModel
 
     Public Async Sub OnDetailsSelected()
         Try
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDetailsContentView", _parameters)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnDetailsSelected Error navigating to FileDetailsContentView")
@@ -96,6 +106,13 @@ Public Class FileDetailsViewModel
 
     Public Async Sub OnSettingSelected()
         Try
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             _regionManager.RequestNavigate("FileDetailsRegion", "FileSettingsView", _parameters)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnSettingSelected Error navigating to FileSettingsView")
@@ -104,6 +121,13 @@ Public Class FileDetailsViewModel
 
     Public Async Sub OnDangerZoneSelected()
         Try
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             _regionManager.RequestNavigate("FileDetailsRegion", "FileDangerZoneView", _parameters)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to FileDangerZoneView")
@@ -132,7 +156,16 @@ Public Class FileDetailsViewModel
     ' Navigation implementation
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 

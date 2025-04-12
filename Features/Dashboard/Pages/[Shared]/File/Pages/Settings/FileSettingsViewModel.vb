@@ -15,6 +15,7 @@ Public Class FileSettingsViewModel
     Private ReadOnly _fileUploadService As IFileService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _activityService As IActivityService
+    Private ReadOnly _userService As IUserService
 
     Private _file As FilesShared
 
@@ -203,13 +204,15 @@ Public Class FileSettingsViewModel
                    fileDataService As IFileDataService,
                    fileUploadService As IFileService,
                    sessionManager As ISessionManager,
-                   activityService As IActivityService)
+                   activityService As IActivityService,
+                   userService As IUserService)
         _navigationService = navigationService
         _fileInfoService = fileInfoService
         _fileDataService = fileDataService
         _fileUploadService = fileUploadService
         _sessionManager = sessionManager
         _activityService = activityService
+        _userService = userService
 
         SaveChangesCommand = New AsyncDelegateCommand(AddressOf OnSaveChanges)
     End Sub
@@ -258,6 +261,13 @@ Public Class FileSettingsViewModel
                 Return
             End If
 
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If String.IsNullOrEmpty(NameInput) Then
                 Await PopUp.Information("Failed", "Please add a name").ConfigureAwait(True)
                 Return
@@ -280,7 +290,6 @@ Public Class FileSettingsViewModel
                 End If
             End If
 
-            ' Create updated file object
             Dim file = New FilesShared With {
                 .Id = _file.Id,
                 .Name = NameInput,
@@ -357,6 +366,13 @@ Public Class FileSettingsViewModel
             Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
                 Return
             End If
 
