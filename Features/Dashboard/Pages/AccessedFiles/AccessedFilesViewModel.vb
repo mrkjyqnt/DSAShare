@@ -358,7 +358,7 @@ Public Class AccessedFilesViewModel
         Catch ex As Exception
             Debug.WriteLine($"[AccessedFilesViewModel] OnAccessFileCommand Error: {ex.Message}")
         Finally
-            Loading.Hide
+            Loading.Hide()
         End Try
     End Function
 
@@ -389,7 +389,10 @@ Public Class AccessedFilesViewModel
                 }
 
                 Dim sharedFile = Await Task.Run(Function() _fileDataService.GetSharedFileById(file)).ConfigureAwait(True)
-                _sharedFiles.Add(sharedFile)
+
+                If sharedFile.ExpiryDate Is Nothing OrElse sharedFile.ExpiryDate <= DateTime.Now Then
+                    _sharedFiles.Add(sharedFile)
+                End If
 
                 If sharedFile IsNot Nothing Then
                     _sharedFiles.Last().CreatedAt = accessFile.AccessedAt

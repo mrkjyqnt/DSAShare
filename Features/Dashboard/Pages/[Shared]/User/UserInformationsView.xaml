@@ -64,6 +64,12 @@
                         IsChecked="True"
                         Style="{StaticResource DefaultToggleButton}" />
                     <RadioButton
+                        Command="{Binding ActivitiesCommand}"
+                        Content="Activities"
+                        GroupName="ViewGroup"
+                        Style="{StaticResource DefaultToggleButton}"
+                        Visibility="{Binding ActivitiesButtonVisibility}" />
+                    <RadioButton
                         Command="{Binding DangerZoneCommand}"
                         Content="Danger Zone"
                         GroupName="ViewGroup"

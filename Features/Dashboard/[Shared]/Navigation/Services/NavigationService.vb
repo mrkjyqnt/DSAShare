@@ -6,47 +6,79 @@ Public Class NavigationService
     Implements INavigationService
 
     Private ReadOnly _eventAggregator As IEventAggregator
-    Private ReadOnly _navigationHistoryService As INavigationHistoryService
+    Private ReadOnly _navigationHistory As INavigationHistoryService
     Private ReadOnly _regionManager As IRegionManager
+    Private _isNavigating As Boolean = False
+
     Public Sub New(eventAggregator As IEventAggregator,
-                   navigationHistoryService As INavigationHistoryService,
-                   regionManager As IRegionManager)
+                 navigationHistory As INavigationHistoryService,
+                 regionManager As IRegionManager)
         _eventAggregator = eventAggregator
-        _navigationHistoryService = navigationHistoryService
+        _navigationHistory = navigationHistory
         _regionManager = regionManager
     End Sub
 
-    Public Sub Start(Optional Region As String = "", Optional View As String = "", Optional NavigationItem As String = "") Implements INavigationService.Start
-        _navigationHistoryService.Reset()
-        _navigationHistoryService.PushPage(Region, View, NavigationItem)
+    Public Sub Start(Optional region As String = "", Optional view As String = "", Optional item As String = "") _
+        Implements INavigationService.Start
+
+        ' Simply reset and record initial state without navigating
+        _navigationHistory.Reset()
+        If Not String.IsNullOrEmpty(region) AndAlso Not String.IsNullOrEmpty(view) Then
+            _navigationHistory.PushPage(region, view, item, New NavigationParameters())
+        End If
     End Sub
 
-    Public Sub Go(Optional Region As String = "", Optional View As String = "", Optional NavigationItem As String = "", Optional parameters As NavigationParameters = Nothing) Implements INavigationService.Go
-        Try
-            _navigationHistoryService.PushPage(Region, View, NavigationItem)
+    Public Sub Go(Optional region As String = "", Optional view As String = "",
+                   Optional item As String = "", Optional parameters As NavigationParameters = Nothing) _
+        Implements INavigationService.Go
 
+        If _isNavigating Then Return
+
+        Try
+            _isNavigating = True
             Dim safeParams = If(parameters, New NavigationParameters())
 
-            _regionManager.RequestNavigate(Region, View, safeParams)
-            _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish(NavigationItem)
-        Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Theres an error getting the user activities")
-            Debug.WriteLine(ex.Message)
+            ' First record the navigation intent
+            _navigationHistory.PushPage(region, view, item, safeParams)
+            _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish(item)
 
-            Return
+            ' Then perform actual navigation
+            _regionManager.RequestNavigate(region, view, safeParams)
+
+        Catch ex As Exception
+            Debug.WriteLine($"[NavigationService] Go Error: {ex.Message}")
+        Finally
+            _isNavigating = False
         End Try
     End Sub
 
     Public Sub GoBack() Implements INavigationService.GoBack
-        If _navigationHistoryService.CanGoBack Then
-            Dim prev = _navigationHistoryService.PopPage()
+        If _isNavigating OrElse Not _navigationHistory.CanGoBack Then Return
 
-            _regionManager.RequestNavigate(prev.Region, prev.View)
-            _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish(prev.Item)
+        Try
+            _isNavigating = True
+            Dim previous = _navigationHistory.GoBack()
 
-            _navigationHistoryService.RemoveCurrentPage()
-        Else
-            Debug.WriteLine($"[DEBUG] Theres an error going back to recent view")
-        End If
+            _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish(previous.Item)
+            _regionManager.RequestNavigate(previous.Region, previous.View, previous.Parameters)
+
+        Finally
+            _isNavigating = False
+        End Try
+    End Sub
+
+    Public Sub GoForward() Implements INavigationService.GoForward
+        If _isNavigating OrElse Not _navigationHistory.CanGoForward Then Return
+
+        Try
+            _isNavigating = True
+            Dim [next] = _navigationHistory.GoForward()
+
+            _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Publish([next].Item)
+            _regionManager.RequestNavigate([next].Region, [next].View, [next].Parameters)
+
+        Finally
+            _isNavigating = False
+        End Try
     End Sub
 End Class

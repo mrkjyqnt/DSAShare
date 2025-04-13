@@ -9,6 +9,7 @@ Public Class AccountViewModel
     Implements INavigationAware
 
     Private ReadOnly _regionManager As IRegionManager
+    Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _userService As IUserService
     Private _parameters As NavigationParameters
@@ -19,8 +20,12 @@ Public Class AccountViewModel
         End Get
     End Property
 
-    Public Sub New(regionManager As IRegionManager, sessionManager As ISessionManager, userService As IUserService)
+    Public Sub New(regionManager As IRegionManager, 
+                   navigationService As INavigationService,
+                   sessionManager As ISessionManager, 
+                   userService As IUserService)
         _regionManager = regionManager
+        _navigationService = navigationService
         _sessionManager = sessionManager
         _userService = userService
 
@@ -42,6 +47,8 @@ Public Class AccountViewModel
                 RestartApplication()
                 Return
             End If
+
+            _navigationService.Start("PageRegion","AccountView", "Account")
 
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("AccountPageRegion", "UserInformationsView", _parameters))
             Loading.Hide()

@@ -21,7 +21,7 @@
         Return menuItems
     End Function
 
-    
+
     Public Function GetLastNavigationItem() As NavigationItemModel Implements INavigationListService.GetLastNavigationItem
         Return New NavigationItemModel("Account", "AccountView", IconSource("account.png"), IconSource("account-filled.png"))
     End Function
@@ -34,6 +34,7 @@
             New NavigationItemModel("Accessed Files", "AccessedFilesView", IconSource("accessed.png"), IconSource("accessed-filled.png")),
             New NavigationItemModel("Manage Files", "ManageFilesView", IconSource("files.png"), IconSource("files-filled.png")),
             New NavigationItemModel("Manage Users", "ManageUsersView", IconSource("users.png"), IconSource("users-filled.png")),
+            New NavigationItemModel("Activities", "ActivitiesView", IconSource("activities.png"), IconSource("activities-filled.png")),
             New NavigationItemModel("Downloads", "DownloadsView", IconSource("folder-download.png"), IconSource("folder-download-filled.png"))
         }
     End Function
@@ -44,6 +45,7 @@
             New NavigationItemModel("Public Files", "PublicFilesView", IconSource("public.png"), IconSource("public-filled.png")),
             New NavigationItemModel("Shared Files", "SharedFilesView", IconSource("shared.png"), IconSource("shared-filled.png")),
             New NavigationItemModel("Accessed Files", "AccessedFilesView", IconSource("accessed.png"), IconSource("accessed-filled.png")),
+            New NavigationItemModel("Activities", "ActivitiesView", IconSource("activities.png"), IconSource("activities-filled.png")),
             New NavigationItemModel("Downloads", "DownloadsView", IconSource("folder-download.png"), IconSource("folder-download-filled.png"))
         }
     End Function

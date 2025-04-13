@@ -39,6 +39,10 @@
 
     Public Function CheckStatus() As Boolean Implements IUserService.CheckStatus
         Try
+            If _sessionManager.CurrentUser.Role = "Guest" Then
+                Return True
+            End If
+            
             Dim user = _userRepository.GetByUsername(_sessionManager.CurrentUser)
             If user IsNot Nothing Then
                 If user.Status = "Active" Then

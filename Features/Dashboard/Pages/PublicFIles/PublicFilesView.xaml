@@ -63,7 +63,7 @@
                 </Border>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Padding="32,32,32,0">
+        <Border Grid.Row="1" Padding="{StaticResource Space-32}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -213,9 +213,11 @@
 
                     <Grid Grid.Row="1">
                         <DataGrid
-                            VerticalAlignment="Stretch"
+                            VerticalAlignment="Top"
                             local:ScrollHelper.BubbleScroll="True"
                             AutoGenerateColumns="False"
+                            EnableColumnVirtualization="True"
+                            EnableRowVirtualization="True"
                             IsReadOnly="True"
                             ItemsSource="{Binding DataGridFiles}"
                             Style="{StaticResource DefaultDataGrid}"

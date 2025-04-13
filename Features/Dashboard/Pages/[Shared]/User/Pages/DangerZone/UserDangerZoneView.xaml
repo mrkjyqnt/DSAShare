@@ -50,7 +50,7 @@
                     Command="{Binding DeleteAccountCommand}"
                     Content="Delete Account"
                     Style="{StaticResource DefaultButton}"
-                    ToolTip="WARNING: This will delete the file permanently" />
+                    ToolTip="WARNING: This will delete the account permanently" />
                 <StackPanel
                     Grid.Row="3"
                     local:StackPanelHelper.Spacing="16"

@@ -102,6 +102,8 @@ Public Class Bootstrapper
         containerRegistry.Register(Of UserInformationsViewModel)()
         containerRegistry.RegisterForNavigation(Of UserInformationView)("UserInformationView")
         containerRegistry.Register(Of UserInformationViewModel)()
+        containerRegistry.RegisterForNavigation(Of UserActivitiesView)("UserActivitiesView")
+        containerRegistry.Register(Of UserActivitiesViewModel)()
         containerRegistry.RegisterForNavigation(Of UserDangerZoneView)("UserDangerZoneView")
         containerRegistry.Register(Of UserDangerZoneViewModel)()
 
@@ -126,11 +128,13 @@ Public Class Bootstrapper
         containerRegistry.RegisterForNavigation(Of AccessedFilesView)("AccessedFilesView")
         containerRegistry.Register(Of AccessedFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageUsersView)("ManageUsersView")
-        'containerRegistry.Register(Of ManageUsersViewModel)()
+        containerRegistry.Register(Of ManageUsersViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageFilesView)("ManageFilesView")
-        'containerRegistry.Register(Of ManageFilesViewModel)()
+        containerRegistry.Register(Of ManageFilesViewModel)()
         containerRegistry.RegisterForNavigation(Of DownloadsView)("DownloadsView")
         containerRegistry.Register(Of DownloadsViewModel)()
+        containerRegistry.RegisterForNavigation(Of ActivitiesView)("ActivitiesView")
+        containerRegistry.Register(Of ActivitiesViewModel)()
         containerRegistry.RegisterForNavigation(Of AccountView)("AccountView")
         containerRegistry.Register(Of AccountViewModel)()
 
@@ -149,7 +153,7 @@ Public Class Bootstrapper
 
         sessionManager.LoadSession()
         ConfigurationModule.GetSettings()
-        VerifyConfigFileExistence
+        VerifyConfigFileExistence()
 
         Try
             Loading.StartUp()

@@ -1,0 +1,197 @@
+﻿<UserControl
+    x:Class="UserActivitiesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DSAShare"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    Background="{StaticResource SecondaryBackgroundBrush}"
+    UseLayoutRounding="True">
+    <UserControl.Resources>
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
+
+
+    <Border Padding="32,32,32,0">
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="32" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
+                <Border
+                    Grid.Column="0"
+                    Width="200"
+                    Padding="0"
+                    VerticalAlignment="Top"
+                    ClipToBounds="True"
+                    Style="{StaticResource DefaultBorder}">
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <Border
+                            Padding="{StaticResource Space-16}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="0,0,0,1">
+                            <Grid local:GridHelper.RowSpacing="12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    FontFamily="{StaticResource InterMedium}"
+                                    Text="Action" />
+                                <RadioButton
+                                    Grid.Row="1"
+                                    Content="Both"
+                                    GroupName="Actions"
+                                    IsChecked="{Binding IsBothSelected}"
+                                    Style="{StaticResource DefaultRadioButton}" />
+                                <RadioButton
+                                    Grid.Row="2"
+                                    Content="Account"
+                                    GroupName="Actions"
+                                    IsChecked="{Binding IsAccountSelected}"
+                                    Style="{StaticResource DefaultRadioButton}" />
+                                <RadioButton
+                                    Grid.Row="3"
+                                    Content="Files"
+                                    GroupName="Actions"
+                                    IsChecked="{Binding IsFilesSelected}"
+                                    Style="{StaticResource DefaultRadioButton}" />
+                            </Grid>
+                        </Border>
+                        <Border Padding="{StaticResource Space-16}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    FontFamily="{StaticResource InterMedium}"
+                                    Text="Date" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Style="{StaticResource LabelText}"
+                                    Text="From" />
+                                <DatePicker
+                                    Grid.Row="4"
+                                    DisplayDateEnd="{Binding FromMaxDate}"
+                                    DisplayDateStart="{Binding FromMinDate}"
+                                    SelectedDate="{Binding FromSelectedDate}"
+                                    Style="{StaticResource DefaultDatePicker}" />
+                                <TextBlock
+                                    Grid.Row="6"
+                                    Style="{StaticResource LabelText}"
+                                    Text="To" />
+                                <DatePicker
+                                    Grid.Row="8"
+                                    DisplayDateEnd="{Binding ToMaxDate}"
+                                    DisplayDateStart="{Binding ToMinDate}"
+                                    SelectedDate="{Binding ToSelectedDate}"
+                                    Style="{StaticResource DefaultDatePicker}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+            <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border
+                    Grid.Row="0"
+                    Height="52"
+                    Padding="0"
+                    HorizontalAlignment="Stretch"
+                    Style="{StaticResource DefaultBorder}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image
+                            Width="20"
+                            Height="20"
+                            Margin="14,14,0,14"
+                            Source="/Components/Images/search.png" />
+                        <TextBox
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Style="{StaticResource DefaultTextbox}"
+                            Tag="Search"
+                            Text="{Binding SearchInput, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </Border>
+                <StackPanel
+                    Grid.Row="1"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource SubTitleText}" Text="{Binding ResultCount}" />
+                    <TextBlock Style="{StaticResource SubTitleText}" Text=" Activities found" />
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,0,0,32">
+                    <DataGrid
+                        VerticalAlignment="Top"
+                        local:ScrollHelper.BubbleScroll="True"
+                        AutoGenerateColumns="False"
+                        EnableColumnVirtualization="True"
+                        EnableRowVirtualization="True"
+                        ItemsSource="{Binding DataGridActivities}"
+                        SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
+                        Style="{StaticResource DefaultDataGrid}">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="*" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Action}" />
+                                                <TextBlock Text=" " />
+                                                <TextBlock
+                                                    MaxWidth="250"
+                                                    FontFamily="{StaticResource InterMedium}"
+                                                    Text="{Binding Name}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTip="{Binding Name}" />
+                                            </StackPanel>
+                                            <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border
+                        VerticalAlignment="Top"
+                        Background="{StaticResource BackgroundBrush}"
+                        Visibility="{Binding DataGridActivities, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Border
+                            Padding="{StaticResource Space-16}"
+                            VerticalAlignment="Top"
+                            Style="{StaticResource DefaultBorder}">
+                            <TextBlock Style="{StaticResource BodyText}" Text="No records found" />
+                        </Border>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

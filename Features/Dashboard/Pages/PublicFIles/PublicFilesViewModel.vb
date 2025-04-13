@@ -322,7 +322,9 @@ Public Class PublicFilesViewModel
             _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
 
             _publicFiles = Await Task.Run(Function() _fileDataService.GetPublicFiles()).ConfigureAwait(True)
-            _publicFiles = _publicFiles.Where(Function(i) i.UploadedBy <> _sessionManager.CurrentUser.Id).ToList()
+            _publicFiles = _publicFiles.Where(Function(i) _
+                            i.UploadedBy <> _sessionManager.CurrentUser.Id AndAlso _
+                            (i.ExpiryDate Is Nothing OrElse i.ExpiryDate > Date.Now)).ToList()
 
             If _publicFiles IsNot Nothing AndAlso _publicFiles.Count > 0 Then
                 Dim orderedDates = _publicFiles.Select(Function(f) f.CreatedAt).OrderBy(Function(d) d).ToList()

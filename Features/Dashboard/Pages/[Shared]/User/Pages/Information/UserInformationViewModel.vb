@@ -404,7 +404,7 @@ Public Class UserInformationViewModel
         Try
             If Not _openedFrom = "ManageUsersView" Then
 
-                If _sessionManager.CurrentUser.Id = _userDetails.Id Then
+                If _sessionManager.CurrentUser.Id = _userDetails?.Id Then
                     RoleSectionVisibility = Visibility.Collapsed
                 End If
 
@@ -427,15 +427,15 @@ Public Class UserInformationViewModel
 
     Private Sub UpdateValues()
         Try
-            UsernameText = _userDetails.Username
-            NameText = _userDetails.Name
+            UsernameText = _userDetails?.Username
+            NameText = _userDetails?.Name
 
-            If _userDetails.Role = "Member" Then
+            If _userDetails?.Role = "Member" Then
                 IsMemberSelected = True
                 IsAdminSelected = False
             End If
 
-            If _userDetails.Role = "Admin" Then
+            If _userDetails?.Role = "Admin" Then
                 IsMemberSelected = False
                 IsAdminSelected = True
             End If
@@ -508,17 +508,6 @@ Public Class UserInformationViewModel
     End Sub
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
-        Try
-            If navigationContext IsNot Nothing Then
-                Dim region = _regionManager.Regions("UserPageRegion")
-                Dim view = region.Views.FirstOrDefault(Function(v) v.GetType().Name = "UserInformationView")
-                If view IsNot Nothing Then
-                    region.Remove(view)
-                End If
-            End If
-        Catch ex As Exception
-            Debug.WriteLine($"[UserInformationView] OnNavigatedFrom Error: {ex.Message}")
-        End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget

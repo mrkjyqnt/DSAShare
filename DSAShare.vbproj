@@ -57,6 +57,8 @@
     <None Remove="Components\Images\accessed.png" />
     <None Remove="Components\Images\account-filled.png" />
     <None Remove="Components\Images\account.png" />
+    <None Remove="Components\Images\activities-filled.png" />
+    <None Remove="Components\Images\activities.png" />
     <None Remove="Components\Images\back.png" />
     <None Remove="Components\Images\bin.png" />
     <None Remove="Components\Images\broken-image.png" />
@@ -124,6 +126,8 @@
     <Resource Include="Components\Images\accessed.png" />
     <Resource Include="Components\Images\account-filled.png" />
     <Resource Include="Components\Images\account.png" />
+    <Resource Include="Components\Images\activities-filled.png" />
+    <Resource Include="Components\Images\activities.png" />
     <Resource Include="Components\Images\back.png" />
     <Resource Include="Components\Images\bin.png" />
     <Resource Include="Components\Images\broken-image.png" />

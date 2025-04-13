@@ -1,16 +1,11 @@
-﻿Imports System.Windows.Threading
-Imports Prism.Commands
-Imports Prism.Events
+﻿Imports Prism.Commands
 Imports Prism.Mvvm
+Imports Prism.Navigation
 Imports Prism.Navigation.Regions
 Imports System.Collections.ObjectModel
-Imports DryIoc.FastExpressionCompiler.LightExpression
-Imports System.IO
-Imports Prism.Navigation
-Imports System.Windows.Interop
 
 #Disable Warning
-Public Class HomeViewModel
+Public Class ActivitiesViewModel
     Inherits BindableBase
     Implements IRegionMemberLifetime
 
@@ -21,34 +16,134 @@ Public Class HomeViewModel
     Private ReadOnly _fallBackService As IFallbackService
     Private ReadOnly _userService As IUserService
 
-    Private _isInitialized As Boolean = False
-    Private _sharedText As String
-    Private _accessedText As String
+    Private _openedFrom As String
+    Private _activities As List(Of Activities)
+
+    Private _searchInput As String
+    Private _resultCount As String
+    Private _fromDate As DateTime?
+    Private _fromMinDate As DateTime?
+    Private _fromMaxDate As DateTime?
+    Private _toDate As DateTime?
+    Private _toMinDate As DateTime?
+    Private _toMaxDate As DateTime?
+    Private _isBothSelected As Boolean? = True
+    Private _isAccountSelected As Boolean
+    Private _isFilesSelected As Boolean
+
     Private _dataGridActivities As ObservableCollection(Of Activities)
     Private _isProcessingSelection As Boolean = False
     Private _selectedActivity As Activities
 
-    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+    Public Property ResultCount As String
         Get
-            Return False
-        End Get
-    End Property
-
-    Public Property SharedText As String
-        Get
-            Return _sharedText
+            Return _resultCount
         End Get
         Set(value As String)
-            SetProperty(_sharedText, value)
+            SetProperty(_resultCount, value)
         End Set
     End Property
 
-    Public Property AccessedText As String
+    Public Property SearchInput As String
         Get
-            Return _accessedText
+            Return _searchInput
         End Get
         Set(value As String)
-            SetProperty(_accessedText, value)
+            SetProperty(_searchInput, value)
+            ApplyFilters()
+        End Set
+    End Property
+
+    Public Property FromSelectedDate As DateTime?
+        Get
+            Return _fromDate
+        End Get
+        Set(value As DateTime?)
+            SetProperty(_fromDate, value)
+            ApplyFilters()
+        End Set
+    End Property
+
+    Public Property FromMinDate As DateTime?
+        Get
+            Return _fromMinDate
+        End Get
+        Set(value As DateTime?)
+            SetProperty(_fromMinDate, value)
+        End Set
+    End Property
+
+    Public Property FromMaxDate As DateTime?
+        Get
+            Return _fromMaxDate
+        End Get
+        Set(value As DateTime?)
+            SetProperty(_fromMaxDate, value)
+        End Set
+    End Property
+
+    Public Property ToSelectedDate As DateTime?
+        Get
+            Return _toDate
+        End Get
+        Set(value As DateTime?)
+            SetProperty(_toDate, value)
+            ApplyFilters()
+        End Set
+    End Property
+
+    Public Property ToMinDate As DateTime?
+        Get
+            Return _toMinDate
+        End Get
+        Set(value As DateTime?)
+            SetProperty(_toMinDate, value)
+        End Set
+    End Property
+
+    Public Property ToMaxDate As DateTime?
+        Get
+            Return _toMaxDate
+        End Get
+        Set(value As DateTime?)
+            SetProperty(_toMaxDate, value)
+        End Set
+    End Property
+
+    Public Property IsBothSelected As Boolean?
+        Get
+            Return _isBothSelected
+        End Get
+        Set(value As Boolean?)
+            If SetProperty(_isBothSelected, value) AndAlso value Then
+                ApplyFilters()
+            End If
+        End Set
+    End Property
+
+    Public Property IsAccountSelected As Boolean
+        Get
+            Return _isAccountSelected
+        End Get
+        Set(value As Boolean)
+            If SetProperty(_isAccountSelected, value) AndAlso value Then
+                IsBothSelected = False
+                IsFilesSelected = False
+                ApplyFilters()
+            End If
+        End Set
+    End Property
+
+    Public Property IsFilesSelected As Boolean
+        Get
+            Return _isFilesSelected
+        End Get
+        Set(value As Boolean)
+            If SetProperty(_isFilesSelected, value) AndAlso value Then
+                IsBothSelected = False
+                IsAccountSelected = False
+                ApplyFilters()
+            End If
         End Set
     End Property
 
@@ -84,22 +179,14 @@ Public Class HomeViewModel
         End Set
     End Property
 
-    Public ReadOnly Property SelectedActivityCommand As ICommand
-    Public ReadOnly Property ShareFilesCommand As DelegateCommand
-    Public ReadOnly Property AccessFilesCommand As DelegateCommand
 
-    ''' <summary>
-    ''' 
-    ''' </summary>
-    ''' <param name="sessionManager"></param>
-    ''' <param name="regionManager"></param>
-    ''' <param name="fileDataService"></param>
+
     Public Sub New(fileDataService As IFileDataService,
-                   activityService As IActivityService,
-                   sessionManager As ISessionManager,
-                   navigationService As INavigationService,
-                   fallBackService As IFallbackService,
-                   userService As IUserService)
+    activityService As IActivityService,
+    sessionManager As ISessionManager,
+    navigationService As INavigationService,
+    fallBackService As IFallbackService,
+                       userService As IUserService)
 
         _fileDataService = fileDataService
         _activityService = activityService
@@ -111,22 +198,13 @@ Public Class HomeViewModel
         ' Initialize commands
         DataGridActivities = New ObservableCollection(Of Activities)()
         SelectedActivityCommand = New DelegateCommand(Of Activities)(AddressOf OnActivitySelected)
-        ShareFilesCommand = New DelegateCommand(AddressOf OnShareFilesCommand)
-        AccessFilesCommand = New DelegateCommand(AddressOf OnAccessFilesCommand)
 
-        ' Load data
         Load()
     End Sub
 
-    ''' <summary>
-    ''' Load data
-    ''' </summary>
     Private Async Sub Load()
-        _navigationService.Start("PageRegion", "HomeView", "Home")
-
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(100)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
@@ -139,90 +217,37 @@ Public Class HomeViewModel
                 Return
             End If
 
-            Dim ShareCount = Await Task.Run(Function() _fileDataService.GetSharedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
-            Dim AccessCount = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
+            _navigationService.Start("PageRegion", "ActivitiesView", "Activities")
+            _activities = Await Task.Run(Function() _activityService.GetUserActivity(_sessionManager.CurrentUser)).ConfigureAwait(True)
 
-            SharedText = ShareCount.Count
-            AccessedText = AccessCount.Count
+            If _activities IsNot Nothing AndAlso _activities.Count > 0 Then
+                Dim orderedDates = _activities.Select(Function(f) f.ActionAt).OrderBy(Function(d) d).ToList()
 
-            DataGridActivities = New ObservableCollection(Of Activities)(
-                Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
-            )
+                FromMinDate = orderedDates.First()
+                FromMaxDate = orderedDates.Last()
+                ToMinDate = orderedDates.First()
+                ToMaxDate = orderedDates.Last()
 
-            Loading.Hide()
+                FromSelectedDate = orderedDates.First()
+                ToSelectedDate = orderedDates.Last()
+            Else
+                FromMinDate = DateTime.Today.AddYears(-1)
+                FromMaxDate = DateTime.Today
+                ToMinDate = DateTime.Today.AddYears(-1)
+                ToMaxDate = DateTime.Today
+            End If
+
+            IsBothSelected = True
+            IsAccountSelected = False
+            IsFilesSelected = False
+
+            ApplyFilters()
         Catch ex As Exception
-            Debug.WriteLine($"[HomeViewModel] Error loading data: {ex.Message}")
-        Finally
-
-            RaisePropertyChanged(NameOf(SharedText))
-            RaisePropertyChanged(NameOf(AccessedText))
-            RaisePropertyChanged(NameOf(DataGridActivities))
-        End Try
-    End Sub
-
-    ''' <summary>
-    ''' Share files command
-    ''' </summary>
-    Private Sub OnShareFilesCommand()
-        _navigationService.Go("PageRegion", "ShareFilesView", "Shared Files")
-    End Sub
-
-    ''' <summary>
-    ''' Access files command
-    ''' </summary>
-    Private Async Function OnAccessFilesCommand() As Task
-        Try
-            Dim file As FilesShared
-
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
-
-            If Not Await Fallback.CheckConnection() Then
-                Return
-            End If
-
-            Dim popUpResult As PopupResult = Await PopUp.Selection()
-
-            If popUpResult Is Nothing Then
-                Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
-                Return
-            End If
-
-            Dim input = popUpResult.GetValue(Of String)("Input")
-            Dim selectedOption = popUpResult.GetValue(Of String)("SelectedOption")
-
-            Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(_sessionManager.CurrentUser)).ConfigureAwait(True)
-            If Not hasPermission Then
-                Await PopUp.Information("Failed", "You do not have permission to access this file.").ConfigureAwait(True)
-                Return
-            End If
-
-            Dim fileShare = New FilesShared With {
-                .ShareType = selectedOption,
-                .ShareValue = input,
-                .UploadedBy = _sessionManager.CurrentUser.Id
-            }
-
-            file = Await Task.Run(Function() _fileDataService.GetSharedFileByPrivate(fileShare)).ConfigureAwait(True)
-
-            If file Is Nothing Then
-                Await PopUp.Information("Failed", "File not found.").ConfigureAwait(True)
-                Return
-            End If
-
-            Dim parameters = New NavigationParameters From {
-                {"fileId", file.Id},
-                {"openedFrom", "AccessedFilesView"}
-            }
-
-            _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
-
-        Catch ex As Exception
-            Debug.WriteLine($"[AccessedFilesViewModel] OnAccessFileCommand Error: {ex.Message}")
+            Debug.WriteLine($"[UserActivitiesViewModel] Load Error: {ex.Message}")
         Finally
             Loading.Hide()
         End Try
-    End Function
+    End Sub
 
     ''' <summary>
     ''' On activity selected
@@ -233,7 +258,7 @@ Public Class HomeViewModel
 
         Try
             If selectedActivity Is Nothing OrElse selectedActivity.Action Is Nothing Then
-                PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
+                Await PopUp.Information("Failed", "No activity was selected or activity data is incomplete")
                 Return
             End If
 
@@ -242,18 +267,18 @@ Public Class HomeViewModel
             End If
 
             If selectedActivity.Action = "Deleted a file" Then
-                PopUp.Information("Information", "This file has been deleted")
+                Await PopUp.Information("Information", "This file has been deleted")
                 Return
             End If
 
             If selectedActivity.Action = "Deleted a user" Then
-                PopUp.Information("Information", "This user has been deleted")
+                Await PopUp.Information("Information", "This user has been deleted")
                 Return
             End If
 
             If selectedActivity.Action = "Removed Access a file" Then
                 Debug.WriteLine($"[DEBUG] Removed access file: {selectedActivity.FileId}")
-                PopUp.Information("Failed", "Referenced file access was removed ")
+                Await PopUp.Information("Failed", "Referenced file access was removed ")
                 Return
             End If
 
@@ -267,7 +292,7 @@ Public Class HomeViewModel
                 selectedActivity.Action = "Change password a user" Then
 
                 If userAccountInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced user was removed")
+                    Await PopUp.Information("Failed", "Referenced user was removed")
                     Return
                 End If
 
@@ -278,7 +303,7 @@ Public Class HomeViewModel
                     parameters.Add("openedFrom", "ManageUsersView")
                     _navigationService.Go("PageRegion", "UserInformationsView", "Manage Users", parameters)
                 Else
-                    PopUp.Information("Failed", "You dont have permission to access")
+                    Await PopUp.Information("Failed", "You dont have permission to access")
                 End If
 
                 Return
@@ -289,7 +314,7 @@ Public Class HomeViewModel
                 selectedActivity.Action = "Change password" Then
 
                 If userAccountInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced user was removed")
+                    Await PopUp.Information("Failed", "Referenced user was removed")
                     Return
                 End If
 
@@ -317,7 +342,7 @@ Public Class HomeViewModel
                 Not _sessionManager.CurrentUser.Role = "Admin" Then
 
                 If fileSharedInfo.Availability = "Disabled" Then
-                    PopUp.Information("Failed", "Referenced file has been disabled by the uploader")
+                    Await PopUp.Information("Failed", "Referenced file has been disabled by the uploader")
                     Return
                 End If
 
@@ -330,10 +355,8 @@ Public Class HomeViewModel
                 parameters = New NavigationParameters()
                 parameters.Add("fileId", selectedActivity.FileId)
 
-
-
                 If fileSharedInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Await PopUp.Information("Failed", "Referenced file access was removed")
                     Return
                 End If
 
@@ -341,7 +364,7 @@ Public Class HomeViewModel
                     parameters.Add("openedFrom", "ManageFilesView")
                     _navigationService.Go("PageRegion", "FileDetailsView", "Manage Files", parameters)
                 Else
-                    parameters.Add("openedFrom", "HomeView")
+                    parameters.Add("openedFrom", "ActivitiesView")
                     _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
                 End If
             End If
@@ -351,23 +374,69 @@ Public Class HomeViewModel
                 parameters.Add("fileId", selectedActivity.FileId)
 
                 If fileAccessedInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Await PopUp.Information("Failed", "Referenced file access was removed")
                     Return
                 End If
 
                 If fileSharedInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
+                    Await PopUp.Information("Failed", "Referenced file access was removed")
                     Return
                 End If
 
-                parameters.Add("openedFrom", "HomeView")
+                parameters.Add("openedFrom", "ActivitiesViewModel")
                 _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
 
                 Return
             End If
         Catch ex As Exception
-            Debug.WriteLine($"[ERROR] Activity selection failed: {ex.Message}")
+            Debug.WriteLine($"[UserActivitiesViewModel] Activity selection failed: {ex.Message}")
             PopUp.Information("Error", "An unexpected error occurred while processing your request.")
         End Try
     End Sub
+
+    Private Sub ApplyFilters()
+        If _activities Is Nothing Then
+            Debug.WriteLine("[FILTER] No activities loaded")
+            Return
+        End If
+
+        Dim filtered = _activities.AsEnumerable()
+        Debug.WriteLine($"[FILTER] Starting with {filtered.Count()} activity")
+
+        If Not String.IsNullOrEmpty(SearchInput) Then
+            filtered = filtered.Where(Function(f) f.Name.Contains(SearchInput, StringComparison.OrdinalIgnoreCase))
+            Debug.WriteLine($"[FILTER] After search: {filtered.Count()}")
+        End If
+
+        If FromSelectedDate.HasValue Then
+            Dim fromDate = FromSelectedDate.Value.Date
+            filtered = filtered.Where(Function(f) f.ActionAt >= fromDate)
+        End If
+
+        If ToSelectedDate.HasValue Then
+            Dim toDate = ToSelectedDate.Value.Date.AddDays(1)
+            filtered = filtered.Where(Function(f) f.ActionAt < toDate)
+        End If
+
+        If IsBothSelected Then
+            filtered = filtered.Where(Function(f) f.FileId IsNot Nothing OrElse f.AccountId IsNot Nothing)
+        ElseIf IsAccountSelected Then
+            filtered = filtered.Where(Function(f) f.AccountId IsNot Nothing)
+        ElseIf IsFilesSelected Then
+            filtered = filtered.Where(Function(f) f.FileId IsNot Nothing)
+        End If
+
+        ResultCount = filtered.Count
+        DataGridActivities = New ObservableCollection(Of Activities)(filtered.ToList())
+        RaisePropertyChanged(NameOf(DataGridActivities))
+        RaisePropertyChanged(NameOf(ResultCount))
+    End Sub
+
+    Public ReadOnly Property SelectedActivityCommand As ICommand
+
+    Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive
+        Get
+            Return False
+        End Get
+    End Property
 End Class

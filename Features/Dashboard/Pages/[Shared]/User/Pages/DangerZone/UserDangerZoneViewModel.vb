@@ -4,6 +4,7 @@ Imports Prism.Mvvm
 Imports Prism.Navigation.Regions
 
 #Disable Warning CRR0029
+#Disable Warning
 Public Class UserDangerZoneViewModel
     Inherits BindableBase
     Implements INavigationAware
@@ -348,10 +349,12 @@ Public Class UserDangerZoneViewModel
 
                 If _user.Status = "Banned" Then
                     UnBanAccountButtonVisibility = Visibility.Visible
+                    BanAccountButtonVisibility = Visibility.Collapsed
                 End If
 
                 If _user.Status = "Active" Then
                     BanAccountButtonVisibility = Visibility.Visible
+                    UnBanAccountButtonVisibility = Visibility.Collapsed
                 End If
             End If
 
@@ -392,17 +395,6 @@ Public Class UserDangerZoneViewModel
     End Sub
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
-        Try
-            If navigationContext IsNot Nothing Then
-                Dim region = _regionManager.Regions("UserPageRegion")
-                Dim view = region.Views.FirstOrDefault(Function(v) v.GetType().Name = "UserInformationView")
-                If view IsNot Nothing Then
-                    region.Remove(view)
-                End If
-            End If
-        Catch ex As Exception
-            Debug.WriteLine($"[UserInformationView] OnNavigatedFrom Error: {ex.Message}")
-        End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget

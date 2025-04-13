@@ -6,7 +6,7 @@ Module InputValidationHelper
     Private ReadOnly CodePattern As String = "^\d*(\.\d{0,8})?$"
     Private ReadOnly EmailPattern As String = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     Private ReadOnly PhonePattern As String = "^\d{10}$" ' Example: 10-digit phone number
-    Private ReadOnly UsernamePattern As String = "^[a-z0-9_]+$"
+    Private ReadOnly UsernamePattern As String = "^[a-z0-9_]*$"
 
     ' Validate input based on the selected option
     Public Function ValidateInput(input As String, selectedOption As String) As Boolean

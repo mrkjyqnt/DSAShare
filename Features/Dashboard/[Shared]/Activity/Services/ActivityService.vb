@@ -23,18 +23,18 @@ Public Class ActivityService
         End Set
     End Property
 
-    Public Function GetUserActivity(Optional activities As Activities = Nothing) As List(Of ActivityServiceModel) Implements IActivityService.GetUserActivity
-        Dim result = New List(Of ActivityServiceModel)()
+    Public Function GetUserActivity(Optional user As Users = Nothing) As List(Of Activities) Implements IActivityService.GetUserActivity
+        Dim result = New List(Of Activities)()
         Dim _activityList As List(Of Activities)
 
         Try
             _activityList = _activitiesRepository.GetByUserId(New Activities With {
-                .UserId = If(activities?.UserId, _sessionManager.CurrentUser.Id)
+                .UserId = If(user?.Id, _sessionManager.CurrentUser.Id)
             })
 
             If IsNullOrEmpty(_activityList) OrElse _activityList.Count < 0 Then
                 Debug.WriteLine("[DEBUG] No activities found")
-                result.Add(New ActivityServiceModel With {
+                result.Add(New Activities With {
                     .Id = 0,
                     .FileId = 0,
                     .AccountId = 0,
@@ -50,7 +50,7 @@ Public Class ActivityService
 
             For Each activity In _activityList
                 Debug.WriteLine($"[DEBUG] Adding activity: {activity.Id}")
-                result.Add(New ActivityServiceModel With {
+                result.Add(New Activities With {
                     .Id = activity.Id,
                     .FileId = activity.FileId,
                     .AccountId = activity.AccountId,

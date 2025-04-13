@@ -141,7 +141,7 @@ Public Class ManageFilesViewModel
         End Get
         Set(value As Boolean)
             If SetProperty(_isPublicSelected, value) AndAlso value Then
-                _isBothSelected = False
+                IsBothSelected = False
                 IsPrivateSelected = False
                 ApplyFilters()
             End If
@@ -154,7 +154,7 @@ Public Class ManageFilesViewModel
         End Get
         Set(value As Boolean)
             If SetProperty(_isPrivateSelected, value) AndAlso value Then
-                _isBothSelected = False
+                IsBothSelected = False
                 IsPublicSelected = False
                 ApplyFilters()
             End If

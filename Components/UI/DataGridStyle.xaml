@@ -27,9 +27,16 @@
                     <ScrollViewer x:Name="DG_ScrollViewer" Focusable="false">
                         <ScrollViewer.Template>
                             <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                                <StackPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <!--  Column headers (unchanged from your original)  -->
                                     <DataGridColumnHeadersPresenter
                                         x:Name="PART_ColumnHeadersPresenter"
+                                        Grid.Row="0"
                                         HorizontalAlignment="Stretch"
                                         SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
                                         <DataGridColumnHeadersPresenter.Style>
@@ -43,7 +50,10 @@
                                             </Style>
                                         </DataGridColumnHeadersPresenter.Style>
                                     </DataGridColumnHeadersPresenter>
+
+                                    <!--  Data rows area with proper scrolling  -->
                                     <Border
+                                        Grid.Row="1"
                                         Margin="0"
                                         Background="{StaticResource BackgroundBrush}"
                                         BorderBrush="{StaticResource BorderBrush}"
@@ -53,9 +63,9 @@
                                         SnapsToDevicePixels="True">
                                         <Border Margin="0,0,0,-2.5" ClipToBounds="True">
                                             <Grid>
+                                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" />
 
-                                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" Grid.Row="1" />
-
+                                                <!--  Scroll bars (keep your original visibility settings)  -->
                                                 <ScrollBar
                                                     x:Name="PART_VerticalScrollBar"
                                                     Maximum="{TemplateBinding ScrollableHeight}"
@@ -69,11 +79,10 @@
                                                     Orientation="Horizontal"
                                                     ViewportSize="{TemplateBinding ViewportWidth}"
                                                     Visibility="Collapsed" />
-
                                             </Grid>
                                         </Border>
                                     </Border>
-                                </StackPanel>
+                                </Grid>
                             </ControlTemplate>
                         </ScrollViewer.Template>
                         <ItemsPresenter />

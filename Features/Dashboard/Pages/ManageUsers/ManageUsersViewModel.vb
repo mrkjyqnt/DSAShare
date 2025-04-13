@@ -25,9 +25,9 @@ Public Class ManageUsersViewModel
     Private _toMaxDate As DateTime?
     Private _dataGridUsers As ObservableCollection(Of Users)
     Private _isMemberSelected As Boolean? = True
-    Private _isBothSelected As Boolean
-    Private _isActiveSelected As Boolean
-    Private _isBannedSelected As Boolean
+    Private _isBothSelected As Boolean? = True
+    Private _isActiveSelected As Boolean?
+    Private _isBannedSelected As Boolean?
 
     Public Property ResultCount As String
         Get
@@ -126,11 +126,11 @@ Public Class ManageUsersViewModel
         End Set
     End Property
 
-    Public Property IsBothSelected As Boolean
+    Public Property IsBothSelected As Boolean?
         Get
             Return _isBothSelected
         End Get
-        Set(value As Boolean)
+        Set(value As Boolean?)
             If SetProperty(_isBothSelected, value) AndAlso value Then
                 IsActiveSelected = False
                 IsBannedSelected = False
@@ -139,11 +139,11 @@ Public Class ManageUsersViewModel
         End Set
     End Property
 
-    Public Property IsActiveSelected As Boolean
+    Public Property IsActiveSelected As Boolean?
         Get
             Return _isActiveSelected
         End Get
-        Set(value As Boolean)
+        Set(value As Boolean?)
             If SetProperty(_isActiveSelected, value) AndAlso value Then
                 IsBothSelected = False
                 IsBannedSelected = False
@@ -152,11 +152,11 @@ Public Class ManageUsersViewModel
         End Set
     End Property
 
-    Public Property IsBannedSelected As Boolean
+    Public Property IsBannedSelected As Boolean?
         Get
             Return _isBannedSelected
         End Get
-        Set(value As Boolean)
+        Set(value As Boolean?)
             If SetProperty(_isBannedSelected, value) AndAlso value Then
                 IsBothSelected = False
                 IsActiveSelected = False
@@ -290,6 +290,9 @@ Public Class ManageUsersViewModel
         DataGridUsers = New ObservableCollection(Of Users)(filtered.ToList())
         RaisePropertyChanged(NameOf(DataGridUsers))
         RaisePropertyChanged(NameOf(ResultCount))
+        RaisePropertyChanged(NameOf(IsBothSelected))
+        RaisePropertyChanged(NameOf(IsActiveSelected))
+        RaisePropertyChanged(NameOf(IsBannedSelected))
     End Sub
 
     Public ReadOnly Property KeepAlive As Boolean Implements IRegionMemberLifetime.KeepAlive

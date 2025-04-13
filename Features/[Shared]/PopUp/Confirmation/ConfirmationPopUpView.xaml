@@ -30,11 +30,11 @@
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Style="{StaticResource SubTitleText}">Confirm Action</TextBlock>
-            <TextBox
+            <PasswordBox
                 Grid.Row="2"
-                Style="{StaticResource DefaultTextbox}"
-                Tag="Password"
-                Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
+                local:PasswordBoxHelper.Password="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Style="{StaticResource DefaultPasswordBox}"
+                Tag="Password" />
             <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />

@@ -2,48 +2,58 @@
 
 Public Class NavigationHistoryService
     Implements INavigationHistoryService
-
-    Private ReadOnly ItemStack As New Stack(Of String)
-    Private ReadOnly ViewStack As New Stack(Of String)
-    Private ReadOnly RegionStack As New Stack(Of String)
-
-    Public Sub PushPage(Region As String, View As String, Item As String) Implements INavigationHistoryService.PushPage
-        ItemStack.Push(Item)
-        RegionStack.Push(Region)
-        ViewStack.Push(View)
-    End Sub
-
-    Public Function PopPage() As (Region As String, View As String, Item As String) Implements INavigationHistoryService.PopPage
-        If ItemStack.Count > 1 Then
-            Return (RegionStack.ElementAt(1), ViewStack.ElementAt(1), ItemStack.ElementAt(1))
+    
+    Private ReadOnly _history As New List(Of NavigationRecord)()
+    Private _currentIndex As Integer = -1
+    
+    Public Sub PushPage(region As String, view As String, item As String, parameters As NavigationParameters) _
+        Implements INavigationHistoryService.PushPage
+        
+        ' Remove any forward history if we're not at the end
+        If _currentIndex < _history.Count - 1 Then
+            _history.RemoveRange(_currentIndex + 1, _history.Count - _currentIndex - 1)
         End If
-        Return (Nothing, Nothing, Nothing)
+        
+        _history.Add(New NavigationRecord(region, view, item, parameters))
+        _currentIndex = _history.Count - 1
+    End Sub
+    
+    Public Function GoBack() As NavigationRecord _
+        Implements INavigationHistoryService.GoBack
+        
+        If CanGoBack Then
+            _currentIndex -= 1
+            Return _history(_currentIndex)
+        End If
+        Return Nothing
     End Function
-
-    Public Function PeekPage() As (Region As String, View As String, Item As String) Implements INavigationHistoryService.PeekPage
-        If ItemStack.Count > 0 Then
-            Return (RegionStack.Peek(), ViewStack.Peek(), ItemStack.Peek())
+    
+    Public Function GoForward() As NavigationRecord _
+        Implements INavigationHistoryService.GoForward
+        
+        If CanGoForward Then
+            _currentIndex += 1
+            Return _history(_currentIndex)
         End If
-        Return (Nothing, Nothing, Nothing)
+        Return Nothing
     End Function
-
-    Public Sub RemoveCurrentPage() Implements INavigationHistoryService.RemoveCurrentPage
-        If ItemStack.Count > 1 Then
-            RegionStack.Pop()
-            ViewStack.Pop()
-            ItemStack.Pop()
-        End If
-    End Sub
-
-    Public Sub Reset() Implements INavigationHistoryService.Reset
-        RegionStack.Clear
-        ViewStack.Clear
-        ItemStack.Clear
-    End Sub
-
-    Public ReadOnly Property CanGoBack As Boolean Implements INavigationHistoryService.CanGoBack
+    
+    Public ReadOnly Property CanGoBack As Boolean _
+        Implements INavigationHistoryService.CanGoBack
         Get
-            Return ItemStack.Count > 1
+            Return _currentIndex > 0
         End Get
     End Property
+    
+    Public ReadOnly Property CanGoForward As Boolean _
+        Implements INavigationHistoryService.CanGoForward
+        Get
+            Return _currentIndex < _history.Count - 1
+        End Get
+    End Property
+    
+    Public Sub Reset() Implements INavigationHistoryService.Reset
+        _history.Clear()
+        _currentIndex = -1
+    End Sub
 End Class

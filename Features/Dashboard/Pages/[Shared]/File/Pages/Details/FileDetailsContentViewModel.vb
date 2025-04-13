@@ -21,6 +21,13 @@ Public Class FileDetailsContentViewModel
         Unsupported
     End Enum
 
+    Private ReadOnly _fileDataService As IFileDataService
+    Private ReadOnly _fileService As IFileService
+    Private ReadOnly _sessionManager As ISessionManager
+    Private ReadOnly _activityService As IActivityService
+    Private ReadOnly _navigationService As INavigationService
+    Private ReadOnly _userService As IUserService
+
     Private _openedFrom As String
     Private _fileShared As FilesShared
     Private _fileAccessed As FilesAccessed
@@ -32,13 +39,6 @@ Public Class FileDetailsContentViewModel
     Private _filePath As String
     Private _shareTypeText As String
     Private _shareValueText As String
-
-    Private ReadOnly _fileDataService As IFileDataService
-    Private ReadOnly _fileService As IFileService
-    Private ReadOnly _sessionManager As ISessionManager
-    Private ReadOnly _activityService As IActivityService
-    Private ReadOnly _navigationService As INavigationService
-    Private ReadOnly _userService As IUserService
 
     Private _accessButtonVisibility As Visibility = Visibility.Collapsed
     Private _downloadButtonVisibility As Visibility = Visibility.Collapsed
@@ -186,7 +186,9 @@ Public Class FileDetailsContentViewModel
 
     Private Async Sub Load()
         Try
-            _dataGridFileDetails.Author = If(_fileShared?.UploadedBy, "Unknown")
+            Dim author = Await Task.Run(Function() _userService.GetUserById(New Users With{.Id = _fileShared.UploadedBy})).ConfigureAwait(True)
+
+            _dataGridFileDetails.Author = If(author?.Name, "Unknown")
             _dataGridFileDetails.FileName = If(_fileShared?.FileName, "Unknown")
             _dataGridFileDetails.AccessLevel = If(_fileShared?.Privacy, "Unknown")
             _dataGridFileDetails.DownloadCount = If(_fileShared?.DownloadCount, 0)
@@ -435,14 +437,16 @@ Public Class FileDetailsContentViewModel
             If _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
                 DownloadButtonVisibility = Visibility.Visible
 
-                If _fileShared?.ShareValue = "Private" Then
+                If _fileShared?.Privacy = "Private" Then
                     EncryptionSectionVisibility = Visibility.Visible
                 End If
 
+                Return
             End If
 
             If _sessionManager.CurrentUser.Role = "Guest" Then
                 DownloadButtonVisibility = Visibility.Visible
+                Return
             End If
 
             If Not _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
@@ -458,6 +462,7 @@ Public Class FileDetailsContentViewModel
                     Return
                 End If
 
+                Return
             End If
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error changing button visibility: {ex.Message}")

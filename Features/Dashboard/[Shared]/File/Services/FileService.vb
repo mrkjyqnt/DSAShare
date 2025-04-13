@@ -30,11 +30,15 @@ Public Class FileService
 
         Try
             If Not ConnectToNetworkShare() Then
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "Failed to connect to the Server"}
+                Return New FileResult With {.Success = False, .Message = "Failed to connect to the Server"}
             End If
 
             If Not Directory.Exists(_folderPath) Then
                 Directory.CreateDirectory(_folderPath)
+            End If
+
+            If Not VirusScanner.ScanFile(filesShared.FilePath) Then
+                Return New FileResult With {.Success = False, .Message = "Virus detected, please scan the file before uploading"}
             End If
 
             _fileInfoService.Extract(filesShared.FilePath)
@@ -43,7 +47,7 @@ Public Class FileService
             destinationPath = Path.Combine(_folderPath, newFileName)
 
             If File.Exists(destinationPath) Then
-                Return New FileResult With {.Success = False, .FileExists = True, .Message = "File already exists"}
+                Return New FileResult With {.Success = False, .Message = "File already exists"}
             End If
 
             File.Copy(filesShared.FilePath, destinationPath, False)
@@ -54,17 +58,17 @@ Public Class FileService
             If Not insertSuccess Then
                 ' Rollback file copy if DB insert fails
                 File.Delete(destinationPath)
-                Return New FileResult With {.Success = False, .FileExists = False, .Message = "Database error, upload failed"}
+                Return New FileResult With {.Success = False, .Message = "Database error, upload failed"}
             End If
 
-            Return New FileResult With {.Success = True, .FileExists = False, .Message = "File uploaded successfully"}
+            Return New FileResult With {.Success = True, .Message = "File uploaded successfully"}
         Catch ex As Exception
             If Not String.IsNullOrEmpty(destinationPath) AndAlso File.Exists(destinationPath) Then
                 File.Delete(destinationPath)
             End If
 
             Debug.WriteLine($"[DEBUG] Upload error: {ex.Message}")
-            Return New FileResult With {.Success = False, .FileExists = False, .Message = "Error uploading file"}
+            Return New FileResult With {.Success = False, .Message = "Error uploading file"}
         Finally
             DisconnectFromNetworkShare(_folderPath)
         End Try
