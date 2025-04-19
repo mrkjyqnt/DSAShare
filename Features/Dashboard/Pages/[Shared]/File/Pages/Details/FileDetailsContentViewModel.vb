@@ -39,6 +39,7 @@ Public Class FileDetailsContentViewModel
     Private _filePath As String
     Private _shareTypeText As String
     Private _shareValueText As String
+    Private ReadOnly _folderPath As String = ConfigurationModule.GetSettings().Network.FolderPath
 
     Private _accessButtonVisibility As Visibility = Visibility.Collapsed
     Private _downloadButtonVisibility As Visibility = Visibility.Collapsed
@@ -225,7 +226,7 @@ Public Class FileDetailsContentViewModel
                     Dim bitmap = Await Task.Run(Function()
                                                     Dim img = New BitmapImage()
                                                     img.BeginInit()
-                                                    img.UriSource = New Uri(_filePath)
+                                                    img.UriSource = New Uri(Path.Combine(_folderPath, _filePath))
                                                     img.CacheOption = BitmapCacheOption.OnLoad
                                                     img.EndInit()
                                                     If img.CanFreeze Then img.Freeze()
@@ -234,11 +235,11 @@ Public Class FileDetailsContentViewModel
                     PreviewContent = bitmap
 
                 Case PreviewTypes.Document
-                    Dim imageSource = Await DocumentToImageHelper.ConvertFirstPageToImageAsync(_filePath).ConfigureAwait(True)
+                    Dim imageSource = Await DocumentToImageHelper.ConvertFirstPageToImageAsync(Path.Combine(_folderPath, _filePath)).ConfigureAwait(True)
                     PreviewContent = imageSource
 
                 Case PreviewTypes.Text
-                    Dim text = Await Task.Run(Function() File.ReadAllText(_filePath)).ConfigureAwait(True)
+                    Dim text = Await Task.Run(Function() File.ReadAllText(Path.Combine(_folderPath, _filePath))).ConfigureAwait(True)
                     PreviewContent = text
                 Case PreviewTypes.Unsupported
                     PreviewContent = "Unsupported file format."
@@ -488,7 +489,6 @@ Public Class FileDetailsContentViewModel
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(100).ConfigureAwait(True)
 
             If Not Await Fallback.CheckConnection() Then
                 Return

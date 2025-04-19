@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     mc:Ignorable="d">
-    <Border Padding="{StaticResource Space-32}" HorizontalAlignment="Stretch">
+    <Border Padding="{DynamicResource Space-32}" HorizontalAlignment="Stretch">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
@@ -23,12 +23,12 @@
                     Padding="0"
                     VerticalAlignment="Top"
                     ClipToBounds="True"
-                    Style="{StaticResource DefaultBorder}">
+                    Style="{DynamicResource DefaultBorder}">
                     <StackPanel HorizontalAlignment="Stretch">
                         <Border
                             Grid.Row="0"
-                            Padding="{StaticResource Space-16}"
-                            BorderBrush="{StaticResource BorderBrush}"
+                            Padding="{DynamicResource Space-16}"
+                            BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="0,0,0,1">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -46,18 +46,18 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Row="0"
-                                        FontFamily="{StaticResource InterMedium}"
+                                        FontFamily="{DynamicResource InterMedium}"
                                         Text="Access" />
                                     <RadioButton
                                         Grid.Row="2"
                                         Content="Public"
                                         IsChecked="{Binding IsPublicSelected, UpdateSourceTrigger=PropertyChanged}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                     <RadioButton
                                         Grid.Row="4"
                                         Content="Private"
                                         IsChecked="{Binding IsPrivateSelected, UpdateSourceTrigger=PropertyChanged}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                 </Grid>
                                 <Grid
                                     x:Name="EncryptionSection"
@@ -74,28 +74,28 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Row="0"
-                                        FontFamily="{StaticResource InterMedium}"
+                                        FontFamily="{DynamicResource InterMedium}"
                                         Text="Encryption" />
                                     <RadioButton
                                         Grid.Row="2"
                                         Content="Code"
                                         IsChecked="{Binding IsCodeSelected, UpdateSourceTrigger=PropertyChanged}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                     <RadioButton
                                         Grid.Row="4"
                                         Content="Secret Word"
                                         IsChecked="{Binding IsWordSelected, UpdateSourceTrigger=PropertyChanged}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                     <TextBox
                                         Grid.Row="6"
                                         VerticalAlignment="Center"
-                                        Style="{StaticResource DefaultTextbox}"
+                                        Style="{DynamicResource DefaultTextbox}"
                                         Tag="Type Here"
                                         Text="{Binding EncryptionInput, UpdateSourceTrigger=PropertyChanged}" />
                                 </Grid>
                             </Grid>
                         </Border>
-                        <Border Grid.Row="2" Padding="{StaticResource Space-16}">
+                        <Border Grid.Row="2" Padding="{DynamicResource Space-16}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
@@ -106,13 +106,13 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock
                                     Grid.Row="0"
-                                    FontFamily="{StaticResource InterMedium}"
+                                    FontFamily="{DynamicResource InterMedium}"
                                     Text="Expiration" />
                                 <CheckBox
                                     Grid.Row="2"
                                     Content="Enable"
                                     IsChecked="{Binding IsExpirationEnabled}"
-                                    Style="{StaticResource DefaultCheckBox}" />
+                                    Style="{DynamicResource DefaultCheckBox}" />
                                 <Grid Grid.Row="4" IsEnabled="{Binding ExpirationPicker, UpdateSourceTrigger=PropertyChanged}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto" />
@@ -123,7 +123,7 @@
                                     <DatePicker
                                         Grid.Row="2"
                                         SelectedDate="{Binding SelectedDate}"
-                                        Style="{StaticResource DefaultDatePicker}" />
+                                        Style="{DynamicResource DefaultDatePicker}" />
                                 </Grid>
                             </Grid>
                         </Border>
@@ -147,7 +147,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBox
                         Grid.Column="0"
-                        Style="{StaticResource DefaultTextbox}"
+                        Style="{DynamicResource DefaultTextbox}"
                         Tag="Name"
                         Text="{Binding NameInput, UpdateSourceTrigger=PropertyChanged}" />
                     <Button
@@ -155,13 +155,13 @@
                         HorizontalAlignment="Right"
                         Command="{Binding SaveChangesCommand}"
                         Content="Save Changes"
-                        Style="{StaticResource DefaultButton}"
+                        Style="{DynamicResource PrimaryButton}"
                         ToolTip="Save Changes" />
                 </Grid>
                 <TextBox
                     Grid.Row="2"
                     MinHeight="200"
-                    Style="{StaticResource DefaultTextbox}"
+                    Style="{DynamicResource DefaultTextbox}"
                     Tag="Description"
                     Text="{Binding DescriptionInput, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap" />
@@ -175,12 +175,16 @@
                         <ColumnDefinition Width="16" />
                         <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" Source="/Components/Images/file.png" />
+                    <Rectangle
+                        Grid.Column="0"
+                        Width="20"
+                        Height="20"
+                        Fill="{DynamicResource accessed}" />
                     <TextBlock
                         Grid.Column="2"
                         MaxWidth="200"
                         VerticalAlignment="Center"
-                        Style="{StaticResource BodyText}"
+                        Style="{DynamicResource BodyText}"
                         Text="{Binding FileName}"
                         TextTrimming="CharacterEllipsis"
                         ToolTip="{Binding FileName}" />
@@ -188,7 +192,7 @@
                         Grid.Column="4"
                         Width="Auto"
                         VerticalAlignment="Center"
-                        Style="{StaticResource BodyText}"
+                        Style="{DynamicResource BodyText}"
                         Text="{Binding FileSize}" />
                 </Grid>
             </Grid>

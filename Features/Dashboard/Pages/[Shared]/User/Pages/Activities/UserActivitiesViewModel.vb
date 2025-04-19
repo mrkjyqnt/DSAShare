@@ -314,16 +314,7 @@ Public Class UserActivitiesViewModel
                 selectedActivity.Action = "Change role" OrElse
                 selectedActivity.Action = "Change password" Then
 
-                If userAccountInfo Is Nothing Then
-                    Await PopUp.Information("Failed", "Referenced user was removed")
-                    Return
-                End If
-
-                parameters = New NavigationParameters()
-                parameters.Add("userId", selectedActivity.AccountId)
-                parameters.Add("openedFrom", "AccountView")
-                _navigationService.Go("PageRegion", "UserInformationsView", "Account", parameters)
-
+                Await PopUp.Information("Information", "You are currntly at the users settings")
                 Return
             End If
 

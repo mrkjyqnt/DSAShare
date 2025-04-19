@@ -1,0 +1,80 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="NavRadioButtonStyle" TargetType="RadioButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="FontSize" Value="{DynamicResource BodySize}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border
+                        x:Name="MainBorder"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="Transparent"
+                        BorderThickness="0">
+                        <Grid>
+                            <Border
+                                x:Name="ContentBorder"
+                                Padding="16"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <!--  Icon with Dynamic Behavior  -->
+                                    <Rectangle
+                                        x:Name="ButtonIcon"
+                                        Width="20"
+                                        Height="20"
+                                        Margin="0,0,10,0">
+                                        <Rectangle.Style>
+                                            <Style TargetType="Rectangle">
+                                                <!--  Default icon (unchecked)  -->
+                                                <Setter Property="Fill" Value="{DynamicResource {Binding Content, RelativeSource={RelativeSource TemplatedParent}}}" />
+                                                <Style.Triggers>
+                                                    <!--  Checked state (icon changes to filled)  -->
+                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                                                        <Setter Property="Fill" Value="{DynamicResource {Binding Content, RelativeSource={RelativeSource TemplatedParent}, StringFormat='{}{0}-filled'}}" />
+                                                    </DataTrigger>
+                                                    <!--  MouseOver state (icon changes to hover)  -->
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Fill" Value="{DynamicResource {Binding Content, RelativeSource={RelativeSource TemplatedParent}, StringFormat='{}{0}-hover'}}" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Rectangle.Style>
+                                    </Rectangle>
+
+                                    <!--  Content (Text or MVVM bound content)  -->
+                                    <ContentPresenter
+                                        x:Name="ButtonContent"
+                                        VerticalAlignment="Center"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <!--  Visual States for dynamic styling  -->
+                    <ControlTemplate.Triggers>
+                        <!--  When RadioButton is checked  -->
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="MainBorder" Property="BorderThickness" Value="8,0,0,0" />
+                            <Setter TargetName="MainBorder" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                            <Setter TargetName="ButtonContent" Property="TextElement.FontFamily" Value="{DynamicResource InterMedium}" />
+                            <Setter TargetName="ButtonContent" Property="TextElement.Foreground" Value="{DynamicResource PrimaryBrush}" />
+                        </Trigger>
+                        <!--  When mouse is over the RadioButton  -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ButtonContent" Property="TextElement.Foreground" Value="{DynamicResource PrimaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

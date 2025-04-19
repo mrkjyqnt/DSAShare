@@ -6,8 +6,14 @@ Imports System.Data
 ''' </summary>
 Public Class Connection
     Private Config = ConfigurationModule.GetSettings()
-    Public ConnectString As String = $"Data Source={Config.Database.Server};Initial Catalog={Config.Database.Name};User ID={Config.Database.Username};Password={Config.Database.Password};Trust Server Certificate=True;MultipleActiveResultSets=True"
-
+    Public ConnectString As String = 
+    $"Server={Config.Database.Server};" &
+    $"Database={Config.Database.Name};" &
+    $"User Id={Config.Database.Username};" &
+    $"Password={Config.Database.Password};" &
+    "TrustServerCertificate=True;" &
+    "Connect Timeout=5;" &  
+    "Pooling=False;"
     Public Connect As New SqlConnection(ConnectString)
     Public Command As New SqlCommand
     Public CommandString As String
@@ -139,6 +145,17 @@ Public Class Connection
             End Using
 
         Catch ex As Exception
+            Console.WriteLine($"FULL ERROR DETAILS:")
+            Console.WriteLine($"- Exception Type: {ex.GetType().Name}")
+            Console.WriteLine($"- Message: {ex.Message}")
+            Console.WriteLine($"- Stack Trace: {ex.StackTrace}")
+
+            If TypeOf ex Is SqlException Then
+                Dim sqlEx = CType(ex, SqlException)
+                Console.WriteLine($"- SQL Error Number: {sqlEx.Number}")
+                Console.WriteLine($"- Server: {sqlEx.Server}")
+            End If
+
             HasError = True
             ErrorMessage = ex.Message
         End Try

@@ -33,17 +33,7 @@ Public Class ActivityService
             })
 
             If IsNullOrEmpty(_activityList) OrElse _activityList.Count < 0 Then
-                Debug.WriteLine("[DEBUG] No activities found")
-                result.Add(New Activities With {
-                    .Id = 0,
-                    .FileId = 0,
-                    .AccountId = 0,
-                    .Action = "No recent",
-                    .ActionIn = "No Reference",
-                    .Name = "",
-                    .ActionAt = DateTime.Now
-                })
-                Return result
+                Return Nothing
             End If
 
             Debug.WriteLine($"[DEBUG] Found {_activityList.Count} activities")

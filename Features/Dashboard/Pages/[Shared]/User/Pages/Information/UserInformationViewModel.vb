@@ -22,6 +22,7 @@ Public Class UserInformationViewModel
     Private _informationSectionVisibility As Visibility
     Private _passwordSectionVisibility As Visibility
     Private _roleSectionVisibility As Visibility
+    Private _currentPasswordVisibility As Visibility
 
     Private _usernameText As String
     Private _nameText As String
@@ -46,6 +47,15 @@ Public Class UserInformationViewModel
         End Get
         Set(value As Visibility)
             SetProperty(_passwordSectionVisibility, value)
+        End Set
+    End Property
+
+    Public Property CurrentPasswordVisibility As Visibility
+        Get
+            Return _currentPasswordVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_currentPasswordVisibility, value)
         End Set
     End Property
 
@@ -232,7 +242,7 @@ Public Class UserInformationViewModel
                 Return
             End If
 
-            If CurrentPasswordText Is Nothing Or NewPasswordText Is Nothing Or RePasswordText Is Nothing Then
+            If NewPasswordText Is Nothing Or RePasswordText Is Nothing Then
                 Await PopUp.Information("Failed", "Please fill in all fields")
                 Return
             End If
@@ -245,15 +255,29 @@ Public Class UserInformationViewModel
                 Return
             End If
 
-            If String.IsNullOrEmpty(CurrentPasswordText) Or String.IsNullOrEmpty(NewPasswordText) Or String.IsNullOrEmpty(RePasswordText) Then
+            If String.IsNullOrEmpty(NewPasswordText) Or String.IsNullOrEmpty(RePasswordText) Then
                 Await PopUp.Information("Failed", "Please fill in all fields")
                 Return
             End If
 
-            If Not user.PasswordHash = HashPassword(CurrentPasswordText) Then
-                Await PopUp.Information("Failed", "Current Password is Incorrect")
-                CurrentPasswordText = ""
-                Return
+            If _sessionManager.CurrentUser.Id = user.Id OrElse
+                Not _sessionManager.CurrentUser.Role = "Admin" Then
+
+                If CurrentPasswordText Is Nothing Then
+                    Await PopUp.Information("Failed", "Please fill in all fields")
+                    Return
+                End If
+
+                If String.IsNullOrEmpty(CurrentPasswordText) Then
+                    Await PopUp.Information("Failed", "Please fill in all fields")
+                    Return
+                End If
+
+                If Not user.PasswordHash = HashPassword(CurrentPasswordText) Then
+                    Await PopUp.Information("Failed", "Current Password is Incorrect")
+                    CurrentPasswordText = ""
+                    Return
+                End If
             End If
 
             If user.PasswordHash = HashPassword(NewPasswordText) Then
@@ -300,6 +324,9 @@ Public Class UserInformationViewModel
             End If
 
             Await Task.Run(Function() _activityService.AddActivity(_activity)).ConfigureAwait(True)
+            CurrentPasswordText = Nothing
+            NewPasswordText = Nothing
+            RePasswordText = Nothing
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationView] OnSavePassword Error: {ex.Message}")
         Finally
@@ -413,7 +440,8 @@ Public Class UserInformationViewModel
                     RoleSectionVisibility = Visibility.Collapsed
                     PasswordSectionVisibility = Visibility.Collapsed
                 End If
-
+            Else
+                CurrentPasswordVisibility = Visibility.Collapsed
             End If
 
             UpdateValues()

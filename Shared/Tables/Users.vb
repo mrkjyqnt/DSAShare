@@ -6,6 +6,7 @@ Public Class Users
     Public Property PasswordHash As String
     Public Property Role As String
     Public Property Status As String
+    Public Property AppAppearance As String
     Public Property CreatedAt As DateTime? = Nothing
 
     ''' <summary>

@@ -13,6 +13,8 @@ Partial Public Class SignInViewModel
     Private ReadOnly _authenticationService As IAuthenticationService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _regionManager As IRegionManager
+    Private ReadOnly _securityService As ISecurityService
+    Private ReadOnly _userService As IUserService
 
     Public ReadOnly Property SignInCommand As AsyncRelayCommand
     Public ReadOnly Property SignUpCommand As DelegateCommand
@@ -48,11 +50,15 @@ Partial Public Class SignInViewModel
 
     Public Sub New(authenticationService As IAuthenticationService,
                    sessionManager As ISessionManager,
-                   regionManager As IRegionManager)
+                   regionManager As IRegionManager,
+                   securityServuce As ISecurityService,
+                   userService As IUserService)
 
         _authenticationService = authenticationService
         _sessionManager = sessionManager
         _regionManager = regionManager
+        _securityService = securityServuce
+        _userService = userService
 
         SignInCommand = New AsyncRelayCommand(AddressOf OnSignInAsync)
         SignUpCommand = New DelegateCommand(AddressOf OnSignUp)
@@ -74,27 +80,41 @@ Partial Public Class SignInViewModel
                 Return
             End If
 
+            If Not Await _securityService.SecurityCheck() Then
+                Dim unlockTime = _securityService.GetLockUntil()
+                Dim formattedTime = unlockTime?.ToString("hh:mm tt") ' Example: "03:45 PM"
+                Await PopUp.Information("Failed", $"Logging in is temporarily locked until {formattedTime}. Please try again later.").ConfigureAwait(True)
+                Return
+            End If
+
+            If Not Await Task.Run(Function() _authenticationService.IsUsernameExist(Username)).ConfigureAwait(True) Then
+                Await PopUp.Information("Failed", "Username does not exist.").ConfigureAwait(True)
+                Return
+            End If
+
             Dim isAuthenticated = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True)
-            Await Task.Delay(1000).ConfigureAwait(True)
 
             If isAuthenticated Then
                 Await PopUp.Information("Success", "Login Success").ConfigureAwait(True)
+                _securityService.ResetAttempts()
 
                 Try
                     Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("MainRegion", "DashboardView"))
                 Catch ex As Exception
-                    Debug.WriteLine($"[DEBUG] Theres an error while navigating: {ex.Message}")
+                    Debug.WriteLine($"[DEBUG] Error while navigating: {ex.Message}")
                 End Try
             Else
-                Await PopUp.Information("Failed", "Invalid credentials.").ConfigureAwait(True)
+                _securityService.RecordAttempts()
+                Await PopUp.Information("Failed", "Wrong password.").ConfigureAwait(True)
             End If
 
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Theres an error while signing in: {ex.Message}")
+            Debug.WriteLine($"[DEBUG] Error while signing in: {ex.Message}")
         Finally
             Loading.Hide()
         End Try
     End Function
+
 
     Private Async Sub OnGuestLogin()
         Try

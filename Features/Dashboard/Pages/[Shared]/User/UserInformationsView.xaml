@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     mc:Ignorable="d">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
@@ -18,8 +18,8 @@
         <!--  Header  -->
         <Border
             Grid.Row="0"
-            Padding="{StaticResource Space-32}"
-            BorderBrush="{StaticResource BorderBrush}"
+            Padding="{DynamicResource Space-32}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="0,0,0,1">
             <StackPanel
                 HorizontalAlignment="Stretch"
@@ -35,21 +35,24 @@
                         <Button
                             Grid.Column="0"
                             Command="{Binding BackCommand}"
-                            Style="{StaticResource IconButton}">
+                            Style="{DynamicResource IconButton}">
                             <Button.Content>
-                                <Image Source="/Components/Images/back.png" />
+                                <Rectangle
+                                    Width="20"
+                                    Height="20"
+                                    Fill="{DynamicResource back}" />
                             </Button.Content>
                         </Button>
                         <TextBlock
                             Grid.Column="2"
                             VerticalAlignment="Center"
-                            Style="{StaticResource TitleText}"
+                            Style="{DynamicResource TitleText}"
                             Text="{Binding NameText}" />
                     </Grid>
                     <TextBlock
                         Grid.Column="2"
                         VerticalAlignment="Center"
-                        Style="{StaticResource TitleText}"
+                        Style="{DynamicResource TitleText}"
                         Text="Account"
                         Visibility="{Binding DefaultSettingsVisibility}" />
                 </StackPanel>
@@ -62,18 +65,24 @@
                         Content="Information"
                         GroupName="ViewGroup"
                         IsChecked="True"
-                        Style="{StaticResource DefaultToggleButton}" />
+                        Style="{DynamicResource DefaultToggleButton}" />
+                    <RadioButton
+                        Command="{Binding AppearanceCommand}"
+                        Content="Appearance"
+                        GroupName="ViewGroup"
+                        Style="{DynamicResource DefaultToggleButton}"
+                        Visibility="{Binding AppearanceButtonVisibility}" />
                     <RadioButton
                         Command="{Binding ActivitiesCommand}"
                         Content="Activities"
                         GroupName="ViewGroup"
-                        Style="{StaticResource DefaultToggleButton}"
+                        Style="{DynamicResource DefaultToggleButton}"
                         Visibility="{Binding ActivitiesButtonVisibility}" />
                     <RadioButton
                         Command="{Binding DangerZoneCommand}"
                         Content="Danger Zone"
                         GroupName="ViewGroup"
-                        Style="{StaticResource DefaultToggleButton}"
+                        Style="{DynamicResource DefaultToggleButton}"
                         Visibility="{Binding DangerZoneButtonVisibility}" />
                 </StackPanel>
             </StackPanel>

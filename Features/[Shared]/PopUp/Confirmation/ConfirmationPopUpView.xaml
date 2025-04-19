@@ -16,11 +16,11 @@
 
     <Border
         Width="300"
-        Padding="{StaticResource Space-16}"
-        Background="{StaticResource BackgroundBrush}"
-        BorderBrush="{StaticResource BorderBrush}"
+        Padding="{DynamicResource Space-16}"
+        Background="{DynamicResource BackgroundBrush}"
+        BorderBrush="{DynamicResource BorderBrush}"
         BorderThickness="1"
-        CornerRadius="{StaticResource SmallRadius}">
+        CornerRadius="{DynamicResource SmallRadius}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -29,11 +29,11 @@
                 <RowDefinition Height="16" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Style="{StaticResource SubTitleText}">Confirm Action</TextBlock>
+            <TextBlock Grid.Row="0" Style="{DynamicResource SubTitleText}">Confirm Action</TextBlock>
             <PasswordBox
                 Grid.Row="2"
                 local:PasswordBoxHelper.Password="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Style="{StaticResource DefaultPasswordBox}"
+                Style="{DynamicResource DefaultPasswordBox}"
                 Tag="Password" />
             <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
@@ -46,13 +46,13 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding EnterCommand}"
                     Content="Enter"
-                    Style="{StaticResource DefaultButton}" />
+                    Style="{DynamicResource DefaultButton}" />
                 <Button
                     Grid.Column="2"
                     HorizontalAlignment="Stretch"
                     Command="{Binding CancelCommand}"
                     Content="Cancel"
-                    Style="{StaticResource DefaultButton}" />
+                    Style="{DynamicResource DefaultButton}" />
             </Grid>
         </Grid>
     </Border>

@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     UseLayoutRounding="True"
     mc:Ignorable="d">
     <ScrollViewer
-        Padding="{StaticResource Space-32}"
+        Padding="{DynamicResource Space-32}"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Hidden">
         <Grid local:GridHelper.ColumnSpacing="32">
@@ -26,7 +26,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Row="0"
-                    Style="{StaticResource SubTitleText}"
+                    Style="{DynamicResource SubTitleText}"
                     Text="Danger Zone" />
                 <TextBlock
                     Grid.Row="2"
@@ -42,14 +42,14 @@
                 </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Row="0"
-                    Style="{StaticResource TitleBodyText}"
+                    Style="{DynamicResource TitleBodyText}"
                     Text="{Binding AvailabilityText}" />
                 <Button
                     Grid.Row="1"
                     HorizontalAlignment="Stretch"
                     Command="{Binding DisableFileCommand}"
                     Content="Disable"
-                    Style="{StaticResource DefaultButton}"
+                    Style="{DynamicResource DefaultButton}"
                     ToolTip="Temporarily disable the file"
                     Visibility="{Binding DisableButtonVisibility}" />
                 <Button
@@ -57,12 +57,12 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding EnableFileCommand}"
                     Content="Enable"
-                    Style="{StaticResource DefaultButton}"
+                    Style="{DynamicResource DefaultButton}"
                     ToolTip="Enable the file"
                     Visibility="{Binding EnableButtonVisibility}" />
                 <TextBlock
                     Grid.Row="2"
-                    Style="{StaticResource TitleBodyText}"
+                    Style="{DynamicResource TitleBodyText}"
                     Text="Permanently Delete File"
                     TextWrapping="Wrap" />
                 <Button
@@ -70,7 +70,7 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding DeleteFileCommand}"
                     Content="Delete File"
-                    Style="{StaticResource DefaultButton}"
+                    Style="{DynamicResource DangerButton}"
                     ToolTip="WARNING: This will delete the file permanently" />
             </Grid>
         </Grid>

@@ -6,12 +6,18 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!--  Global  -->
                 <ResourceDictionary Source="/Components/DefaultStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/TextblockStyle.xaml" />
+
+                <!--  Theme  -->
+                <ResourceDictionary Source="/Components/Theme/LightTheme.xaml" />
+                <ResourceDictionary Source="/Components/Theme/LightIcons.xaml" />
+
+                <!--  UI  -->
                 <ResourceDictionary Source="/Components/UI/ButtonStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/TextblockStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/TextBoxStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/PasswordboxStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/ImagesStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/ProgressBarStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/RadioButtonStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/CheckBoxStyle.xaml" />
@@ -20,6 +26,8 @@
                 <ResourceDictionary Source="/Components/UI/GridStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/DataGridStyle.xaml" />
                 <ResourceDictionary Source="/Components/UI/ToggleButtonStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/NavigationStyle.xaml" />
+                <ResourceDictionary Source="/Components/UI/ItemsControlStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

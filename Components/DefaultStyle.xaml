@@ -3,31 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <!--  Default Colors  -->
-    <Color x:Key="PrimaryColor">#DCDCDC</Color>
-    <Color x:Key="SecondaryColor">#DCDCDC</Color>
-    <Color x:Key="BackgroundColor">#FFFFFF</Color>
-    <Color x:Key="SecondaryBackgroundColor">#F0F0F0</Color>
-
-    <Color x:Key="BlackColor">#1A1A1A</Color>
-    <Color x:Key="WhiteColor">#FFFFFF</Color>
-    <Color x:Key="DangerColor">#FF4DA6</Color>
-    <Color x:Key="WarningColor">#E1B80D</Color>
-    <Color x:Key="SuccessColor">#6A8D73</Color>
-
-    <!--  Default Colors Definitions  -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}" />
-    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
-    <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="{StaticResource SecondaryBackgroundColor}" />
-    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource BlackColor}" />
-    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource BlackColor}" />
-    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BlackColor}" />
-    <SolidColorBrush x:Key="SecondaryBorderBrush" Color="{StaticResource SecondaryColor}" />
-    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}" />
-
-    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
-
     <!--  Default Font Family  -->
     <FontFamily x:Key="FontFamily">./FontFamily/#Inter Regular</FontFamily>
 

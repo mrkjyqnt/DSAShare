@@ -25,6 +25,11 @@ Public Class FileService
         _downloadService = downloadService
     End Sub
 
+    ''' <summary>
+    ''' Uploads file to server
+    ''' </summary>
+    ''' <param name="filesShared"></param>
+    ''' <returns></returns>
     Public Function UploadFile(filesShared As FilesShared) As FileResult Implements IFileService.UploadFile
         Dim destinationPath As String = ""
 
@@ -52,7 +57,7 @@ Public Class FileService
 
             File.Copy(filesShared.FilePath, destinationPath, False)
 
-            filesShared.FilePath = destinationPath
+            filesShared.FilePath = newFileName
 
             Dim insertSuccess = _fileSharedRepository.Insert(filesShared)
             If Not insertSuccess Then
@@ -74,7 +79,11 @@ Public Class FileService
         End Try
     End Function
 
-
+    ''' <summary>
+    ''' Download file from the server storage
+    ''' </summary>
+    ''' <param name="filesShared"></param>
+    ''' <returns></returns>
     Public Function DownloadFile(filesShared As FilesShared) As FileResult Implements IFileService.DownloadFile
         Dim destinationPath As String = ""
 
@@ -90,17 +99,17 @@ Public Class FileService
             End If
 
             ' Verify if file exists physically
-            If Not File.Exists(filesShared.FilePath) Then
+            If Not File.Exists(Path.Combine(_folderPath, filesShared.FilePath)) Then
                 Return New FileResult With {.Success = False, .Message = "File does not exist on the server"}
             End If
 
             ' Generate a unique file name in Downloads folder
             Dim downloadsFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) & "\Downloads"
-            Dim sourceFileName As String = Path.GetFileName(filesShared.FilePath)
+            Dim sourceFileName As String = filesShared.FilePath
             destinationPath = GetUniqueFilePath(downloadsFolder, sourceFileName)
 
             ' Attempt file download
-            _downloadService.StartDownloadAsync(filesShared.FilePath, destinationPath)
+            _downloadService.StartDownloadAsync(Path.Combine(_folderPath, filesShared.FilePath), destinationPath)
 
             ' Only update DownloadCount after successful download
             filesShared.DownloadCount += 1
@@ -188,15 +197,15 @@ Public Class FileService
             End If
 
             ' Then check if physical file exists and delete it
-            If File.Exists(filesShared.FilePath) Then
-                File.Delete(filesShared.FilePath)
+            If File.Exists(Path.Combine(_folderPath, filesShared.FilePath)) Then
+                File.Delete(Path.Combine(_folderPath, filesShared.FilePath))
             End If
 
             Return New FileResult With {.Success = True, .Message = "File successfully removed"}
 
         Catch ex As Exception
             ' Rollback: Reinsert the record if something went wrong during physical deletion
-            If Not File.Exists(filesShared.FilePath) Then
+            If Not File.Exists(Path.Combine(_folderPath, filesShared.FilePath)) Then
                 _fileSharedRepository.Insert(filesShared)
             End If
 
@@ -232,8 +241,8 @@ Public Class FileService
 
                     _fileDataService.RemoveAccessedFile(_fileDataService.GetAccessedFileByUserFile(New FilesAccessed With {.FileId = files.Id}))
 
-                    If File.Exists(files.FilePath) Then
-                        File.Delete(files.FilePath)
+                    If File.Exists(Path.Combine(_folderPath, files.FilePath)) Then
+                        File.Delete(Path.Combine(_folderPath, files.FilePath))
                     End If
                 Next
             End If

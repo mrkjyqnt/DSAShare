@@ -15,11 +15,11 @@
     </UserControl.InputBindings>
     <Border
         Width="300"
-        Padding="{StaticResource Space-16}"
-        Background="{StaticResource BackgroundBrush}"
-        BorderBrush="{StaticResource BorderBrush}"
+        Padding="{DynamicResource Space-16}"
+        Background="{DynamicResource BackgroundBrush}"
+        BorderBrush="{DynamicResource BorderBrush}"
         BorderThickness="1"
-        CornerRadius="{StaticResource SmallRadius}">
+        CornerRadius="{DynamicResource SmallRadius}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -30,7 +30,7 @@
                 <RowDefinition Height="16" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Style="{StaticResource SubTitleText}">Select Mode</TextBlock>
+            <TextBlock Grid.Row="0" Style="{DynamicResource SubTitleText}">Select Mode</TextBlock>
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -41,17 +41,17 @@
                     Grid.Row="0"
                     Content="Code"
                     IsChecked="{Binding IsCodeSelected}"
-                    Style="{StaticResource DefaultRadioButton}" />
+                    Style="{DynamicResource DefaultRadioButton}" />
                 <RadioButton
                     Grid.Row="2"
                     HorizontalAlignment="Stretch"
                     Content="Word"
                     IsChecked="{Binding IsWordSelected}"
-                    Style="{StaticResource DefaultRadioButton}" />
+                    Style="{DynamicResource DefaultRadioButton}" />
             </Grid>
             <TextBox
                 Grid.Row="4"
-                Style="{StaticResource DefaultTextbox}"
+                Style="{DynamicResource DefaultTextbox}"
                 Tag="Type Here"
                 Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
             <Grid Grid.Row="6">
@@ -65,13 +65,13 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding EnterCommand}"
                     Content="Enter"
-                    Style="{StaticResource DefaultButton}" />
+                    Style="{DynamicResource DefaultButton}" />
                 <Button
                     Grid.Column="2"
                     HorizontalAlignment="Stretch"
                     Command="{Binding CancelCommand}"
                     Content="Cancel"
-                    Style="{StaticResource DefaultButton}" />
+                    Style="{DynamicResource DefaultButton}" />
             </Grid>
         </Grid>
     </Border>

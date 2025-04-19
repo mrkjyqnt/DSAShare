@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     UseLayoutRounding="True"
     mc:Ignorable="d">
 
@@ -31,8 +31,8 @@
             <Grid>
                 <avalonEdit:TextEditor
                     local:TextEditorHelper.BindableText="{Binding PreviewContent, Mode=TwoWay}"
-                    Background="{StaticResource BackgroundBrush}"
-                    Foreground="{StaticResource TextBrush}"
+                    Background="{DynamicResource BackgroundBrush}"
+                    Foreground="{DynamicResource TextBrush}"
                     IsReadOnly="True"
                     ScrollViewer.CanContentScroll="False"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -50,7 +50,7 @@
             <Grid
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                Background="{StaticResource BackgroundBrush}">
+                Background="{DynamicResource BackgroundBrush}">
                 <StackPanel
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -64,7 +64,7 @@
                     <TextBlock
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Style="{StaticResource BodyText}"
+                        Style="{DynamicResource BodyText}"
                         Text="No preview available" />
                 </StackPanel>
             </Grid>
@@ -86,16 +86,16 @@
         <!--  Left side remains unchanged  -->
         <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
             <Border
-                Padding="{StaticResource Space-32}"
-                BorderBrush="{StaticResource BorderBrush}"
+                Padding="{DynamicResource Space-32}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="0,0,1,0">
                 <StackPanel local:StackPanelHelper.Spacing="32">
-                    <TextBlock Style="{StaticResource SubTitleText}" Text="Details" />
+                    <TextBlock Style="{DynamicResource SubTitleText}" Text="Details" />
                     <StackPanel
                         HorizontalAlignment="Stretch"
                         local:StackPanelHelper.Spacing="16"
                         Orientation="Vertical">
-                        <TextBlock Style="{StaticResource TitleBodyText}" Text="Options" />
+                        <TextBlock Style="{DynamicResource TitleBodyText}" Text="Options" />
                         <StackPanel HorizontalAlignment="Stretch">
 
                             <Grid local:GridHelper.ColumnSpacing="16" Visibility="{Binding AccessButtonVisibility}">
@@ -108,14 +108,14 @@
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding SaveAccessCommand}"
                                         Content="Save Access"
-                                        Style="{StaticResource DefaultButton}"
+                                        Style="{DynamicResource PrimaryButton}"
                                         ToolTip="Save this to accessed files"
                                         Visibility="{Binding SaveAccessButtonVisibility}" />
                                     <Button
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding RemoveAccessCommand}"
                                         Content="Remove Access"
-                                        Style="{StaticResource DefaultButton}"
+                                        Style="{DynamicResource DangerButton}"
                                         ToolTip="Remove your access"
                                         Visibility="{Binding RemoveAccessButtonVisibility}" />
                                 </Grid>
@@ -124,7 +124,7 @@
                                     HorizontalAlignment="Stretch"
                                     Command="{Binding DownloadCommand}"
                                     Content="Download"
-                                    Style="{StaticResource DefaultButton}"
+                                    Style="{DynamicResource DefaultButton}"
                                     ToolTip="Download the file" />
                             </Grid>
                             <Button
@@ -132,7 +132,7 @@
                                 HorizontalAlignment="Stretch"
                                 Command="{Binding DownloadCommand}"
                                 Content="Download"
-                                Style="{StaticResource DefaultButton}"
+                                Style="{DynamicResource DefaultButton}"
                                 ToolTip="Download the file"
                                 Visibility="{Binding DownloadButtonVisibility}" />
                         </StackPanel>
@@ -148,12 +148,12 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            FontFamily="{StaticResource InterMedium}"
+                            FontFamily="{DynamicResource InterMedium}"
                             Text="Encryption" />
                         <Border
                             Grid.Row="1"
                             Padding="0"
-                            Style="{StaticResource DefaultBorder}">
+                            Style="{DynamicResource DefaultBorder}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -161,39 +161,40 @@
                                 </Grid.ColumnDefinitions>
                                 <Border
                                     Grid.Column="0"
-                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="0,0,1,0">
                                     <TextBlock
-                                        Padding="{StaticResource Space-16}"
-                                        FontFamily="{StaticResource InterMedium}"
+                                        Padding="{DynamicResource Space-16}"
+                                        FontFamily="{DynamicResource InterMedium}"
                                         Text="{Binding ShareTypeText}" />
                                 </Border>
                                 <Border Grid.Column="1">
                                     <TextBlock
-                                        Padding="{StaticResource Space-16}"
-                                        Style="{StaticResource BodyText}"
+                                        Padding="{DynamicResource Space-16}"
+                                        Style="{DynamicResource BodyText}"
                                         Text="{Binding ShareValueText}" />
                                 </Border>
                             </Grid>
                         </Border>
                     </Grid>
                     <StackPanel local:StackPanelHelper.Spacing="8" Orientation="Vertical">
-                        <TextBlock FontFamily="{StaticResource InterMedium}" Text="Description" />
+                        <TextBlock FontFamily="{DynamicResource InterMedium}" Text="Description" />
                         <TextBlock
-                            Style="{StaticResource BodyText}"
+                            Style="{DynamicResource BodyText}"
                             Text="{Binding DescriptionText}"
                             TextWrapping="Wrap" />
                         <DataGrid
                             local:ScrollHelper.BubbleScroll="True"
                             AutoGenerateColumns="False"
+                            IsReadOnly="True"
                             ItemsSource="{Binding DataGridFileDetails}"
-                            Style="{StaticResource DefaultDataGrid}">
+                            Style="{DynamicResource DefaultDataGrid}">
 
                             <DataGrid.Columns>
                                 <DataGridTextColumn
                                     Width="*"
                                     Binding="{Binding Key}"
-                                    FontFamily="{StaticResource InterMedium}">
+                                    FontFamily="{DynamicResource InterMedium}">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
@@ -221,9 +222,9 @@
             Grid.Column="1"
             Width="400"
             MaxWidth="400"
-            Padding="{StaticResource Space-32}"
-            Background="{StaticResource BackgroundBrush}"
-            BorderBrush="{StaticResource BorderBrush}"
+            Padding="{DynamicResource Space-32}"
+            Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="0,0,1,0">
             <Grid>
                 <Grid.RowDefinitions>
@@ -233,14 +234,14 @@
                 </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Row="0"
-                    Style="{StaticResource SubTitleText}"
+                    Style="{DynamicResource SubTitleText}"
                     Text="Preview" />
                 <Border
                     Grid.Row="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    Background="{StaticResource SecondaryBrush}"
-                    BorderBrush="{StaticResource BorderBrush}"
+                    Background="{DynamicResource SecondaryBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1">
                     <Grid>
                         <!--  Preview Content  -->
@@ -275,13 +276,13 @@
                         <Grid
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            Background="{StaticResource BackgroundBrush}"
+                            Background="{DynamicResource BackgroundBrush}"
                             Visibility="{Binding PreviewContent, Converter={StaticResource NullToVisibilityConverter}}">
                             <TextBlock
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                FontSize="{StaticResource LabelSize}"
-                                Style="{StaticResource LabelText}"
+                                FontSize="{DynamicResource LabelSize}"
+                                Style="{DynamicResource LabelText}"
                                 Text="Loading preview..."
                                 TextAlignment="Center" />
                         </Grid>

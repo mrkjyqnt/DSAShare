@@ -9,13 +9,12 @@
     HorizontalAlignment="Stretch"
     VerticalAlignment="Stretch"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource BackgroundBrush}"
     UseLayoutRounding="True"
     mc:Ignorable="d">
     <Grid>
-        <Image
+        <Rectangle
             Width="32"
             Height="32"
-            Source="/Components/Images/logo.png" />
+            Fill="{DynamicResource public-filled}" />
     </Grid>
 </UserControl>

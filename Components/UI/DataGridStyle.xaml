@@ -6,10 +6,12 @@
 
     <!--  DataGrid Style  -->
     <Style x:Key="DefaultDataGrid" TargetType="{x:Type DataGrid}">
-        <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="GridLinesVisibility" Value="All" />
+        <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource BorderBrush}" />
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource BorderBrush}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HeadersVisibility" Value="Column" />
         <Setter Property="RowBackground" Value="Transparent" />
@@ -55,11 +57,11 @@
                                     <Border
                                         Grid.Row="1"
                                         Margin="0"
-                                        Background="{StaticResource BackgroundBrush}"
-                                        BorderBrush="{StaticResource BorderBrush}"
+                                        Background="{DynamicResource BackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
                                         ClipToBounds="True"
-                                        CornerRadius="{StaticResource SmallRadius}"
+                                        CornerRadius="{DynamicResource SmallRadius}"
                                         SnapsToDevicePixels="True">
                                         <Border Margin="0,0,0,-2.5" ClipToBounds="True">
                                             <Grid>
@@ -95,9 +97,9 @@
         <Setter Property="ColumnHeaderStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="Padding" Value="{StaticResource Space-16}" />
-                    <Setter Property="FontSize" Value="{StaticResource LabelSize}" />
-                    <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+                    <Setter Property="Padding" Value="{DynamicResource Space-16}" />
+                    <Setter Property="FontSize" Value="{DynamicResource LabelSize}" />
+                    <Setter Property="FontFamily" Value="{DynamicResource InterRegular}" />
                     <Setter Property="Background" Value="Transparent" />
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -136,15 +138,15 @@
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridCell}">
                     <Setter Property="Margin" Value="0,0,-2,0" />
-                    <Setter Property="Padding" Value="{StaticResource Space-16}" />
-                    <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
-                    <Setter Property="FontSize" Value="{StaticResource BodySize}" />
+                    <Setter Property="Padding" Value="{DynamicResource Space-16}" />
+                    <Setter Property="FontFamily" Value="{DynamicResource InterRegular}" />
+                    <Setter Property="FontSize" Value="{DynamicResource BodySize}" />
                     <Setter Property="FontWeight" Value="Normal" />
-                    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Setter Property="VerticalContentAlignment" Value="Center" />
                     <Setter Property="Background" Value="Transparent" />
-                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
                     <Setter Property="BorderThickness" Value="0" />
                     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                     <Setter Property="Template">

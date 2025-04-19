@@ -17,15 +17,15 @@
 
         <Border
             Grid.Row="0"
-            Padding="{StaticResource Space-32}"
-            BorderBrush="{StaticResource BorderBrush}"
+            Padding="{DynamicResource Space-32}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="0,0,0,1">
-            <TextBlock Style="{StaticResource TitleText}">Welcome to DSA Share</TextBlock>
+            <TextBlock Style="{DynamicResource TitleText}">Welcome to DSA Share</TextBlock>
         </Border>
 
         <ScrollViewer Grid.Row="1">
             <Border
-                Padding="{StaticResource Space-32}"
+                Padding="{DynamicResource Space-32}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
 
@@ -38,15 +38,15 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Style="{StaticResource DefaultBorder}">
+                    <Border Grid.Row="0" Style="{DynamicResource DefaultBorder}">
                         <Grid HorizontalAlignment="Center">
                             <Grid.RowDefinitions>
                                 <RowDefinition />
                                 <RowDefinition Height="10" />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Style="{StaticResource BodyText}">Share your files across your network</TextBlock>
-                            <Grid Grid.Row="2">
+                            <TextBlock Grid.Row="0" Style="{DynamicResource BodyText}">Share your files across your network</TextBlock>
+                            <Grid Grid.Row="2" HorizontalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="10" />
@@ -56,13 +56,13 @@
                                     Grid.Column="0"
                                     Command="{Binding ShareFilesCommand}"
                                     Content="Share File"
-                                    Style="{StaticResource DefaultButton}"
+                                    Style="{DynamicResource PrimaryButton}"
                                     ToolTip="Share a file" />
                                 <Button
                                     Grid.Column="2"
                                     Command="{Binding AccessFilesCommand}"
                                     Content="Access File"
-                                    Style="{StaticResource DefaultButton}"
+                                    Style="{DynamicResource PrimaryButton}"
                                     ToolTip="Access a file" />
                             </Grid>
                         </Grid>
@@ -76,7 +76,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource SubTitleText}"
+                            Style="{DynamicResource SubTitleText}"
                             Text="Total Files" />
                         <Grid Grid.Row="2" local:GridHelper.ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
@@ -85,7 +85,7 @@
                             </Grid.ColumnDefinitions>
                             <Border
                                 Grid.Column="0"
-                                Style="{StaticResource DefaultBorder}"
+                                Style="{DynamicResource DefaultBorder}"
                                 ToolTip="Total files you shared">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -95,17 +95,17 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Row="0"
-                                        Style="{StaticResource BodyText}"
+                                        Style="{DynamicResource BodyText}"
                                         Text="Shared" />
                                     <TextBlock
                                         Grid.Row="2"
-                                        Style="{StaticResource TitleText}"
+                                        Style="{DynamicResource TitleText}"
                                         Text="{Binding SharedText}" />
                                 </Grid>
                             </Border>
                             <Border
                                 Grid.Column="2"
-                                Style="{StaticResource DefaultBorder}"
+                                Style="{DynamicResource DefaultBorder}"
                                 ToolTip="Total files you accessed">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -115,11 +115,11 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Row="0"
-                                        Style="{StaticResource BodyText}"
+                                        Style="{DynamicResource BodyText}"
                                         Text="Accessed" />
                                     <TextBlock
                                         Grid.Row="2"
-                                        Style="{StaticResource TitleText}"
+                                        Style="{DynamicResource TitleText}"
                                         Text="{Binding AccessedText}" />
                                 </Grid>
                             </Border>
@@ -136,7 +136,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource SubTitleText}"
+                            Style="{DynamicResource SubTitleText}"
                             Text="Recent Activities" />
                         <Border Grid.Row="1">
                             <DataGrid
@@ -144,7 +144,7 @@
                                 AutoGenerateColumns="False"
                                 ItemsSource="{Binding DataGridActivities}"
                                 SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
-                                Style="{StaticResource DefaultDataGrid}">
+                                Style="{DynamicResource DefaultDataGrid}">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Width="*" IsReadOnly="True">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -155,12 +155,12 @@
                                                         <TextBlock Text=" " />
                                                         <TextBlock
                                                             MaxWidth="250"
-                                                            FontFamily="{StaticResource InterMedium}"
+                                                            FontFamily="{DynamicResource InterMedium}"
                                                             Text="{Binding Name}"
                                                             TextTrimming="CharacterEllipsis"
                                                             ToolTip="{Binding Name}" />
                                                     </StackPanel>
-                                                    <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
+                                                    <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text="{Binding ActionAt}" />
                                                 </StackPanel>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>

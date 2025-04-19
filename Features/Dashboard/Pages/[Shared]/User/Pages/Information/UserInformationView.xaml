@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     UseLayoutRounding="True"
     mc:Ignorable="d">
     <ScrollViewer
-        Padding="{StaticResource Space-32}"
+        Padding="{DynamicResource Space-32}"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Hidden">
         <StackPanel local:StackPanelHelper.Spacing="32">
@@ -28,7 +28,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource SubTitleText}"
+                            Style="{DynamicResource SubTitleText}"
                             Text="Information" />
                     </Grid>
                     <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
@@ -43,33 +43,33 @@
                             Grid.Row="0"
                             local:StackPanelHelper.Spacing="8"
                             Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource TitleBodyText}" Text="Username" />
+                            <TextBlock Style="{DynamicResource TitleBodyText}" Text="Username" />
                             <TextBlock
                                 VerticalAlignment="Center"
-                                Style="{StaticResource BodyText}"
+                                Style="{DynamicResource BodyText}"
                                 Text="(Cannot be changed)" />
                         </StackPanel>
                         <TextBox
                             Grid.Row="1"
                             VerticalAlignment="Stretch"
                             IsEnabled="False"
-                            Style="{StaticResource DefaultTextbox}"
+                            Style="{DynamicResource DefaultTextbox}"
                             Text="{Binding UsernameText}" />
                         <TextBlock
                             Grid.Row="2"
-                            Style="{StaticResource TitleBodyText}"
+                            Style="{DynamicResource TitleBodyText}"
                             Text="Name" />
                         <TextBox
                             Grid.Row="3"
                             VerticalAlignment="Stretch"
-                            Style="{StaticResource DefaultTextbox}"
+                            Style="{DynamicResource DefaultTextbox}"
                             Text="{Binding NameText}" />
                         <Button
                             Grid.Row="4"
                             HorizontalAlignment="Stretch"
                             Command="{Binding InformationSaveButtonCommand}"
                             Content="Save Changes"
-                            Style="{StaticResource DefaultButton}"
+                            Style="{DynamicResource DefaultButton}"
                             ToolTip="Save Information Changes" />
                         <Grid.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding InformationSaveButtonCommand}" />
@@ -79,7 +79,7 @@
                 <Rectangle
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    Stroke="{StaticResource SecondaryBrush}" />
+                    Stroke="{DynamicResource SecondaryBrush}" />
             </StackPanel>
             <StackPanel local:StackPanelHelper.Spacing="32" Visibility="{Binding PasswordSectionVisibility}">
                 <Grid local:GridHelper.ColumnSpacing="32">
@@ -94,7 +94,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource SubTitleText}"
+                            Style="{DynamicResource SubTitleText}"
                             Text="Password" />
                     </Grid>
                     <Grid
@@ -108,51 +108,51 @@
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock
+                        <StackPanel
                             Grid.Row="0"
-                            Style="{StaticResource TitleBodyText}"
-                            Text="Current Password" />
-                        <PasswordBox
-                            Grid.Row="1"
-                            local:PasswordBoxHelper.Password="{Binding CurrentPasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Style="{StaticResource DefaultPasswordBox}"
-                            TabIndex="0"
-                            Tag="Enter Current Password" />
+                            local:StackPanelHelper.Spacing="16"
+                            Visibility="{Binding CurrentPasswordVisibility}">
+                            <TextBlock Style="{DynamicResource TitleBodyText}" Text="Current Password" />
+                            <PasswordBox
+                                local:PasswordBoxHelper.Password="{Binding CurrentPasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{DynamicResource DefaultPasswordBox}"
+                                TabIndex="0"
+                                Tag="Enter Current Password" />
+                        </StackPanel>
                         <TextBlock
-                            Grid.Row="2"
-                            Style="{StaticResource TitleBodyText}"
+                            Grid.Row="1"
+                            Style="{DynamicResource TitleBodyText}"
                             Text="New-Password" />
                         <PasswordBox
-                            Grid.Row="3"
+                            Grid.Row="2"
                             local:PasswordBoxHelper.Password="{Binding NewPasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Style="{StaticResource DefaultPasswordBox}"
+                            Style="{DynamicResource DefaultPasswordBox}"
                             TabIndex="1"
                             Tag="Enter New Password" />
                         <TextBlock
-                            Grid.Row="4"
-                            Style="{StaticResource TitleBodyText}"
+                            Grid.Row="3"
+                            Style="{DynamicResource TitleBodyText}"
                             Text="Re-Password" />
                         <PasswordBox
-                            Grid.Row="5"
+                            Grid.Row="4"
                             local:PasswordBoxHelper.Password="{Binding RePasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Style="{StaticResource DefaultPasswordBox}"
+                            Style="{DynamicResource DefaultPasswordBox}"
                             TabIndex="2"
                             Tag="Enter Re-Password" />
                         <Button
-                            Grid.Row="6"
+                            Grid.Row="5"
                             HorizontalAlignment="Stretch"
                             Command="{Binding PasswordSaveButtonCommand}"
-                            Content="Save Chnages"
-                            Style="{StaticResource DefaultButton}"
+                            Content="Save Changes"
+                            Style="{DynamicResource DefaultButton}"
                             ToolTip="Save Password Changes" />
                         <Grid.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding PasswordSaveButtonCommand}" />
                         </Grid.InputBindings>
                     </Grid>
                 </Grid>
-                <Rectangle VerticalAlignment="Center" Stroke="{StaticResource SecondaryBrush}" />
+                <Rectangle VerticalAlignment="Center" Stroke="{DynamicResource SecondaryBrush}" />
             </StackPanel>
             <StackPanel local:StackPanelHelper.Spacing="32" Visibility="{Binding RoleSectionVisibility}">
                 <Grid local:GridHelper.ColumnSpacing="32">
@@ -167,7 +167,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource SubTitleText}"
+                            Style="{DynamicResource SubTitleText}"
                             Text="Role" />
                     </Grid>
                     <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
@@ -178,27 +178,27 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource TitleBodyText}"
+                            Style="{DynamicResource TitleBodyText}"
                             Text="Roles" />
                         <Border
                             Grid.Row="1"
                             Padding="0"
-                            Style="{StaticResource DefaultBorder}">
+                            Style="{DynamicResource DefaultBorder}">
                             <StackPanel>
-                                <Border BorderBrush="{StaticResource BlackBrush}" BorderThickness="0,0,0,1">
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                                     <RadioButton
-                                        Margin="{StaticResource Space-16}"
+                                        Margin="{DynamicResource Space-16}"
                                         Content="Member"
                                         GroupName="Role"
                                         IsChecked="{Binding IsMemberSelected, UpdateSourceTrigger=PropertyChanged}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                 </Border>
                                 <RadioButton
-                                    Margin="{StaticResource Space-16}"
+                                    Margin="{DynamicResource Space-16}"
                                     Content="Administrator"
                                     GroupName="Role"
                                     IsChecked="{Binding IsAdminSelected, UpdateSourceTrigger=PropertyChanged}"
-                                    Style="{StaticResource DefaultRadioButton}" />
+                                    Style="{DynamicResource DefaultRadioButton}" />
                             </StackPanel>
                         </Border>
                         <Button
@@ -206,14 +206,14 @@
                             HorizontalAlignment="Stretch"
                             Command="{Binding RoleSaveButtonCommand}"
                             Content="Save Changes"
-                            Style="{StaticResource DefaultButton}"
+                            Style="{DynamicResource DefaultButton}"
                             ToolTip="Save Password Changes" />
                         <Grid.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding RoleSaveButtonCommand}" />
                         </Grid.InputBindings>
                     </Grid>
                 </Grid>
-                <Rectangle VerticalAlignment="Center" Stroke="{StaticResource SecondaryBrush}" />
+                <Rectangle VerticalAlignment="Center" Stroke="{DynamicResource SecondaryBrush}" />
             </StackPanel>
             <StackPanel local:StackPanelHelper.Spacing="32">
                 <Grid local:GridHelper.ColumnSpacing="32">
@@ -228,7 +228,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource SubTitleText}"
+                            Style="{DynamicResource SubTitleText}"
                             Text="Logging" />
                     </Grid>
                     <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
@@ -238,14 +238,14 @@
                         </Grid.RowDefinitions>
                         <TextBlock
                             Grid.Row="0"
-                            Style="{StaticResource TitleBodyText}"
+                            Style="{DynamicResource TitleBodyText}"
                             Text="Sign Out" />
                         <Button
                             Grid.Row="1"
                             HorizontalAlignment="Stretch"
                             Command="{Binding SignOutButtonCommand}"
                             Content="Sign Out Account"
-                            Style="{StaticResource DefaultButton}"
+                            Style="{DynamicResource DefaultButton}"
                             ToolTip="Sign out account" />
                     </Grid>
                 </Grid>

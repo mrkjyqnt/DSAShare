@@ -13,7 +13,6 @@ Public Class NavigationViewModel
     Private _lastMenuItem As NavigationItemModel
     Private _navSelectionCommand As DelegateCommand(Of NavigationItemModel)
 
-    ' Navigation command
     Public Property NavSelectionCommand As DelegateCommand(Of NavigationItemModel)
         Get
             Return _navSelectionCommand
@@ -23,7 +22,6 @@ Public Class NavigationViewModel
         End Set
     End Property
 
-    ' Regular menu items
     Public Property MenuItems As List(Of NavigationItemModel)
         Get
             Return _menuItems
@@ -33,7 +31,6 @@ Public Class NavigationViewModel
         End Set
     End Property
 
-    ' Separate property for the Account button
     Public Property LastMenuItem As NavigationItemModel
         Get
             Return _lastMenuItem
@@ -48,13 +45,12 @@ Public Class NavigationViewModel
         _navigationListService = navigationService
         _eventAggregator = eventAggregator
 
-        ' Initialize the navigation command
         NavSelectionCommand = New DelegateCommand(Of NavigationItemModel)(AddressOf OnNavigationSelection)
 
         Load()
 
-        ' Subscribe to the NavigationSelectionEvent
         _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Subscribe(AddressOf SetSelection)
+        _eventAggregator.GetEvent(Of ThemeChangedEvent)().Subscribe(AddressOf OnThemeChanged)
     End Sub
 
     Private Async Sub Load()
@@ -81,7 +77,7 @@ Public Class NavigationViewModel
         For Each item In MenuItems
             item.IsSelected = False
         Next
-        LastMenuItem.IsSelected = False 
+        LastMenuItem.IsSelected = False
 
         selectedItem.IsSelected = True
 
@@ -113,5 +109,15 @@ Public Class NavigationViewModel
         ' Notify UI of property changes
         RaisePropertyChanged(NameOf(MenuItems))
         RaisePropertyChanged(NameOf(LastMenuItem))
+    End Sub
+
+    Private Sub OnThemeChanged(theme As AppTheme)
+        If MenuItems Is Nothing Then Exit Sub
+
+        For Each item In MenuItems
+            item.RefreshIcons()
+        Next
+
+        RaisePropertyChanged(NameOf(MenuItems))
     End Sub
 End Class

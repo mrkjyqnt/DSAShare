@@ -1,0 +1,97 @@
+﻿<UserControl
+    x:Class="UserAppearanceView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DSAShare"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
+    UseLayoutRounding="True"
+    mc:Ignorable="d">
+    <ScrollViewer
+        Padding="{DynamicResource Space-32}"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Hidden">
+        <StackPanel local:StackPanelHelper.Spacing="32">
+            <StackPanel local:StackPanelHelper.Spacing="32">
+                <Grid local:GridHelper.ColumnSpacing="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="260" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0" local:GridHelper.RowSpacing="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Style="{DynamicResource SubTitleText}"
+                            Text="Appearance" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Style="{DynamicResource BodyText}"
+                            Text="Customize your application appearance"
+                            TextWrapping="Wrap" />
+                    </Grid>
+                    <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Style="{DynamicResource TitleBodyText}"
+                            Text="Appearance" />
+                        <Border
+                            Grid.Row="1"
+                            Padding="0"
+                            Style="{DynamicResource DefaultBorder}">
+                            <StackPanel>
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                                    <RadioButton
+                                        Margin="{DynamicResource Space-16}"
+                                        Checked="RadioButton_Checked"
+                                        Content="Light"
+                                        GroupName="Appearance"
+                                        IsChecked="{Binding IsLightModeSelected, UpdateSourceTrigger=PropertyChanged}"
+                                        Style="{DynamicResource DefaultRadioButton}"
+                                        ToolTip="Light Mode Apperance" />
+                                </Border>
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                                    <RadioButton
+                                        Margin="{DynamicResource Space-16}"
+                                        Content="Dark"
+                                        GroupName="Appearance"
+                                        IsChecked="{Binding IsDarkModeSelected, UpdateSourceTrigger=PropertyChanged}"
+                                        Style="{DynamicResource DefaultRadioButton}"
+                                        ToolTip="Dark Mode Apperance" />
+                                </Border>
+                                <RadioButton
+                                    Margin="{DynamicResource Space-16}"
+                                    Content="System"
+                                    GroupName="Appearance"
+                                    IsChecked="{Binding IsSystemModeSelected, UpdateSourceTrigger=PropertyChanged}"
+                                    Style="{DynamicResource DefaultRadioButton}"
+                                    ToolTip="Apply system dynamic settings" />
+                            </StackPanel>
+                        </Border>
+                        <Button
+                            Grid.Row="2"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding SaveButtonCommand}"
+                            Content="Save Changes"
+                            Style="{DynamicResource DefaultButton}"
+                            ToolTip="Save Password Changes" />
+                        <Grid.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SaveButtonCommand}" />
+                        </Grid.InputBindings>
+                    </Grid>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

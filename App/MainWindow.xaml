@@ -10,9 +10,8 @@
     MinWidth="1000"
     MinHeight="700"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     BorderBrush="{DynamicResource BorderBrush}"
-    Icon="/Components/Images/logo.png"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -24,7 +23,7 @@
             x:Name="Fallback"
             Panel.ZIndex="1"
             Visibility="Collapsed">
-            <Border Background="{StaticResource BackgroundBrush}" />
+            <Border Background="{DynamicResource BackgroundBrush}" />
             <ContentControl
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
@@ -36,7 +35,7 @@
             x:Name="Loading"
             Panel.ZIndex="1"
             Visibility="Collapsed">
-            <Border Background="#E5FFFFFF" />
+            <Border Background="{DynamicResource TransparentBackgroundBrush}" />
             <ContentControl
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
@@ -47,7 +46,7 @@
             x:Name="PopUp"
             Panel.ZIndex="1"
             Visibility="Collapsed">
-            <Border Background="#E5FFFFFF" />
+            <Border Background="{DynamicResource TransparentBackgroundBrush}" />
             <ContentControl
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"

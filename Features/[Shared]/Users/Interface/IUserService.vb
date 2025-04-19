@@ -5,4 +5,5 @@
     Function DeleteUser(user As Users) As Boolean
     Function GetAllUsers() As List(Of Users)
     Function CheckStatus() As Boolean
+    Function GetUserByUsername(user As Users) As Users
 End Interface

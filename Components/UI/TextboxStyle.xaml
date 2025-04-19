@@ -1,14 +1,15 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style x:Key="DefaultTextbox" TargetType="TextBox">
-        <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Margin" Value="0" />
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-        <Setter Property="Padding" Value="{StaticResource Space-16}" />
-        <Setter Property="FontSize" Value="{StaticResource BodySize}" />
-        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+        <Setter Property="Padding" Value="{DynamicResource Space-16}" />
+        <Setter Property="FontSize" Value="{DynamicResource BodySize}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterRegular}" />
         <Setter Property="MinHeight" Value="52" />
         <Setter Property="Template">
             <Setter.Value>
@@ -21,13 +22,13 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{StaticResource SmallRadius}" />
-                        <Border Padding="{StaticResource Space-16}" VerticalAlignment="Top">
+                            CornerRadius="{DynamicResource SmallRadius}" />
+                        <Border Padding="{DynamicResource Space-16}" VerticalAlignment="Top">
                             <TextBlock
                                 x:Name="PlaceholderText"
                                 VerticalAlignment="Center"
                                 FontFamily="{TemplateBinding FontFamily}"
-                                Foreground="{StaticResource SecondaryBrush}"
+                                Foreground="{DynamicResource SecondaryBrush}"
                                 IsHitTestVisible="False"
                                 Text="{TemplateBinding Tag}"
                                 Visibility="Collapsed" />

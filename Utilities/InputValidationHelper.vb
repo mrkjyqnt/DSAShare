@@ -5,7 +5,7 @@ Module InputValidationHelper
     Private ReadOnly WordPattern As String = "^[A-Za-z]*$"
     Private ReadOnly CodePattern As String = "^\d*(\.\d{0,8})?$"
     Private ReadOnly EmailPattern As String = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-    Private ReadOnly PhonePattern As String = "^\d{10}$" ' Example: 10-digit phone number
+    Private ReadOnly PhonePattern As String = "^\d{10}$" 
     Private ReadOnly UsernamePattern As String = "^[a-z0-9_]*$"
 
     ' Validate input based on the selected option

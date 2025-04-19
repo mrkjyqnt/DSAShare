@@ -23,6 +23,7 @@ Public Class UserInformationsViewModel
     Private _otherSettingsVisibility As Visibility
     Private _dangerZoneButtonVisibility As Visibility
     Private _activitiesButtonVisibility As Visibility
+    Private _appearanceButtonVisibility As Visibility
     Private _nameText As String
 
     Public Property DefaultSettingsVisibility As Visibility
@@ -52,6 +53,14 @@ Public Class UserInformationsViewModel
         End Set
     End Property
 
+    Public Property AppearanceButtonVisibility As Visibility
+        Get
+            Return _appearanceButtonVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_appearanceButtonVisibility, value)
+        End Set
+    End Property
     Public Property ActivitiesButtonVisibility As Visibility
         Get
             Return _activitiesButtonVisibility
@@ -72,6 +81,7 @@ Public Class UserInformationsViewModel
 
     Public ReadOnly Property BackCommand As DelegateCommand
     Public ReadOnly Property InformationCommand As DelegateCommand
+    Public ReadOnly Property AppearanceCommand As DelegateCommand
     Public ReadOnly Property DangerZoneCommand As DelegateCommand
     Public ReadOnly Property ActivitiesCommand As DelegateCommand
 
@@ -88,6 +98,7 @@ Public Class UserInformationsViewModel
 
         BackCommand = New DelegateCommand(AddressOf OnBack)
         InformationCommand = New DelegateCommand(AddressOf OnInformationSelected)
+        AppearanceCommand = New DelegateCommand(AddressOf OnAppearanceSelected)
         DangerZoneCommand = New DelegateCommand(AddressOf OnDangerZoneSelected)
         ActivitiesCommand = New DelegateCommand(AddressOf OnActivitiesSelected)
     End Sub
@@ -116,6 +127,21 @@ Public Class UserInformationsViewModel
         End Try
     End Sub
 
+    Public Async Sub OnAppearanceSelected()
+        Try
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserAppearanceView", _parameters))
+        Catch ex As Exception
+            Debug.WriteLine($"[DEBUG] OnAppearanceSelected Error navigating to UserAppearanceView")
+        End Try
+    End Sub
+
     Public Async Sub OnDangerZoneSelected()
         Try
             If Not _userService.CheckStatus Then
@@ -127,7 +153,7 @@ Public Class UserInformationsViewModel
 
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserDangerZoneView", _parameters))
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to FileDangerZoneView")
+            Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to UserDangerZoneView")
         End Try
     End Sub
 
@@ -142,7 +168,7 @@ Public Class UserInformationsViewModel
 
             Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("UserPageRegion", "UserActivitiesView", _parameters))
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to FileDangerZoneView")
+            Debug.WriteLine($"[DEBUG] OnDangerZoneSelected Error navigating to UserActivitiesView")
         End Try
     End Sub
 
@@ -154,12 +180,18 @@ Public Class UserInformationsViewModel
                     OtherSettingsVisibility = Visibility.Collapsed
                     ActivitiesButtonVisibility = Visibility.Collapsed
                     DangerZoneButtonVisibility = Visibility.Collapsed
+
+                    If _sessionManager.CurrentUser.Role = "Guest" Then
+                        AppearanceButtonVisibility = Visibility.Collapsed
+                    End If
+
                 End If
                 Return
             End If
 
             NameText = _userDetails.Name
             DefaultSettingsVisibility = Visibility.Collapsed
+            AppearanceButtonVisibility = Visibility.Collapsed
         Catch ex As Exception
             Debug.WriteLine($"[UserInformationsViewModel] Load Error: {ex.Message}")
         Finally
@@ -231,6 +263,16 @@ Public Class UserInformationsViewModel
     End Sub
 
     Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedFrom
+        Try
+            ' Remove pageregion view if UserInformationView exist
+            Dim region = _regionManager.Regions("PageRegion")
+            Dim view = region.Views.FirstOrDefault(Function(v) v.GetType() = GetType(UserInformationView))
+            If view IsNot Nothing Then
+                region.Remove(view)
+            End If
+        Catch ex As Exception
+
+        End Try
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements INavigationAware.IsNavigationTarget

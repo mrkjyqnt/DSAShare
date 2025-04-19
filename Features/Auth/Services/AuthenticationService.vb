@@ -24,6 +24,18 @@
         Return False
     End Function
 
+    Public Function IsUsernameExist(username As String) As Boolean Implements IAuthenticationService.IsUsernameExist
+        Dim user = New Users With {
+            .Username = username
+        }
+
+        If _usersRepository.GetByUsername(user) Is Nothing Then
+            Return False
+        Else
+            Return True
+        End If
+    End Function
+
     Private Async Sub SetSession(user As Users)
         Try
             If user IsNot Nothing Then
@@ -37,4 +49,5 @@
 
         End Try
     End Sub
+
 End Class

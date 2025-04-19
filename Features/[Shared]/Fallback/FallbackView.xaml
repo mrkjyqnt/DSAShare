@@ -19,10 +19,13 @@
                     <RowDefinition Height="8" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <Image Source="/Components/Images/server-x.png" Style="{StaticResource Logo}" />
+                <Rectangle
+                    Width="32"
+                    Height="32"
+                    Fill="{DynamicResource server_x_filled}" />
                 <TextBlock
                     Grid.Row="2"
-                    Style="{StaticResource BodyText}"
+                    Style="{DynamicResource BodyText}"
                     Text="Cannot access the server"
                     TextAlignment="Center" />
                 <Button
@@ -31,7 +34,7 @@
                     Command="{Binding RetryCommand}"
                     Content="Retry"
                     KeyboardNavigation.TabNavigation="Continue"
-                    Style="{StaticResource DefaultButton}"
+                    Style="{DynamicResource DefaultButton}"
                     TabIndex="0" />
             </Grid>
         </StackPanel>

@@ -85,6 +85,19 @@
         End Try
     End Function
 
+    Public Function GetUserByUsername(user As Users) As Users Implements IUserService.GetUserByUsername
+        Try
+            Dim userFound = _userRepository.GetByUsername(user)
+            If userFound IsNot Nothing Then
+                Return userFound
+            End If
+            Return Nothing
+        Catch ex As Exception
+            Debug.WriteLine($"[UserService] Error getting user by username: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
     Public Function UpdateUser(user As Users) As Boolean Implements IUserService.UpdateUser
         Try
             If user.Id Is Nothing Then

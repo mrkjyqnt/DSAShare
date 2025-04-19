@@ -58,6 +58,7 @@ Public Class UsersRepository
                 .PasswordHash = _connection.DataRow("password_hash").ToString(),
                 .Role = _connection.DataRow("role").ToString(),
                 .Status = _connection.DataRow("status").ToString(),
+                .AppAppearance = _connection.DataRow("app_appearance").ToString(),
                 .CreatedAt = _connection.DataRow("created_at")
             }
         End If
@@ -86,6 +87,7 @@ Public Class UsersRepository
                 .PasswordHash = _connection.DataRow("password_hash").ToString(),
                 .Role = _connection.DataRow("role").ToString(),
                 .Status = _connection.DataRow("status").ToString(),
+                .AppAppearance = _connection.DataRow("app_appearance").ToString(),
                 .CreatedAt = _connection.DataRow("created_at")
             }
         End If
@@ -117,6 +119,7 @@ Public Class UsersRepository
                 .PasswordHash = record("password_hash").ToString(),
                 .Role = record("role").ToString(),
                 .Status = record("status").ToString(),
+                .AppAppearance = _connection.DataRow("app_appearance").ToString(),
                 .CreatedAt = record("created_at")
                 }
             usersList.Add(user)
@@ -141,14 +144,15 @@ Public Class UsersRepository
             End If
 
             ' Insert the new user
-            _connection.Prepare("INSERT INTO users (name, username, password_hash, role, status, created_at) " &
-                               "VALUES (@name, @username, @password, @role, @status, @createdAt)")
+            _connection.Prepare("INSERT INTO users (name, username, password_hash, role, status, app_appearance, created_at) " &
+                               "VALUES (@name, @username, @password, @role, @status, @app_appearance, @createdAt)")
 
             _connection.AddParam("@name", user.Name)
             _connection.AddParam("@username", user.Username)
             _connection.AddParam("@password", user.PasswordHash)
             _connection.AddParam("@role", user.Role)
             _connection.AddParam("@status", user.Status)
+            _connection.AddParam("@app_appearance", user.AppAppearance)
             _connection.AddParam("@createdAt", DateTime.Now)
 
             _connection.Execute()
@@ -188,12 +192,13 @@ Public Class UsersRepository
         End If
 
         ' Update the user
-        _connection.Prepare("UPDATE users SET name = @name, username = @username, password_hash = @password, role = @role, status = @status, created_at = @createdAt WHERE id = @id")
+        _connection.Prepare("UPDATE users SET name = @name, username = @username, password_hash = @password, role = @role, status = @status, app_appearance = @app_appearance, created_at = @createdAt WHERE id = @id")
         _connection.AddParam("@name", user.Name)
         _connection.AddParam("@username", user.Username)
         _connection.AddParam("@password", user.PasswordHash)
         _connection.AddParam("@role", user.Role)
         _connection.AddParam("@status", user.Status)
+        _connection.AddParam("@app_appearance", user.AppAppearance)
         _connection.AddParam("@createdAt", user.CreatedAt)
         _connection.AddParam("@id", user.Id)
         _connection.Execute()

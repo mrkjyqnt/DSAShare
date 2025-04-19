@@ -53,37 +53,6 @@
     <None Remove="Components\FontFamily\Inter-ThinItalic.ttf" />
     <None Remove="Components\FontFamily\Inter-V.ttf" />
     <None Remove="Components\FontFamily\Inter.ttf" />
-    <None Remove="Components\Images\accessed-filled.png" />
-    <None Remove="Components\Images\accessed.png" />
-    <None Remove="Components\Images\account-filled.png" />
-    <None Remove="Components\Images\account.png" />
-    <None Remove="Components\Images\activities-filled.png" />
-    <None Remove="Components\Images\activities.png" />
-    <None Remove="Components\Images\back.png" />
-    <None Remove="Components\Images\bin.png" />
-    <None Remove="Components\Images\broken-image.png" />
-    <None Remove="Components\Images\calendar-filled.png" />
-    <None Remove="Components\Images\calendar.png" />
-    <None Remove="Components\Images\check-filled.png" />
-    <None Remove="Components\Images\check.png" />
-    <None Remove="Components\Images\file.png" />
-    <None Remove="Components\Images\files-filled.png" />
-    <None Remove="Components\Images\files.png" />
-    <None Remove="Components\Images\folder-download-filled.png" />
-    <None Remove="Components\Images\folder-download.png" />
-    <None Remove="Components\Images\home-filled.png" />
-    <None Remove="Components\Images\home.png" />
-    <None Remove="Components\Images\logo.png" />
-    <None Remove="Components\Images\public-filled.png" />
-    <None Remove="Components\Images\public.png" />
-    <None Remove="Components\Images\radio-filled.png" />
-    <None Remove="Components\Images\radio.png" />
-    <None Remove="Components\Images\search.png" />
-    <None Remove="Components\Images\server-x.png" />
-    <None Remove="Components\Images\shared-filled.png" />
-    <None Remove="Components\Images\shared.png" />
-    <None Remove="Components\Images\users-filled.png" />
-    <None Remove="Components\Images\users.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -122,37 +91,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Components\Images\accessed-filled.png" />
-    <Resource Include="Components\Images\accessed.png" />
-    <Resource Include="Components\Images\account-filled.png" />
-    <Resource Include="Components\Images\account.png" />
-    <Resource Include="Components\Images\activities-filled.png" />
-    <Resource Include="Components\Images\activities.png" />
-    <Resource Include="Components\Images\back.png" />
-    <Resource Include="Components\Images\bin.png" />
-    <Resource Include="Components\Images\broken-image.png" />
-    <Resource Include="Components\Images\calendar-filled.png" />
-    <Resource Include="Components\Images\calendar.png" />
-    <Resource Include="Components\Images\check-filled.png" />
-    <Resource Include="Components\Images\check.png" />
-    <Resource Include="Components\Images\file.png" />
-    <Resource Include="Components\Images\files-filled.png" />
-    <Resource Include="Components\Images\files.png" />
-    <Resource Include="Components\Images\folder-download-filled.png" />
-    <Resource Include="Components\Images\folder-download.png" />
-    <Resource Include="Components\Images\home-filled.png" />
-    <Resource Include="Components\Images\home.png" />
-    <Resource Include="Components\Images\logo.png" />
-    <Resource Include="Components\Images\public-filled.png" />
-    <Resource Include="Components\Images\public.png" />
-    <Resource Include="Components\Images\radio-filled.png" />
-    <Resource Include="Components\Images\radio.png" />
-    <Resource Include="Components\Images\search.png" />
-    <Resource Include="Components\Images\server-x.png" />
-    <Resource Include="Components\Images\shared-filled.png" />
-    <Resource Include="Components\Images\shared.png" />
-    <Resource Include="Components\Images\users-filled.png" />
-    <Resource Include="Components\Images\users.png" />
     <Resource Include="Components\UI\TextblockStyle.xaml" />
     <Resource Include="Components\DefaultStyle.xaml" />
     <Resource Include="Components\FontFamily\Inter-Black.ttf" />
@@ -178,6 +116,10 @@
     <Resource Include="Components\FontFamily\Inter.ttf" />
     <Resource Include="Components\UI\ButtonStyle.xaml" />
     <Resource Include="Components\UI\TextboxStyle.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Images\" />
   </ItemGroup>
 
 </Project>

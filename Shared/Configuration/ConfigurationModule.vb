@@ -113,17 +113,41 @@ Module ConfigurationModule
     Public Function GetSettings() As AppSettings
         Try
             InitializeDefaultConfig()
+            Dim currentIpBase = GetLocalIpBase()
 
-            ' Check if config exists
-            If Not File.Exists(ConfigPath) Then
-                ' Save default settings if config doesn't exist
-                SaveConfig(DefaultConfig)
+            ' Load existing config (or use defaults if file doesn't exist)
+            Dim settings = LoadConfig()
+
+            ' If no config file exists, use defaults and save them
+            If settings Is Nothing OrElse Not File.Exists(ConfigPath) Then
+                settings = DefaultConfig
+                SaveConfig(settings) ' Save defaults immediately
             End If
 
-            ' Load settings
-            Return LoadConfig()
+            Dim newDbServer = $"{currentIpBase}.10\SQLEXPRESS"
+            Dim newFolderPath = $"\\{currentIpBase}.10\ServerStorage"
+
+            ' Check if IP needs updating
+            If settings.Database.Server <> newDbServer OrElse
+               settings.Network.FolderPath <> newFolderPath Then
+
+                ' Update IP in settings
+                settings.Database.Server = newDbServer
+                settings.Network.FolderPath = newFolderPath
+
+                ' Save the updated config
+                SaveConfig(settings)
+            End If
+
+            Debug.WriteLine("=== Updated Config ===")
+            Debug.WriteLine($"Database Server: {settings.Database.Server}")
+            Debug.WriteLine($"Database Name: {settings.Database.Name}")
+            Debug.WriteLine($"Network FolderPath: {settings.Network.FolderPath}")
+            Debug.WriteLine("=======================")
+
+            Return settings
         Catch ex As Exception
-            ' Fallback to default if anything fails
+            Debug.WriteLine($"Error in GetSettings: {ex.Message}")
             Return DefaultConfig
         End Try
     End Function
@@ -182,8 +206,12 @@ Module ConfigurationModule
             ' Test directory permissions
             TestDirectoryPermissions(configDir)
 
-            Dim json = JsonSerializer.Serialize(config, JsonOptions)
-            Dim encryptedBytes = EncryptStringToBytes(json)
+            ' Log current config before saving
+            Dim debugJson = JsonSerializer.Serialize(config, JsonOptions)
+            Debug.WriteLine("Saving the following configuration:")
+            Debug.WriteLine(debugJson)
+
+            Dim encryptedBytes = EncryptStringToBytes(debugJson)
 
             ' Atomic write operation
             Dim tempFile = Path.Combine(configDir, Path.GetRandomFileName())
@@ -207,6 +235,7 @@ Module ConfigurationModule
             Throw
         End Try
     End Sub
+
 
     Private Sub TestDirectoryPermissions(dir As String)
         Dim testFile = Path.Combine(dir, "perm_test.tmp")
@@ -244,6 +273,13 @@ Module ConfigurationModule
             Debug.WriteLine($"VERIFICATION FAILED: {ex.Message}")
             Throw
         End Try
+
+        Debug.WriteLine("=== Default Config Initialized ===")
+        Debug.WriteLine("Database Server: " & DefaultConfig.Database.Server)
+        Debug.WriteLine("Database Name: " & DefaultConfig.Database.Name)
+        Debug.WriteLine("Database Username: " & DefaultConfig.Database.Username)
+        Debug.WriteLine("Network FolderPath: " & DefaultConfig.Network.FolderPath)
+        Debug.WriteLine("===================================")
     End Sub
 #End Region
 

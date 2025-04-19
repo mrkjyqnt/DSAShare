@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     UseLayoutRounding="True"
     mc:Ignorable="d">
     <ScrollViewer
-        Padding="{StaticResource Space-32}"
+        Padding="{DynamicResource Space-32}"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Hidden">
         <Grid local:GridHelper.ColumnSpacing="32">
@@ -26,7 +26,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Row="0"
-                    Style="{StaticResource SubTitleText}"
+                    Style="{DynamicResource SubTitleText}"
                     Text="Danger Zone" />
                 <TextBlock
                     Grid.Row="2"
@@ -41,7 +41,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock
                     Grid.Row="0"
-                    Style="{StaticResource TitleBodyText}"
+                    Style="{DynamicResource TitleBodyText}"
                     Text="Permanently Delete Account"
                     TextWrapping="Wrap" />
                 <Button
@@ -49,26 +49,26 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding DeleteAccountCommand}"
                     Content="Delete Account"
-                    Style="{StaticResource DefaultButton}"
+                    Style="{DynamicResource DefaultButton}"
                     ToolTip="WARNING: This will delete the account permanently" />
                 <StackPanel
                     Grid.Row="3"
                     local:StackPanelHelper.Spacing="16"
                     Visibility="{Binding BanningSectionVisibility}">
-                    <TextBlock Style="{StaticResource TitleBodyText}" Text="Banning" />
+                    <TextBlock Style="{DynamicResource TitleBodyText}" Text="Banning" />
                     <StackPanel>
                         <Button
                             HorizontalAlignment="Stretch"
                             Command="{Binding BanAccountCommand}"
                             Content="Ban Account"
-                            Style="{StaticResource DefaultButton}"
+                            Style="{DynamicResource DefaultButton}"
                             ToolTip="Temporarily disable the file"
                             Visibility="{Binding BanAccountButtonVisibility}" />
                         <Button
                             HorizontalAlignment="Stretch"
                             Command="{Binding UnBanAccountCommand}"
                             Content="Unban Account"
-                            Style="{StaticResource DefaultButton}"
+                            Style="{DynamicResource DefaultButton}"
                             ToolTip="Temporarily disable the file"
                             Visibility="{Binding UnBanAccountButtonVisibility}" />
                     </StackPanel>

@@ -11,9 +11,9 @@
     <Grid>
         <Border
             Width="330"
-            Padding="{StaticResource Space-32}"
-            Background="{StaticResource BackgroundBrush}"
-            BorderBrush="{StaticResource BorderBrush}"
+            Padding="{DynamicResource Space-32}"
+            Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="1">
             <Grid>
                 <Grid.InputBindings>
@@ -32,11 +32,11 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
                     <TextBlock
-                        Style="{StaticResource LogoText}"
+                        Style="{DynamicResource LogoText}"
                         Text="Register"
                         TextAlignment="Center" />
                     <TextBlock
-                        Style="{StaticResource BodyText}"
+                        Style="{DynamicResource BodyText}"
                         Text="Start sharing today"
                         TextAlignment="Center" />
                 </StackPanel>
@@ -52,26 +52,26 @@
                     </Grid.RowDefinitions>
                     <TextBox
                         Grid.Row="0"
-                        Style="{StaticResource DefaultTextbox}"
+                        Style="{DynamicResource DefaultTextbox}"
                         TabIndex="0"
                         Tag="Full Name"
                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBox
                         Grid.Row="2"
-                        Style="{StaticResource DefaultTextbox}"
+                        Style="{DynamicResource DefaultTextbox}"
                         TabIndex="1"
                         Tag="Username"
                         Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
                     <PasswordBox
                         Grid.Row="4"
                         local:PasswordBoxHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource DefaultPasswordBox}"
+                        Style="{DynamicResource DefaultPasswordBox}"
                         TabIndex="2"
                         Tag="Password" />
                     <PasswordBox
                         Grid.Row="6"
                         local:PasswordBoxHelper.Password="{Binding RePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource DefaultPasswordBox}"
+                        Style="{DynamicResource DefaultPasswordBox}"
                         TabIndex="3"
                         Tag="Re-Password" />
                 </Grid>
@@ -81,11 +81,11 @@
                     HorizontalAlignment="Stretch"
                     Command="{Binding SignUpCommand}"
                     Content="Sign Up"
-                    Style="{StaticResource DefaultButton}" />
+                    Style="{DynamicResource PrimaryButton}" />
                 <Rectangle
                     Grid.Row="6"
                     VerticalAlignment="Center"
-                    Stroke="{StaticResource SecondaryBrush}" />
+                    Stroke="{DynamicResource SecondaryBrush}" />
                 <Grid Grid.Row="8" HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
@@ -97,7 +97,7 @@
                         Grid.Column="2"
                         Command="{Binding SignInCommand}"
                         Content="Sign In"
-                        Style="{StaticResource EmptyButton}" />
+                        Style="{DynamicResource EmptyButton}" />
                 </Grid>
             </Grid>
         </Border>

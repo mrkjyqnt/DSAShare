@@ -21,39 +21,72 @@
         Return menuItems
     End Function
 
-
     Public Function GetLastNavigationItem() As NavigationItemModel Implements INavigationListService.GetLastNavigationItem
-        Return New NavigationItemModel("Account", "AccountView", IconSource("account.png"), IconSource("account-filled.png"))
+        Return New NavigationItemModel("Account", "AccountView",
+                                     "settings",
+                                     "settings-filled")
     End Function
 
     Private Function GetAdminNavItems() As List(Of NavigationItemModel)
         Return New List(Of NavigationItemModel) From {
-            New NavigationItemModel("Home", "HomeView", IconSource("home.png"), IconSource("home-filled.png")),
-            New NavigationItemModel("Public Files", "PublicFilesView", IconSource("public.png"), IconSource("public-filled.png")),
-            New NavigationItemModel("Shared Files", "SharedFilesView", IconSource("shared.png"), IconSource("shared-filled.png")),
-            New NavigationItemModel("Accessed Files", "AccessedFilesView", IconSource("accessed.png"), IconSource("accessed-filled.png")),
-            New NavigationItemModel("Manage Files", "ManageFilesView", IconSource("files.png"), IconSource("files-filled.png")),
-            New NavigationItemModel("Manage Users", "ManageUsersView", IconSource("users.png"), IconSource("users-filled.png")),
-            New NavigationItemModel("Activities", "ActivitiesView", IconSource("activities.png"), IconSource("activities-filled.png")),
-            New NavigationItemModel("Downloads", "DownloadsView", IconSource("folder-download.png"), IconSource("folder-download-filled.png"))
+            New NavigationItemModel("Home", "HomeView",
+                                   "home",
+                                   "home-filled"),
+            New NavigationItemModel("Public Files", "PublicFilesView",
+                                   "public",
+                                   "public-filled"),
+            New NavigationItemModel("Shared Files", "SharedFilesView",
+                                   "shared",
+                                   "shared-filled"),
+            New NavigationItemModel("Accessed Files", "AccessedFilesView",
+                                   "accessed",
+                                   "accessed-filled"),
+            New NavigationItemModel("Manage Files", "ManageFilesView",
+                                   "manage-files",
+                                   "manage-files-filled"),
+            New NavigationItemModel("Manage Users", "ManageUsersView",
+                                   "manage-users",
+                                   "manage-users-filled"),
+            New NavigationItemModel("Activities", "ActivitiesView",
+                                   "activities",
+                                   "activities-filled"),
+            New NavigationItemModel("Downloads", "DownloadsView",
+                                   "downloads", 
+                                   "downloads-filled")
         }
     End Function
 
     Private Function GetMemberNavItems() As List(Of NavigationItemModel)
         Return New List(Of NavigationItemModel) From {
-            New NavigationItemModel("Home", "HomeView", IconSource("home.png"), IconSource("home-filled.png")),
-            New NavigationItemModel("Public Files", "PublicFilesView", IconSource("public.png"), IconSource("public-filled.png")),
-            New NavigationItemModel("Shared Files", "SharedFilesView", IconSource("shared.png"), IconSource("shared-filled.png")),
-            New NavigationItemModel("Accessed Files", "AccessedFilesView", IconSource("accessed.png"), IconSource("accessed-filled.png")),
-            New NavigationItemModel("Activities", "ActivitiesView", IconSource("activities.png"), IconSource("activities-filled.png")),
-            New NavigationItemModel("Downloads", "DownloadsView", IconSource("folder-download.png"), IconSource("folder-download-filled.png"))
+            New NavigationItemModel("Home", "HomeView",
+                                 "home",
+                                 "home-filled"),
+            New NavigationItemModel("Public Files", "PublicFilesView",
+                                 "public",
+                                 "public-filled"),
+            New NavigationItemModel("Shared Files", "SharedFilesView",
+                                 "shared",
+                                 "shared-filled"),
+            New NavigationItemModel("Accessed Files", "AccessedFilesView",
+                                 "accessed",
+                                 "accessed-filled"),
+            New NavigationItemModel("Activities", "ActivitiesView",
+                                 "activities",
+                                 "activities-filled"),
+            New NavigationItemModel("Downloads", "DownloadsView",
+                                 "downloads",
+                                 "downloads-filled")
         }
     End Function
 
     Private Function GetGuestNavItems() As List(Of NavigationItemModel)
         Return New List(Of NavigationItemModel) From {
-            New NavigationItemModel("Public Files", "PublicFilesView", IconSource("public.png"), IconSource("public-filled.png")),
-            New NavigationItemModel("Downloads", "DownloadsView", IconSource("folder-download.png"), IconSource("folder-download-filled.png"))
+            New NavigationItemModel("Public Files", "PublicFilesView",
+                                 "public",
+                                 "public-filled"),
+            New NavigationItemModel("Downloads", "DownloadsView",
+                                 "downloads",
+                                 "downloads-filled")
         }
     End Function
 End Class

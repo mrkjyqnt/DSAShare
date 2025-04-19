@@ -5,58 +5,66 @@
 
     <!--  Apply the BodyText Font Size to All Controls  -->
     <Style TargetType="Control">
-        <Setter Property="FontSize" Value="{StaticResource BodySize}" />
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource BodySize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily}" />
     </Style>
 
     <!--  Default Font Style for TextBlock  -->
     <Style TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource BodySize}" />
-        <Setter Property="FontFamily" Value="{StaticResource FontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource BodySize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
     <!--  Named Font Styles  -->
     <!--  Headings Text  -->
     <Style x:Key="HeadingText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource Headings}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+        <Setter Property="FontSize" Value="{DynamicResource Headings}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterMedium}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
     <!--  Logo Text  -->
     <Style x:Key="LogoText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TitleSize}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterBold}" />
+        <Setter Property="FontSize" Value="{DynamicResource TitleSize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
     <!--  Title  -->
     <Style x:Key="TitleText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource SubHeadings}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterSemiBold}" />
+        <Setter Property="FontSize" Value="{DynamicResource SubHeadings}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterSemiBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
     <!--  SubTitle  -->
     <Style x:Key="SubTitleText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TitleSize}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+        <Setter Property="FontSize" Value="{DynamicResource TitleSize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterMedium}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
 
     <!--  Body  -->
     <Style x:Key="TitleBodyText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource SubTitleSize}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterMedium}" />
+        <Setter Property="FontSize" Value="{DynamicResource SubTitleSize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterMedium}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
     <!--  Body  -->
     <Style x:Key="BodyText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource BodySize}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="FontSize" Value="{DynamicResource BodySize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterRegular}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
     <!--  Label  -->
     <Style x:Key="LabelText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource LabelSize}" />
-        <Setter Property="FontFamily" Value="{StaticResource InterRegular}" />
+        <Setter Property="FontSize" Value="{DynamicResource LabelSize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource InterRegular}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
 
 </ResourceDictionary>

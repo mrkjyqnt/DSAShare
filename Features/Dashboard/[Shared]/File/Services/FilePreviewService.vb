@@ -1,4 +1,5 @@
-﻿Imports System.IO
+﻿Imports System.Configuration
+Imports System.IO
 Imports System.Windows.Media.Imaging
 Imports ICSharpCode.AvalonEdit
 Imports ICSharpCode.AvalonEdit.Highlighting
@@ -6,6 +7,7 @@ Imports ICSharpCode.AvalonEdit.Highlighting
 Public Class FilePreviewService
     Implements IFilePreviewService
 
+    Private ReadOnly _folderPath As String = ConfigurationModule.GetSettings().Network.FolderPath
     Private _imagePreview As Image
     Private _documentPreview As WebBrowser
     Private _textPreview As TextEditor
@@ -22,6 +24,8 @@ Public Class FilePreviewService
     End Sub
 
     Public Sub LoadPreview(filePath As String, fileType As String) Implements IFilePreviewService.LoadPreview
+        filePath = Path.Combine(_folderPath, filePath)
+
         If String.IsNullOrEmpty(filePath) OrElse Not File.Exists(filePath) Then
             ShowUnsupportedPreview()
             Return

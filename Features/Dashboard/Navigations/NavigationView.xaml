@@ -10,8 +10,8 @@
     UseLayoutRounding="True"
     mc:Ignorable="d">
     <Border
-        Background="{StaticResource BackgroundBrush}"
-        BorderBrush="{StaticResource BorderBrush}"
+        Background="{DynamicResource BackgroundBrush}"
+        BorderBrush="{DynamicResource BorderBrush}"
         BorderThickness="0,0,1,0">
         <Grid>
             <Grid VerticalAlignment="Stretch">
@@ -22,40 +22,43 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border Padding="{StaticResource Space-32}">
+                <Border
+                    Padding="{DynamicResource Space-32}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="0,0,0,1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="10" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Image
+                        <Rectangle
                             Grid.Column="0"
                             Width="32"
                             Height="32"
-                            RenderOptions.EdgeMode="Aliased"
-                            Source="/Components/Images/logo.png" />
+                            Fill="{DynamicResource public-filled}"
+                            RenderOptions.EdgeMode="Aliased" />
                         <TextBlock
                             Grid.Column="2"
                             VerticalAlignment="Center"
-                            FontSize="{StaticResource TitleSize}"
-                            Style="{StaticResource LogoText}"
+                            FontSize="{DynamicResource TitleSize}"
+                            Style="{DynamicResource LogoText}"
                             Text="DSAShare" />
 
                     </Grid>
                 </Border>
                 <Border
                     Grid.Row="2"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="0,0,0,0">
                     <ItemsControl ItemsSource="{Binding MenuItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="Black" BorderThickness="0,0,0,1">
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                                     <Button
                                         Command="{Binding DataContext.NavSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"
-                                        Style="{StaticResource NavButtonStyle}" />
+                                        Style="{DynamicResource NavButtonStyle}" />
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -66,12 +69,13 @@
 
                 <Border
                     Grid.Row="4"
-                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0">
+
                     <Button
                         Command="{Binding DataContext.NavSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource NavButtonStyle}">
+                        Style="{DynamicResource NavButtonStyle}">
                         <Button.DataContext>
                             <Binding Path="LastMenuItem" />
                         </Button.DataContext>

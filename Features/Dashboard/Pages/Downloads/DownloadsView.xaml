@@ -16,12 +16,12 @@
         </Grid.RowDefinitions>
         <Border
             Grid.Row="0"
-            Padding="{StaticResource Space-32}"
-            BorderBrush="{StaticResource BorderBrush}"
+            Padding="{DynamicResource Space-32}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="0,0,0,1">
             <TextBlock
                 HorizontalAlignment="Left"
-                Style="{StaticResource TitleText}"
+                Style="{DynamicResource TitleText}"
                 Text="Downloads" />
         </Border>
 
@@ -34,11 +34,11 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock
                         HorizontalAlignment="Left"
-                        Style="{StaticResource SubTitleText}"
+                        Style="{DynamicResource SubTitleText}"
                         Text="{Binding DownloadCount}" />
                     <TextBlock
                         HorizontalAlignment="Left"
-                        Style="{StaticResource SubTitleText}"
+                        Style="{DynamicResource SubTitleText}"
                         Text=" Downloads found" />
                 </StackPanel>
             </Border>
@@ -67,7 +67,7 @@
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Border HorizontalAlignment="Stretch" Style="{StaticResource DefaultBorder}">
+                            <Border HorizontalAlignment="Stretch" Style="{DynamicResource DefaultBorder}">
                                 <Grid local:GridHelper.ColumnSpacing="16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -83,12 +83,12 @@
                                             Text="{Binding FileName}"
                                             TextTrimming="WordEllipsis"
                                             ToolTip="{Binding FileName}" />
-                                        <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding DownloadDate, StringFormat='Downloaded: {0:g}'}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding DownloadDate, StringFormat='Downloaded: {0:g}'}" />
                                     </StackPanel>
                                     <TextBlock
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
-                                        FontFamily="{StaticResource InterRegular}"
+                                        FontFamily="{DynamicResource InterRegular}"
                                         FontStyle="Italic"
                                         Text="{Binding Status}" />
 
@@ -101,32 +101,32 @@
                                             CommandParameter="{Binding}"
                                             Content="Open File"
                                             IsEnabled="{Binding IsFileExists}"
-                                            Style="{StaticResource DefaultButton}"
+                                            Style="{DynamicResource DefaultButton}"
                                             ToolTip="Opens the file directly" />
 
                                         <Button
                                             Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             IsEnabled="{Binding IsFileExists}"
-                                            Style="{StaticResource IconButton}"
+                                            Style="{DynamicResource IconButton}"
                                             ToolTip="Opens on folder">
                                             <Button.Content>
-                                                <Image
+                                                <Rectangle
                                                     Width="20"
                                                     Height="20"
-                                                    Source="/Components/Images/accessed.png" />
+                                                    Fill="{DynamicResource accessed}" />
                                             </Button.Content>
                                         </Button>
                                         <Button
                                             Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
-                                            Style="{StaticResource IconButton}"
+                                            Style="{DynamicResource DangerIconButton}"
                                             ToolTip="Deletes the file">
                                             <Button.Content>
-                                                <Image
+                                                <Rectangle
                                                     Width="20"
                                                     Height="20"
-                                                    Source="/Components/Images/bin.png" />
+                                                    Fill="{DynamicResource bin-danger}" />
                                             </Button.Content>
                                         </Button>
                                     </StackPanel>
@@ -140,10 +140,10 @@
                     VerticalAlignment="Top"
                     Visibility="{Binding DownloadHistory, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Visible}">
                     <Border
-                        Padding="{StaticResource Space-16}"
+                        Padding="{DynamicResource Space-16}"
                         VerticalAlignment="Top"
-                        Style="{StaticResource DefaultBorder}">
-                        <TextBlock Style="{StaticResource BodyText}" Text="No downloads found" />
+                        Style="{DynamicResource DefaultBorder}">
+                        <TextBlock Style="{DynamicResource BodyText}" Text="No downloads found" />
                     </Border>
                 </Border>
             </Grid>

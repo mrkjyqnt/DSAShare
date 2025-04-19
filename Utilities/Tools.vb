@@ -1,6 +1,7 @@
 ﻿Imports System.Text
 Imports System.Security.Cryptography
 Imports System.IO
+Imports System.Net.NetworkInformation
 
 Module Tools
     Public Function ImageSource(image As String) As String
@@ -9,6 +10,20 @@ Module Tools
 
     Public Function IconSource(image As String) As String
         Return $"pack://application:,,,/Components/Images/{image}"
+    End Function
+
+    Public Function GetIcon(iconName As String) As DrawingBrush
+        ' If we're already on the UI thread, get the resource directly
+        If Application.Current.Dispatcher.CheckAccess() Then
+            Return TryCast(Application.Current.Resources(iconName), DrawingBrush)
+        Else
+            ' Otherwise, invoke on UI thread and wait for result
+            Dim result As DrawingBrush = Nothing
+            Application.Current.Dispatcher.Invoke(Sub()
+                                                      result = TryCast(Application.Current.Resources(iconName), DrawingBrush)
+                                                  End Sub)
+            Return result
+        End If
     End Function
 
     Public Function HashPassword(password As String) As String
@@ -76,10 +91,33 @@ Module Tools
             newPath = Path.Combine(folderPath, $"{baseName} ({counter}){extension}")
             counter += 1
         Loop
-
         Return newPath
     End Function
 
+    ''' <summary>
+    ''' Get the MAC address of the first active network interface
+    ''' </summary>
+    ''' <returns></returns>
+    ''' <remarks>Returns "UNKNOWN" if no active network interface is found</remarks>
+    Public Function GetMacAddress() As String
+        Dim macAddress As String = String.Empty
+        For Each nic As NetworkInterface In NetworkInterface.GetAllNetworkInterfaces()
+            If nic.OperationalStatus = OperationalStatus.Up AndAlso
+            nic.NetworkInterfaceType <> NetworkInterfaceType.Loopback AndAlso
+            nic.NetworkInterfaceType <> NetworkInterfaceType.Tunnel Then
+                macAddress = nic.GetPhysicalAddress().ToString()
+                If Not String.IsNullOrWhiteSpace(macAddress) Then
+                    Return macAddress
+                End If
+            End If
+        Next
+        Return "UNKNOWN"
+    End Function
+
+    ''' <summary>
+    ''' Restart the application
+    ''' </summary>
+    ''' <remarks>Use this method to restart the application from anywhere in the code</remarks>
     Public Sub RestartApplication()
         Process.Start("DSAShare")
         Application.Current.Shutdown()

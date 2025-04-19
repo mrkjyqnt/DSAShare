@@ -11,11 +11,11 @@
     mc:Ignorable="d">
     <Border
         Width="300"
-        Padding="{StaticResource Space-16}"
-        Background="{StaticResource BackgroundBrush}"
-        BorderBrush="{StaticResource BorderBrush}"
+        Padding="{DynamicResource Space-16}"
+        Background="{DynamicResource BackgroundBrush}"
+        BorderBrush="{DynamicResource BorderBrush}"
         BorderThickness="1"
-        CornerRadius="{StaticResource SmallRadius}">
+        CornerRadius="{DynamicResource SmallRadius}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -26,11 +26,11 @@
             </Grid.RowDefinitions>
             <TextBlock
                 Grid.Row="0"
-                Style="{StaticResource SubTitleText}"
+                Style="{DynamicResource SubTitleText}"
                 Text="{Binding TitleText}" />
             <TextBlock
                 Grid.Row="2"
-                Style="{StaticResource BodyText}"
+                Style="{DynamicResource BodyText}"
                 Text="{Binding InformationText}"
                 TextWrapping="Wrap" />
             <Button
@@ -39,7 +39,7 @@
                 Command="{Binding CloseCommand}"
                 Content="Close"
                 KeyboardNavigation.TabNavigation="Continue"
-                Style="{StaticResource DefaultButton}"
+                Style="{DynamicResource DefaultButton}"
                 TabIndex="0" />
             <Grid.InputBindings>
                 <KeyBinding

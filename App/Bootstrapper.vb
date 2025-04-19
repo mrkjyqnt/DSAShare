@@ -46,6 +46,9 @@ Public Class Bootstrapper
         ' Register the User Service
         containerRegistry.RegisterSingleton(Of IUserService, UserService)()
 
+        ' Register the Security Service
+        containerRegistry.RegisterSingleton(Of ISecurityService, SecurityService)()
+
         ' Register the Fallback View
         containerRegistry.RegisterForNavigation(Of FallbackView)("FallbackView")
         containerRegistry.Register(Of FallbackViewModel)()
@@ -102,6 +105,8 @@ Public Class Bootstrapper
         containerRegistry.Register(Of UserInformationsViewModel)()
         containerRegistry.RegisterForNavigation(Of UserInformationView)("UserInformationView")
         containerRegistry.Register(Of UserInformationViewModel)()
+        containerRegistry.RegisterForNavigation(Of UserAppearanceView)("UserAppearanceView")
+        containerRegistry.Register(Of UserAppearanceViewModel)()
         containerRegistry.RegisterForNavigation(Of UserActivitiesView)("UserActivitiesView")
         containerRegistry.Register(Of UserActivitiesViewModel)()
         containerRegistry.RegisterForNavigation(Of UserDangerZoneView)("UserDangerZoneView")
@@ -148,6 +153,7 @@ Public Class Bootstrapper
         MyBase.OnInitialized()
 
         Dim regionManager = Container.Resolve(Of IRegionManager)()
+        Dim userService = Container.Resolve(Of IUserService)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
         Dim navigation = Container.Resolve(Of INavigationService)()
 
@@ -157,7 +163,29 @@ Public Class Bootstrapper
 
         Try
             Loading.StartUp()
-            Await Task.Delay(3000).ConfigureAwait(True)
+            Await Task.Delay(1000).ConfigureAwait(True)
+
+            If sessionManager?.CurrentUser IsNot Nothing Then
+                If sessionManager.CurrentUser.Role IsNot Nothing AndAlso
+                   Not sessionManager.CurrentUser.Role = "Guest" Then
+
+                    Dim user = Await Task.Run(Function() userService.GetUserById(sessionManager.CurrentUser))
+
+                    If user IsNot Nothing Then
+                        sessionManager.Login(user)
+                    End If
+
+                    If user?.AppAppearance IsNot Nothing Then
+                        ApplyTheme(GetThemeFromString(user.AppAppearance))
+                    Else
+                        ApplyTheme(AppTheme.System)
+                    End If
+                Else
+                    ApplyTheme(AppTheme.System)
+                End If
+            Else
+                ApplyTheme(AppTheme.System)
+            End If
 
             navigation.Go("MainRegion", "AuthenticationView")
 

@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
-    Background="{StaticResource SecondaryBackgroundBrush}"
+    Background="{DynamicResource SecondaryBackgroundBrush}"
     UseLayoutRounding="True">
     <UserControl.Resources>
         <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
@@ -22,8 +22,8 @@
 
         <Border
             Grid.Row="0"
-            Padding="{StaticResource Space-32}"
-            BorderBrush="{StaticResource BorderBrush}"
+            Padding="{DynamicResource Space-32}"
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -34,7 +34,7 @@
                 <TextBlock
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    Style="{StaticResource TitleText}"
+                    Style="{DynamicResource TitleText}"
                     Text="Activities" />
                 <StackPanel
                     Grid.Column="2"
@@ -44,23 +44,23 @@
                         Width="260"
                         Height="50"
                         Padding="0"
-                        Style="{StaticResource DefaultBorder}">
+                        Style="{DynamicResource DefaultBorder}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Image
+                            <Rectangle
                                 Width="20"
                                 Height="20"
                                 Margin="14,14,0,14"
-                                Source="/Components/Images/search.png" />
+                                Fill="{DynamicResource search}" />
                             <TextBox
                                 Grid.Column="1"
                                 VerticalAlignment="Stretch"
                                 Background="Transparent"
                                 BorderThickness="0"
-                                Style="{StaticResource DefaultTextbox}"
+                                Style="{DynamicResource DefaultTextbox}"
                                 Tag="Search"
                                 Text="{Binding SearchInput, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
@@ -82,11 +82,11 @@
                         Padding="0"
                         VerticalAlignment="Top"
                         ClipToBounds="True"
-                        Style="{StaticResource DefaultBorder}">
+                        Style="{DynamicResource DefaultBorder}">
                         <StackPanel HorizontalAlignment="Stretch">
                             <Border
-                                Padding="{StaticResource Space-16}"
-                                BorderBrush="{StaticResource BorderBrush}"
+                                Padding="{DynamicResource Space-16}"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="0,0,0,1">
                                 <Grid local:GridHelper.RowSpacing="12">
                                     <Grid.RowDefinitions>
@@ -97,29 +97,29 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Row="0"
-                                        FontFamily="{StaticResource InterMedium}"
+                                        FontFamily="{DynamicResource InterMedium}"
                                         Text="Action" />
                                     <RadioButton
                                         Grid.Row="1"
                                         Content="Both"
                                         GroupName="Actions"
                                         IsChecked="{Binding IsBothSelected}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                     <RadioButton
                                         Grid.Row="2"
                                         Content="Account"
                                         GroupName="Actions"
                                         IsChecked="{Binding IsAccountSelected}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                     <RadioButton
                                         Grid.Row="3"
                                         Content="Files"
                                         GroupName="Actions"
                                         IsChecked="{Binding IsFilesSelected}"
-                                        Style="{StaticResource DefaultRadioButton}" />
+                                        Style="{DynamicResource DefaultRadioButton}" />
                                 </Grid>
                             </Border>
-                            <Border Padding="{StaticResource Space-16}">
+                            <Border Padding="{DynamicResource Space-16}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto" />
@@ -134,28 +134,28 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock
                                         Grid.Row="0"
-                                        FontFamily="{StaticResource InterMedium}"
+                                        FontFamily="{DynamicResource InterMedium}"
                                         Text="Date" />
                                     <TextBlock
                                         Grid.Row="2"
-                                        Style="{StaticResource LabelText}"
+                                        Style="{DynamicResource LabelText}"
                                         Text="From" />
                                     <DatePicker
                                         Grid.Row="4"
                                         DisplayDateEnd="{Binding FromMaxDate}"
                                         DisplayDateStart="{Binding FromMinDate}"
                                         SelectedDate="{Binding FromSelectedDate}"
-                                        Style="{StaticResource DefaultDatePicker}" />
+                                        Style="{DynamicResource DefaultDatePicker}" />
                                     <TextBlock
                                         Grid.Row="6"
-                                        Style="{StaticResource LabelText}"
+                                        Style="{DynamicResource LabelText}"
                                         Text="To" />
                                     <DatePicker
                                         Grid.Row="8"
                                         DisplayDateEnd="{Binding ToMaxDate}"
                                         DisplayDateStart="{Binding ToMinDate}"
                                         SelectedDate="{Binding ToSelectedDate}"
-                                        Style="{StaticResource DefaultDatePicker}" />
+                                        Style="{DynamicResource DefaultDatePicker}" />
                                 </Grid>
                             </Border>
                         </StackPanel>
@@ -170,8 +170,8 @@
                         Grid.Row="0"
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource SubTitleText}" Text="{Binding ResultCount}" />
-                        <TextBlock Style="{StaticResource SubTitleText}" Text=" Activities found" />
+                        <TextBlock Style="{DynamicResource SubTitleText}" Text="{Binding ResultCount}" />
+                        <TextBlock Style="{DynamicResource SubTitleText}" Text=" Activities found" />
                     </StackPanel>
 
                     <Grid Grid.Row="1" Margin="0,0,0,32">
@@ -183,7 +183,7 @@
                             EnableRowVirtualization="True"
                             ItemsSource="{Binding DataGridActivities}"
                             SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
-                            Style="{StaticResource DefaultDataGrid}">
+                            Style="{DynamicResource DefaultDataGrid}">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Width="*" IsReadOnly="True">
                                     <DataGridTemplateColumn.CellTemplate>
@@ -194,12 +194,12 @@
                                                     <TextBlock Text=" " />
                                                     <TextBlock
                                                         MaxWidth="250"
-                                                        FontFamily="{StaticResource InterMedium}"
+                                                        FontFamily="{DynamicResource InterMedium}"
                                                         Text="{Binding Name}"
                                                         TextTrimming="CharacterEllipsis"
                                                         ToolTip="{Binding Name}" />
                                                 </StackPanel>
-                                                <TextBlock Foreground="{StaticResource SecondaryBrush}" Text="{Binding ActionAt}" />
+                                                <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text="{Binding ActionAt}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -208,13 +208,13 @@
                         </DataGrid>
                         <Border
                             VerticalAlignment="Top"
-                            Background="{StaticResource BackgroundBrush}"
+                            Background="{DynamicResource BackgroundBrush}"
                             Visibility="{Binding DataGridActivities, Converter={StaticResource NullToVisibilityConverter}}">
                             <Border
-                                Padding="{StaticResource Space-16}"
+                                Padding="{DynamicResource Space-16}"
                                 VerticalAlignment="Top"
-                                Style="{StaticResource DefaultBorder}">
-                                <TextBlock Style="{StaticResource BodyText}" Text="No records found" />
+                                Style="{DynamicResource DefaultBorder}">
+                                <TextBlock Style="{DynamicResource BodyText}" Text="No records found" />
                             </Border>
                         </Border>
                     </Grid>
