@@ -103,7 +103,7 @@ Public Class FileDangerZoneViewModel
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
-            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the disable of the file.").ConfigureAwait(True)
 
             While attempts < maxAttempts
                 attempts += 1
@@ -111,7 +111,7 @@ Public Class FileDangerZoneViewModel
                 Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
 
                 If popUpResult Is Nothing Then
-                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
+                    Await PopUp.Information("Cancelled", "File disable was cancelled.").ConfigureAwait(True)
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
@@ -129,7 +129,7 @@ Public Class FileDangerZoneViewModel
             End While
 
             If attempts = maxAttempts Then
-                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Maximum attempts reached. disable cancelled.").ConfigureAwait(True)
                 Return
             End If
 
@@ -192,7 +192,7 @@ Public Class FileDangerZoneViewModel
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
-            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the enable of the file.").ConfigureAwait(True)
 
             While attempts < maxAttempts
                 attempts += 1
@@ -200,7 +200,7 @@ Public Class FileDangerZoneViewModel
                 Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
 
                 If popUpResult Is Nothing Then
-                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
+                    Await PopUp.Information("Cancelled", "File enable was cancelled.").ConfigureAwait(True)
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
@@ -218,7 +218,7 @@ Public Class FileDangerZoneViewModel
             End While
 
             If attempts = maxAttempts Then
-                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Maximum attempts reached. enable cancelled.").ConfigureAwait(True)
                 Return
             End If
 
@@ -228,7 +228,7 @@ Public Class FileDangerZoneViewModel
             Dim result = _fileService.UpdateFile(file)
 
             If result.Success Then
-                Await PopUp.Information("Success", "Succesfully enabling the file").ConfigureAwait(True)
+                Await PopUp.Information("Success", "Succesfully enabled the file").ConfigureAwait(True)
             Else
                 Await PopUp.Information("Failed", result.Message).ConfigureAwait(True)
                 Return

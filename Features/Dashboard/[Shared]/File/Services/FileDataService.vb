@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports Microsoft.VisualBasic.ApplicationServices
 
 Public Class FileDataService
     Implements IFileDataService
@@ -115,6 +116,24 @@ Public Class FileDataService
         End Try
     End Function
 
+    ''' <summary>
+    ''' Get the accessed file information.
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
+    Public Function GetSharedFileByUploader(fileShared As FilesShared) As List(Of FilesShared) Implements IFileDataService.GetSharedFileByUploader
+        Try
+            If fileShared Is Nothing Then
+                Debug.WriteLine("[FileDataService] GetSharedFileInfo: fileShared is nothing")
+                Return Nothing
+            End If
+            Return _fileSharedRepository.GetByUploader(fileShared)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] GetSharedFileById Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
     Public Function GetSharedFileByPrivate(fileShared As FilesShared) As FilesShared Implements IFileDataService.GetSharedFileByPrivate
         Try
             If fileShared Is Nothing Then
@@ -143,6 +162,20 @@ Public Class FileDataService
         End Try
     End Function
 
+    Public Function UpdateSharedFile(filesShared As FilesShared) As Boolean Implements IFileDataService.UpdateSharedFile
+        Try
+            If filesShared Is Nothing Then
+                Debug.WriteLine("[FileDataService] RemoveSharedFile: filesShared is nothing.")
+                Return False
+            End If
+
+            Return _fileSharedRepository.Update(filesShared)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] RemoveAccessedFile Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
     Public Function RemoveSharedFile(filesShared As FilesShared) As Boolean Implements IFileDataService.RemoveSharedFile
         Try
             If filesShared Is Nothing Then
@@ -157,15 +190,15 @@ Public Class FileDataService
         End Try
     End Function
 
-    Public Function SetAccessFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.SetAccessFile
+    Public Function AddAccessFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.AddAccessFile
         Try
             If filesAccesed Is Nothing Then
-                Debug.WriteLine("[FileDataService] SetAccessFile: filesAccesed is nothing.")
+                Debug.WriteLine("[FileDataService] AddAccessFile: filesAccesed is nothing.")
                 Return False
             End If
             Return _fileAccessedRepository.Insert(filesAccesed)
         Catch ex As Exception
-            Debug.WriteLine($"[FileDataService] SetAccessFile Error: {ex.Message}")
+            Debug.WriteLine($"[FileDataService] AddAccessFile Error: {ex.Message}")
             Return False
         End Try
     End Function
@@ -190,20 +223,11 @@ Public Class FileDataService
         End Try
     End Function
 
-    Public Function GetAccessedFileByFileId(filesAccesed As FilesAccessed) As FilesAccessed Implements IFileDataService.GetAccessedFileByFileId
-        Try
-            If filesAccesed Is Nothing Then
-                Debug.WriteLine("[FileDataService] GetAccessedFileByUserFile: filesAccesed is nothing.")
-                Return Nothing
-            End If
-
-            Return _fileAccessedRepository.GetByFileId(filesAccesed)
-        Catch ex As Exception
-            Debug.WriteLine($"[FileDataService] GetAccessedFileByUserFile Error: {ex.Message}")
-            Return Nothing
-        End Try
-    End Function
-
+    ''' <summary>
+    ''' Remove specific access by Access ID
+    ''' </summary>
+    ''' <param name="filesAccesed"></param>
+    ''' <returns></returns>
     Public Function RemoveAccessedFile(filesAccesed As FilesAccessed) As Boolean Implements IFileDataService.RemoveAccessedFile
         Try
             If filesAccesed Is Nothing Then
@@ -218,6 +242,11 @@ Public Class FileDataService
         End Try
     End Function
 
+    ''' <summary>
+    ''' Gets all file access of the file (By File ID)
+    ''' </summary>
+    ''' <param name="filesAccessed"></param>
+    ''' <returns></returns>
     Public Function GetAllAccessedFiles(filesAccessed As FilesAccessed) As List(Of FilesAccessed) Implements IFileDataService.GetAllAccessedFiles
         Try
             Dim result = _fileAccessedRepository.Read()
@@ -230,6 +259,73 @@ Public Class FileDataService
             Return If(result.Where(Function(f) f.FileId = filesAccessed.FileId).ToList(), Nothing)
         Catch ex As Exception
             Debug.WriteLine($"[FileDataService] GetAllAccessedFiles Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Remove all the access from the file
+    ''' </summary>
+    ''' <param name="filesAccesed"></param>
+    ''' <returns></returns>
+    Public Function RemoveAllSharedFileAccess(fileShared As FilesShared) As Boolean Implements IFileDataService.RemoveAllSharedFileAccess
+        Try
+            If fileShared Is Nothing Then
+                Debug.WriteLine("[FileDataService] RemoveAccessedFile: filesAccesed is nothing.")
+                Return False
+            End If
+
+            Dim sharedFiles = _fileSharedRepository.GetByUploader(New FilesShared With {.UploadedBy = fileShared.UploadedBy})
+
+            If sharedFiles IsNot Nothing And sharedFiles?.Count > 0 Then
+                For Each files In sharedFiles
+                    Dim accessFiles = GetAllAccessedFiles(New FilesAccessed With {.FileId = files.Id})
+                    If accessFiles IsNot Nothing Then
+                        For Each accessFile In accessFiles
+                            RemoveAccessedFile(accessFile)
+                        Next
+                    End If
+                Next
+            End If
+
+            Return True
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] RemoveAccessedFile Error: {ex.Message}")
+            Return Nothing
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Remove all the access from the file
+    ''' </summary>
+    ''' <param name="filesAccesed"></param>
+    ''' <returns></returns>
+    Public Function DisableAllSharedFileByUploader(fileShared As FilesShared) As Boolean Implements IFileDataService.DisableAllSharedFileByUploader
+        Try
+            If fileShared Is Nothing Then
+                Debug.WriteLine("[FileDataService] RemoveAccessedFile: filesAccesed is nothing.")
+                Return False
+            End If
+
+            Dim sharedFiles = _fileSharedRepository.GetByUploader(New FilesShared With {.UploadedBy = fileShared.UploadedBy})
+
+            If sharedFiles IsNot Nothing And sharedFiles?.Count > 0 Then
+                For Each files In sharedFiles
+                    Dim accessFiles = GetAllAccessedFiles(New FilesAccessed With {.FileId = files.Id})
+                    If accessFiles IsNot Nothing Then
+                        For Each accessFile In accessFiles
+                            RemoveAccessedFile(accessFile)
+                        Next
+                    End If
+
+                    files.Availability = "Disabled"
+                    UpdateSharedFile(files)
+                Next
+            End If
+
+            Return True
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDataService] RemoveAccessedFile Error: {ex.Message}")
             Return Nothing
         End Try
     End Function

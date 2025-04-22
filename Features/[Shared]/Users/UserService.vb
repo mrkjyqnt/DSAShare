@@ -45,9 +45,9 @@
             
             Dim user = _userRepository.GetByUsername(_sessionManager.CurrentUser)
             If user IsNot Nothing Then
-                If user.Status = "Active" Then
+                If user?.Status = "Active" Then
                     Return True
-                ElseIf user.Status = "Banned" Then
+                ElseIf user?.Status = "Banned" Then
                     Debug.WriteLine($"[UserService] User is banned: {user.Username}")
                     Return False
                 End If

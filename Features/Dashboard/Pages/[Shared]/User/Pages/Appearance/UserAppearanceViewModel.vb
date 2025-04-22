@@ -140,17 +140,6 @@ Public Class UserAppearanceViewModel
                 Return
             End If
 
-            _activity = New Activities With {
-                .Action = "Change appearance",
-                .ActionIn = "Account",
-                .ActionAt = Date.Now,
-                .AccountId = user.Id,
-                .Name = user.Name,
-                .UserId = _sessionManager.CurrentUser.Id
-            }
-
-            Await Task.Run(Function() _activityService.AddActivity(_activity)).ConfigureAwait(True)
-            
             Await Application.Current.Dispatcher.InvokeAsync(Sub()
                                                                  ThemeHelper.ApplyTheme(ThemeHelper.GetThemeFromString(user.AppAppearance))
                                                              End Sub)

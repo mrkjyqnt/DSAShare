@@ -12,9 +12,7 @@
         <Border
             Width="330"
             Padding="{DynamicResource Space-32}"
-            Background="{DynamicResource BackgroundBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
-            BorderThickness="1">
+            Style="{DynamicResource DefaultBorder}">
             <Grid>
                 <Grid.InputBindings>
                     <KeyBinding Key="Enter" Command="{Binding SignUpCommand}" />

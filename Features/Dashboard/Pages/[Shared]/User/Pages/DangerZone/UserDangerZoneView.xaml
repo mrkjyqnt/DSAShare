@@ -33,28 +33,33 @@
                     Text="Please read carefully before doing an action"
                     TextWrapping="Wrap" />
             </Grid>
-            <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <TextBlock
-                    Grid.Row="0"
-                    Style="{DynamicResource TitleBodyText}"
-                    Text="Permanently Delete Account"
-                    TextWrapping="Wrap" />
-                <Button
-                    Grid.Row="1"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding DeleteAccountCommand}"
-                    Content="Delete Account"
-                    Style="{DynamicResource DefaultButton}"
-                    ToolTip="WARNING: This will delete the account permanently" />
                 <StackPanel
-                    Grid.Row="3"
+                    Grid.Row="0"
+                    Margin="0,0,0,16"
                     local:StackPanelHelper.Spacing="16"
-                    Visibility="{Binding BanningSectionVisibility}">
+                    Visibility="{Binding DeactivateSectionVisibility}">
+                    <TextBlock
+                        Style="{DynamicResource TitleBodyText}"
+                        Text="Deactivate Account"
+                        TextWrapping="Wrap" />
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding DeactivateAccountCommand}"
+                        Content="Deactivate Account"
+                        Style="{DynamicResource DefaultButton}"
+                        ToolTip="WARNING: This will delete the account permanently" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="0,0,0,16"
+                    local:StackPanelHelper.Spacing="16"
+                    Visibility="{Binding SecretSectionVisibility}">
                     <TextBlock Style="{DynamicResource TitleBodyText}" Text="Banning" />
                     <StackPanel>
                         <Button
@@ -72,6 +77,21 @@
                             ToolTip="Temporarily disable the file"
                             Visibility="{Binding UnBanAccountButtonVisibility}" />
                     </StackPanel>
+                </StackPanel>
+                <StackPanel
+                    Grid.Row="2"
+                    local:StackPanelHelper.Spacing="16"
+                    Visibility="{Binding SecretSectionVisibility}">
+                    <TextBlock
+                        Style="{DynamicResource TitleBodyText}"
+                        Text="Permanently Delete Account"
+                        TextWrapping="Wrap" />
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding DeleteAccountCommand}"
+                        Content="Delete Account"
+                        Style="{DynamicResource DefaultButton}"
+                        ToolTip="WARNING: This will delete the account permanently" />
                 </StackPanel>
             </Grid>
         </Grid>

@@ -21,11 +21,9 @@ Public Class DashboardViewModel
         _regionManager = regionManager
         _navigationService = navigationService
         _sessionManager = sessionManager
-
-        Load()
     End Sub
 
-    Private Async Sub Load()
+    Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
@@ -45,26 +43,22 @@ Public Class DashboardViewModel
                 ApplyTheme(GetSystemTheme())
             End If
 
-            If _sessionManager.CurrentUser.Role = "Guest" Then
+            If _sessionManager?.CurrentUser?.Role = "Guest" Then
 
-                _regionManager.RegisterViewWithRegion("NavigationRegion", GetType(NavigationView))
-                _regionManager.RegisterViewWithRegion("PageRegion", GetType(PublicFilesView))
                 _navigationService.Start("PageRegion", "PublicFilesView", "Public Files")
+                _navigationService.Go("NavigationRegion", "NavigationView")
+                _navigationService.Go("PageRegion", "PublicFilesView")
                 Return
             End If
 
-            _regionManager.RegisterViewWithRegion("NavigationRegion", GetType(NavigationView))
-            _regionManager.RegisterViewWithRegion("PageRegion", GetType(HomeView))
+            _navigationService.Go("NavigationRegion", "NavigationView")
+            _navigationService.Go("PageRegion", "HomeView")
             _navigationService.Start("PageRegion", "HomeView", "Home")
         Catch ex As Exception
             Debug.WriteLine($"[ERROR] Theres an error occured: {ex.Message}")
         Finally
             Loading.Hide()
         End Try
-    End Sub
-
-    Public Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
-        Throw New NotImplementedException()
     End Sub
 
     Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget

@@ -205,12 +205,12 @@ Public Class UserInformationViewModel
             _activity = New Activities With {
                 .ActionAt = Date.Now,
                 .AccountId = user.Id,
-                .Name = user.Name,
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
             If _openedFrom = "ManageUsersView" Then
                 _activity.Action = "Change information a user"
+                _activity.Name = user.Name
                 _activity.ActionIn = "Manage Users"
             Else
                 _activity.Action = "Change information"
@@ -311,12 +311,12 @@ Public Class UserInformationViewModel
             _activity = New Activities With {
                 .ActionAt = Date.Now,
                 .AccountId = user.Id,
-                .Name = user.Name,
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
             If _openedFrom = "ManageUsersView" Then
                 _activity.Action = "Change password a user"
+                _activity.Name = user.Name
                 _activity.ActionIn = "Manage Users"
             Else
                 _activity.Action = "Change password"
@@ -387,12 +387,12 @@ Public Class UserInformationViewModel
             _activity = New Activities With {
                 .ActionAt = Date.Now,
                 .AccountId = user.Id,
-                .Name = user.Name,
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
             If _openedFrom = "ManageUsersView" Then
                 _activity.Action = "Change role a user"
+                _activity.Name = user.Name
                 _activity.ActionIn = "Manage Users"
             Else
                 _activity.Action = "Change role"

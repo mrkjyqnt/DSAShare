@@ -17,7 +17,6 @@
 
         If _usersRepository.Auth(user) Then
             Dim loggedUser = _usersRepository.GetByUsername(user)
-            SetSession(loggedUser)
             Return True
         End If
 

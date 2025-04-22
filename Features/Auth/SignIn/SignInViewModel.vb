@@ -82,7 +82,7 @@ Partial Public Class SignInViewModel
 
             If Not Await _securityService.SecurityCheck() Then
                 Dim unlockTime = _securityService.GetLockUntil()
-                Dim formattedTime = unlockTime?.ToString("hh:mm tt") ' Example: "03:45 PM"
+                Dim formattedTime = unlockTime?.ToString("hh:mm tt")
                 Await PopUp.Information("Failed", $"Logging in is temporarily locked until {formattedTime}. Please try again later.").ConfigureAwait(True)
                 Return
             End If
@@ -95,8 +95,43 @@ Partial Public Class SignInViewModel
             Dim isAuthenticated = Await Task.Run(Function() _authenticationService.Authenticate(Username, Password)).ConfigureAwait(True)
 
             If isAuthenticated Then
+                Dim user = Await Task.Run(Function() _userService.GetUserByUsername(New Users With {.Username = Username})).ConfigureAwait(True)
+
+                If user.Status = "Deactivated" Then
+                    Await PopUp.Information("Information", "This account has been deactivated, re-enter your password to activate again")
+                    Dim maxAttempts As Integer = 3
+                    Dim attempts As Integer = 0
+
+                    While attempts < maxAttempts
+                        attempts += 1
+
+                        Dim popUpResult As PopupResult = Await PopUp.Confirmation()
+
+                        If popUpResult Is Nothing Then
+                            Await PopUp.Information("Cancelled", "Account activation was cancelled.")
+                            Return
+                            Exit Function
+                        Else
+                            If user.PasswordHash = HashPassword(popUpResult.GetValue(Of String)("Input")) Then
+                                user.Status = "Active"
+                                Dim result = Await Task.Run(Function() _userService.UpdateUser(user))
+
+                                If Not result Then
+                                    PopUp.Information($"Failed", "Theres an error while activating the user, please check error log")
+                                    Return
+                                End If
+
+                                Exit While
+                            Else
+                                Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)")
+                            End If
+                        End If
+                    End While
+                End If
+
                 Await PopUp.Information("Success", "Login Success").ConfigureAwait(True)
                 _securityService.ResetAttempts()
+                _sessionManager.Login(user)
 
                 Try
                     Await Application.Current.Dispatcher.InvokeAsync(Sub() _regionManager.RequestNavigate("MainRegion", "DashboardView"))

@@ -5,6 +5,7 @@ Imports Microsoft.Win32
 Imports System.Windows
 Imports System.Diagnostics
 
+#Disable Warning
 Public Class ThemeWatcher
     Private ReadOnly _themeCheckInterval As TimeSpan = TimeSpan.FromSeconds(5)
     Private _cancellationTokenSource As CancellationTokenSource
@@ -14,10 +15,10 @@ Public Class ThemeWatcher
     Public Event ThemeChanged As EventHandler(Of AppTheme)
     
     ' Start monitoring system theme changes in the background
-    Public Sub StartMonitoring()
+    Public Async Sub StartMonitoring()
         _lastDetectedSystemTheme = GetSystemTheme() ' Initialize with current system theme
         _cancellationTokenSource = New CancellationTokenSource()
-        Task.Run(Async Function() MonitorSystemThemeAsync(_cancellationTokenSource.Token))
+        Await Task.Run(Async Function() MonitorSystemThemeAsync(_cancellationTokenSource.Token))
     End Sub
     
     ' Stop the monitoring task

@@ -31,19 +31,19 @@ Public Class AuthenticationViewModel
         _navigationService = navigationService
         _sessionManager = sessionManager
 
-        _regionManager.RegisterViewWithRegion(Of SignInView)("AuthenticationRegion")
         Load()
     End Sub
 
     Private Async Sub Load()
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())  
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
             If Not Await Fallback.CheckConnection() Then
                 Return
             End If
 
             _navigationService.Start("MainRegion", "AuthenticationView", "")
+            _navigationService.Go("AuthenticationRegion", "SignInView")
 
             If Await Task.Run(Function() _sessionManager.IsLoggedIn) Then
                 _navigationService.Go("MainRegion", "DashboardView")

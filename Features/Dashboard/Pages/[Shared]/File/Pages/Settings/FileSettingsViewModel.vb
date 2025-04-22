@@ -344,7 +344,6 @@ Public Class FileSettingsViewModel
     End Function
 
     Private Function HasChanges(newFile As FilesShared, oldFile As FilesShared) As Boolean
-        ' Compare all relevant properties
         Return newFile.Name <> oldFile.Name OrElse
                newFile.FileDescription <> oldFile.FileDescription OrElse
                newFile.Privacy <> oldFile.Privacy OrElse

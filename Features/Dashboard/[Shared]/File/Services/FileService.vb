@@ -239,7 +239,12 @@ Public Class FileService
                 For Each files In sharedFiles
                     _fileDataService.RemoveSharedFile(files)
 
-                    _fileDataService.RemoveAccessedFile(_fileDataService.GetAccessedFileByUserFile(New FilesAccessed With {.FileId = files.Id}))
+                    accessFiles = _fileDataService.GetAllAccessedFiles(New FilesAccessed With {.FileId = files.Id})
+                    If accessFiles IsNot Nothing Then
+                        For Each accessFile In accessFiles
+                            _fileDataService.RemoveAccessedFile(accessFile)
+                        Next
+                    End If
 
                     If File.Exists(Path.Combine(_folderPath, files.FilePath)) Then
                         File.Delete(Path.Combine(_folderPath, files.FilePath))

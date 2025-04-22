@@ -206,6 +206,7 @@ Public Class FileDetailsViewModel
                 End If
 
                 FileNameText = _file.Name
+
                 _parameters.Add("fileId", navigationContext.Parameters.GetValue(Of Integer)("fileId"))
                 _parameters.Add("openedFrom", navigationContext.Parameters.GetValue(Of String)("openedFrom"))
 

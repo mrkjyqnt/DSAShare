@@ -11,6 +11,7 @@ Public Class UserDangerZoneViewModel
     Implements IRegionMemberLifetime
 
     Private ReadOnly _fileService As IFileService
+    Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _navigationService As INavigationService
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _userService As IUserService
@@ -20,7 +21,8 @@ Public Class UserDangerZoneViewModel
     Private _user As Users
     Private _openedFrom As String
 
-    Private _banningSectionVisibility As Visibility = Visibility.Collapsed
+    Private _secretSectionVisibility As Visibility = Visibility.Collapsed
+    Private _deactivateSectionVisibility As Visibility = Visibility.Collapsed
     Private _unBanAccountButtonVisibility As Visibility = Visibility.Collapsed
     Private _banAccountButtonVisibility As Visibility = Visibility.Collapsed
 
@@ -30,13 +32,22 @@ Public Class UserDangerZoneViewModel
         End Get
     End Property
 
-    Public Property BanningSectionVisibility As Visibility
+    Public Property SecretSectionVisibility As Visibility
         Get
-            Return _banningSectionVisibility
+            Return _secretSectionVisibility
         End Get
         Set(value As Visibility)
-            SetProperty(_banningSectionVisibility, value)
-            _banningSectionVisibility = value
+            SetProperty(_secretSectionVisibility, value)
+            _secretSectionVisibility = value
+        End Set
+    End Property
+    Public Property DeactivateSectionVisibility As Visibility
+        Get
+            Return _deactivateSectionVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_deactivateSectionVisibility, value)
+            _deactivateSectionVisibility = value
         End Set
     End Property
 
@@ -63,14 +74,17 @@ Public Class UserDangerZoneViewModel
     Public ReadOnly Property BanAccountCommand As AsyncDelegateCommand
     Public ReadOnly Property UnBanAccountCommand As AsyncDelegateCommand
     Public ReadOnly Property DeleteAccountCommand As AsyncDelegateCommand
+    Public ReadOnly Property DeactivateAccountCommand As AsyncDelegateCommand
 
     Public Sub New(fileService As IFileService,
+                   fileDataService As IFileDataService,
                    navigationService As INavigationService,
                    activityService As IActivityService,
                    userService As IUserService,
                    sessionManager As ISessionManager,
                    regionManager As IRegionManager)
         _fileService = fileService
+        _fileDataService = fileDataService
         _navigationService = navigationService
         _activityService = activityService
         _userService = userService
@@ -80,6 +94,7 @@ Public Class UserDangerZoneViewModel
         BanAccountCommand = New AsyncDelegateCommand(AddressOf OnBanAccount)
         UnBanAccountCommand = New AsyncDelegateCommand(AddressOf OnUnBanAccount)
         DeleteAccountCommand = New AsyncDelegateCommand(AddressOf OnDeleteAccount)
+        DeactivateAccountCommand = New AsyncDelegateCommand(AddressOf OnDeactivateAccount)
     End Sub
 
     Private Async Function OnBanAccount() As Task
@@ -92,22 +107,22 @@ Public Class UserDangerZoneViewModel
 
             If Not _userService.CheckStatus Then
                 _sessionManager.Logout()
-                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                Await PopUp.Information("Warning", "Your account has been banned.")
                 RestartApplication()
                 Return
             End If
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
-            Await PopUp.Information("Confirmation", "Please enter your password to confirm the e updating of the user.").ConfigureAwait(True)
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the e updating of the user.")
 
             While attempts < maxAttempts
                 attempts += 1
 
-                Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+                Dim popUpResult As PopupResult = Await PopUp.Confirmation()
 
                 If popUpResult Is Nothing Then
-                    Await PopUp.Information("Cancelled", "Account banning was cancelled.").ConfigureAwait(True)
+                    Await PopUp.Information("Cancelled", "Account banning was cancelled.")
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
@@ -115,9 +130,9 @@ Public Class UserDangerZoneViewModel
                         .PasswordHash = HashPassword(enteredPassword)
                     }
 
-                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(thisUser)).ConfigureAwait(True)
+                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(thisUser))
                     If Not hasPermission Then
-                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)")
                     Else
                         Exit While
                     End If
@@ -125,7 +140,7 @@ Public Class UserDangerZoneViewModel
             End While
 
             If attempts >= maxAttempts Then
-                Await PopUp.Information("Failed", "Maximum attempts reached. Banning cancelled.").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Maximum attempts reached. Banning cancelled.")
                 Return
             End If
 
@@ -136,12 +151,13 @@ Public Class UserDangerZoneViewModel
 
             _user.Status = "Banned"
 
-            Dim result = _userService.UpdateUser(_user)
+            Dim result = Await Task.Run(Function() _userService.UpdateUser(_user)).ConfigureAwait(True)
 
             If result Then
-                Await PopUp.Information("Success", "Succesfully banned the user").ConfigureAwait(True)
+                Await Task.Run(Function() _fileDataService.DisableAllSharedFileByUploader(New FilesShared With {.UploadedBy = _user.Id})).ConfigureAwait(True)
+                Await PopUp.Information("Success", "Succesfully banned the user")
             Else
-                Await PopUp.Information("Failed", "Unable to ban user").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Unable to ban user")
                 _navigationService.GoBack()
                 Return
             End If
@@ -155,12 +171,12 @@ Public Class UserDangerZoneViewModel
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
-            Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
-        Catch ex As Exception
+            Await Task.Run(Function() _activityService.AddActivity(activity))
 
-        Finally
             UpdateVisibility()
             Loading.Hide()
+        Catch ex As Exception
+
         End Try
     End Function
 
@@ -174,22 +190,22 @@ Public Class UserDangerZoneViewModel
 
             If Not _userService.CheckStatus Then
                 _sessionManager.Logout()
-                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                Await PopUp.Information("Warning", "Your account has been banned.")
                 RestartApplication()
                 Return
             End If
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
-            Await PopUp.Information("Confirmation", "Please enter your password to confirm the updating of the user.").ConfigureAwait(True)
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the unban of the user.")
 
             While attempts < maxAttempts
                 attempts += 1
 
-                Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+                Dim popUpResult As PopupResult = Await PopUp.Confirmation()
 
                 If popUpResult Is Nothing Then
-                    Await PopUp.Information("Cancelled", "Account banning was cancelled.").ConfigureAwait(True)
+                    Await PopUp.Information("Cancelled", "Account unbanning was cancelled.")
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
@@ -197,9 +213,9 @@ Public Class UserDangerZoneViewModel
                         .PasswordHash = HashPassword(enteredPassword)
                     }
 
-                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(thisUser)).ConfigureAwait(True)
+                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(thisUser))
                     If Not hasPermission Then
-                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)")
                     Else
                         Exit While
                     End If
@@ -207,7 +223,7 @@ Public Class UserDangerZoneViewModel
             End While
 
             If attempts >= maxAttempts Then
-                Await PopUp.Information("Failed", "Maximum attempts reached. Unbanning cancelled.").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Maximum attempts reached. Unbanning cancelled.")
                 Return
             End If
 
@@ -221,9 +237,9 @@ Public Class UserDangerZoneViewModel
             Dim result = _userService.UpdateUser(_user)
 
             If result Then
-                Await PopUp.Information("Success", "Succesfully banned the user").ConfigureAwait(True)
+                Await PopUp.Information("Success", "Succesfully unbanned the user")
             Else
-                Await PopUp.Information("Failed", "Unable to ban user").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Unable to unban user")
                 _navigationService.GoBack()
                 Return
             End If
@@ -237,7 +253,7 @@ Public Class UserDangerZoneViewModel
                 .UserId = _sessionManager.CurrentUser.Id
             }
 
-            Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
+            Await Task.Run(Function() _activityService.AddActivity(activity))
         Catch ex As Exception
 
         Finally
@@ -256,7 +272,7 @@ Public Class UserDangerZoneViewModel
 
             If Not _userService.CheckStatus Then
                 _sessionManager.Logout()
-                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                Await PopUp.Information("Warning", "Your account has been banned.")
                 RestartApplication()
                 Return
             End If
@@ -268,15 +284,15 @@ Public Class UserDangerZoneViewModel
 
             Dim maxAttempts As Integer = 3
             Dim attempts As Integer = 0
-            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the file.").ConfigureAwait(True)
+            Await PopUp.Information("Confirmation", "Please enter your password to confirm the deletion of the account.")
 
             While attempts < maxAttempts
                 attempts += 1
 
-                Dim popUpResult As PopupResult = Await PopUp.Confirmation().ConfigureAwait(True)
+                Dim popUpResult As PopupResult = Await PopUp.Confirmation()
 
                 If popUpResult Is Nothing Then
-                    Await PopUp.Information("Cancelled", "File deletion was cancelled.").ConfigureAwait(True)
+                    Await PopUp.Information("Cancelled", "File deletion was cancelled.")
                     Exit Function
                 Else
                     Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
@@ -284,9 +300,9 @@ Public Class UserDangerZoneViewModel
                         .PasswordHash = HashPassword(enteredPassword)
                     }
 
-                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user)).ConfigureAwait(True)
+                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(user))
                     If Not hasPermission Then
-                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)").ConfigureAwait(True)
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)")
                     Else
                         Exit While
                     End If
@@ -294,7 +310,7 @@ Public Class UserDangerZoneViewModel
             End While
 
             If attempts = maxAttempts Then
-                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Maximum attempts reached. Deletion cancelled.")
                 Return
             End If
 
@@ -303,12 +319,12 @@ Public Class UserDangerZoneViewModel
                 Return
             End If
 
-            Dim filesResult = Await Task.Run(Function() _fileService.DeleteAllFileByUser(_user)).ConfigureAwait(True)
-            Await Task.Run(Sub() _activityService.DeleteAllActivity(_user)).ConfigureAwait(True)
-            Dim result = Await Task.Run(Function() _userService.DeleteUser(_user)).ConfigureAwait(True)
+            Dim filesResult = Await Task.Run(Function() _fileService.DeleteAllFileByUser(_user))
+            Await Task.Run(Sub() _activityService.DeleteAllActivity(_user))
+            Dim result = Await Task.Run(Function() _userService.DeleteUser(_user))
 
             If Not result Then
-                Await PopUp.Information("Failed", "Unable to delete the user").ConfigureAwait(True)
+                Await PopUp.Information("Failed", "Unable to delete the user")
                 _navigationService.GoBack()
                 Return
             End If
@@ -323,11 +339,11 @@ Public Class UserDangerZoneViewModel
                     .UserId = _sessionManager.CurrentUser.Id
                 }
 
-                Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
+                Await Task.Run(Function() _activityService.AddActivity(activity))
                 _navigationService.GoBack()
             Else
-                Await PopUp.Information("Success", "Account has been permanently deleted").ConfigureAwait(True)
-                Await PopUp.Information("Success", "Application will restart for data refresh").ConfigureAwait(True)
+                Await PopUp.Information("Success", "Account has been permanently deleted")
+                Await PopUp.Information("Success", "Application will restart for data refresh")
                 _sessionManager.Logout()
                 RestartApplication()
             End If
@@ -340,11 +356,95 @@ Public Class UserDangerZoneViewModel
         End Try
     End Function
 
+    Private Async Function OnDeactivateAccount() As Task
+        Try
+            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.")
+                RestartApplication()
+                Return
+            End If
+
+            Dim maxAttempts As Integer = 3
+            Dim attempts As Integer = 0
+            Await PopUp.Information("Confirmation", "By entering password, you agree that all your Shared Files will be disabled by default")
+
+            While attempts < maxAttempts
+                attempts += 1
+
+                Dim popUpResult As PopupResult = Await PopUp.Confirmation()
+
+                If popUpResult Is Nothing Then
+                    Await PopUp.Information("Cancelled", "Account deactivation was cancelled.")
+                    Exit Function
+                Else
+                    Dim enteredPassword = popUpResult.GetValue(Of String)("Input")
+                    Dim thisUser = New Users With {
+                        .PasswordHash = HashPassword(enteredPassword)
+                    }
+
+                    Dim hasPermission = Await Task.Run(Function() _userService.CheckPermission(thisUser))
+                    If Not hasPermission Then
+                        Await PopUp.Information("Failed", $"Invalid Password ({attempts}/{maxAttempts} attempts)")
+                    Else
+                        Exit While
+                    End If
+                End If
+            End While
+
+            If attempts >= maxAttempts Then
+                Await PopUp.Information("Failed", "Maximum attempts reached. Deactivation cancelled.")
+                Return
+            End If
+
+            If _user Is Nothing Then
+                Await PopUp.Information("Failed", "Theres an error while deactivating account, User reference is nothing")
+                Return
+            End If
+
+            _user.Status = "Deactivated"
+
+            Dim result = Await Task.Run(Function() _userService.UpdateUser(_user)).ConfigureAwait(True)
+
+            If result Then
+                _sessionManager.Logout()
+                Await Task.Run(Function() _fileDataService.DisableAllSharedFileByUploader(New FilesShared With {.UploadedBy = _user.Id})).ConfigureAwait(True)
+                Await PopUp.Information("Success", "Succesfully Deactivated")
+            Else
+                Await PopUp.Information("Failed", "Unable to Deactivate")
+                Return
+            End If
+
+
+            Dim activity = New Activities With {
+                .Action = "Deactivated",
+                .ActionIn = "Account",
+                .ActionAt = Date.Now,
+                .UserId = _sessionManager.CurrentUser.Id
+            }
+
+            Await Task.Run(Function() _activityService.AddActivity(activity))
+            _sessionManager.Logout()
+            RestartApplication()
+            Return
+        Catch ex As Exception
+            Debug.WriteLine($"[UserDangerZoneViewModel] OnDeactivateAccount Error: {ex.Message}")
+        Finally
+            Loading.Hide()
+        End Try
+    End Function
+
     Public Sub UpdateVisibility()
         Try
             If _openedFrom = "ManageUsersView" Then
                 If _sessionManager.CurrentUser.Role = "Admin" Then
-                    BanningSectionVisibility = Visibility.Visible
+                    SecretSectionVisibility = Visibility.Visible
                 End If
 
                 If _user.Status = "Banned" Then
@@ -356,8 +456,11 @@ Public Class UserDangerZoneViewModel
                     BanAccountButtonVisibility = Visibility.Visible
                     UnBanAccountButtonVisibility = Visibility.Collapsed
                 End If
+
+                Return
             End If
 
+            DeactivateSectionVisibility = Visibility.Visible
         Catch ex As Exception
 
         End Try
@@ -366,7 +469,7 @@ Public Class UserDangerZoneViewModel
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(100).ConfigureAwait(True)
+            Await Task.Delay(100)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
@@ -378,10 +481,10 @@ Public Class UserDangerZoneViewModel
                 }
 
                 _openedFrom = navigationContext.Parameters.GetValue(Of String)("openedFrom")
-                _user = Await Task.Run(Function() _userService.GetUserById(user)).ConfigureAwait(True)
+                _user = Await Task.Run(Function() _userService.GetUserById(user))
 
                 If String.IsNullOrEmpty(_user?.Id) Then
-                    Await PopUp.Information("Error", "User not found").ConfigureAwait(True)
+                    Await PopUp.Information("Error", "User not found")
                     Return
                 End If
 

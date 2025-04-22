@@ -179,7 +179,6 @@ Public Class UserInformationsViewModel
                 If _userDetails Is Nothing OrElse _sessionManager.CurrentUser.Id = _userDetails.Id OrElse _sessionManager.CurrentUser.Role = "Guest" Then
                     OtherSettingsVisibility = Visibility.Collapsed
                     ActivitiesButtonVisibility = Visibility.Collapsed
-                    DangerZoneButtonVisibility = Visibility.Collapsed
 
                     If _sessionManager.CurrentUser.Role = "Guest" Then
                         AppearanceButtonVisibility = Visibility.Collapsed

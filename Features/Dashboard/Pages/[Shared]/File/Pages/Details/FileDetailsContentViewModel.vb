@@ -187,7 +187,7 @@ Public Class FileDetailsContentViewModel
 
     Private Async Sub Load()
         Try
-            Dim author = Await Task.Run(Function() _userService.GetUserById(New Users With{.Id = _fileShared.UploadedBy})).ConfigureAwait(True)
+            Dim author = Await Task.Run(Function() _userService.GetUserById(New Users With {.Id = _fileShared.UploadedBy})).ConfigureAwait(True)
 
             _dataGridFileDetails.Author = If(author?.Name, "Unknown")
             _dataGridFileDetails.FileName = If(_fileShared?.FileName, "Unknown")
@@ -334,7 +334,7 @@ Public Class FileDetailsContentViewModel
             Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile)).ConfigureAwait(True)
 
             If _accessedFiles Is Nothing Then
-                If Not Await Task.Run(Function() _fileDataService.SetAccessFile(accessedFile)).ConfigureAwait(True) Then
+                If Not Await Task.Run(Function() _fileDataService.AddAccessFile(accessedFile)).ConfigureAwait(True) Then
                     PopUp.Information("Failed", "Theres a problem while accessing the file")
                     Return
                 End If
