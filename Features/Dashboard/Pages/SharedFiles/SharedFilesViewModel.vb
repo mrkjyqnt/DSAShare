@@ -278,20 +278,34 @@ Public Class SharedFilesViewModel
         LoadData()
     End Sub
 
-    Private Sub OnViewCommand(fileId As Integer?)
-        If Not fileId.HasValue Then
-            Debug.WriteLine("[WARN] Tried to view a file with NULL ID")
-            Return
-        End If
+    Private Async Sub OnViewCommand(fileId As Integer?)
+        Try
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
 
-        Debug.WriteLine($"[DEBUG] Viewing file ID: {fileId.Value}")
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
 
-        Dim parameters = New NavigationParameters From {
-            {"fileId", fileId.Value},
-            {"openedFrom", "HomeView"}
-        }
+            If Not fileId.HasValue Then
+                Debug.WriteLine("[WARN] Tried to view a file with NULL ID")
+                Return
+            End If
 
-        _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+            Debug.WriteLine($"[DEBUG] Viewing file ID: {fileId.Value}")
+
+            Dim parameters = New NavigationParameters From {
+                {"fileId", fileId.Value},
+                {"openedFrom", "HomeView"}
+            }
+
+            _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+        Catch ex As Exception
+        End Try
     End Sub
 
     Private Sub OnSearchCommand()
@@ -414,21 +428,24 @@ Public Class SharedFilesViewModel
         If IsExeSelected Then typeConditions.Add("EXE")
         If IsTextSelected Then typeConditions.Add("TEXT")
 
-        If Not IsAllTypesSelected Then
-            ResultCount = 0
-            DataGridFiles = New ObservableCollection(Of FilesShared)()
-            RaisePropertyChanged(NameOf(DataGridFiles))
-            RaisePropertyChanged(NameOf(ResultCount))
-            Return
+        If IsAllTypesSelected Then
+            ' This is a placeholder
+        Else
+            If typeConditions.Count > 0 Then
+                filtered = filtered.Where(Function(f)
+                                              Dim category = FileTypeModel.GetCategoryByExtension(f.FileType)
+                                              Return typeConditions.Contains(category)
+                                          End Function)
+            Else
+                ResultCount = 0
+                DataGridFiles = New ObservableCollection(Of FilesShared)()
+                RaisePropertyChanged(NameOf(DataGridFiles))
+                RaisePropertyChanged(NameOf(ResultCount))
+                Return
+            End If
         End If
 
-        If typeConditions.Count > 0 Then
-            filtered = filtered.Where(Function(f)
-                                          Return typeConditions.Contains(FileTypeModel.GetCategoryByExtension(f.FileType))
-                                      End Function)
-        End If
-
-        ResultCount = filtered.Count
+        ResultCount = filtered.Count()
         DataGridFiles = New ObservableCollection(Of FilesShared)(filtered.ToList())
         RaisePropertyChanged(NameOf(DataGridFiles))
         RaisePropertyChanged(NameOf(ResultCount))

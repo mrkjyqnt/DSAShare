@@ -39,6 +39,15 @@ Public Class Bootstrapper
 
         ' Register the PopUp
         containerRegistry.RegisterSingleton(Of IPopupService, PopupService)
+        containerRegistry.RegisterForNavigation(Of ConfirmationPopUpView)("ConfirmationPopUpView")
+        containerRegistry.Register(Of ConfirmationPopUpViewModel)()
+        containerRegistry.RegisterForNavigation(Of InformationPopUpView)("InformationPopUpView")
+        containerRegistry.Register(Of InformationPopUpViewModel)()
+        containerRegistry.RegisterForNavigation(Of DescriptionPopUpView)("DescriptionPopUpView")
+        containerRegistry.Register(Of DescriptionPopUpViewModel)()
+        containerRegistry.RegisterForNavigation(Of SelectionPopUpView)("SelectionPopUpView")
+        containerRegistry.Register(Of SelectionPopUpViewModel)()
+
 
         ' Register the Loading
         containerRegistry.RegisterSingleton(Of ILoadingService, LoadingService)
@@ -85,10 +94,20 @@ Public Class Bootstrapper
         containerRegistry.RegisterSingleton(Of IFileService, FileService)
         containerRegistry.RegisterSingleton(Of IFileInfoService, FileInfoService)
         containerRegistry.RegisterSingleton(Of IFilePreviewService, FilePreviewService)()
+        containerRegistry.RegisterSingleton(Of IFileBlockService, FileBlockService)()
+
+        ' Register the Activity Services
         containerRegistry.RegisterSingleton(Of IActivityService, ActivityService)
+
+        ' Register the Reports Services
+        containerRegistry.RegisterSingleton(Of IReportsService, ReportsService)
 
         'Register the Download Services
         containerRegistry.RegisterSingleton(Of IDownloadService, DownloadService)()
+
+        'Register the Upload Services
+        containerRegistry.RegisterSingleton(Of IUploadProcessingService, UploadProcessingService)()
+        containerRegistry.RegisterSingleton(Of IUploadQueueService, UploadQueueService)()
 
         ' Shared
         containerRegistry.RegisterForNavigation(Of FileDetailsView)("FileDetailsView")
@@ -136,14 +155,18 @@ Public Class Bootstrapper
         containerRegistry.Register(Of ManageUsersViewModel)()
         containerRegistry.RegisterForNavigation(Of ManageFilesView)("ManageFilesView")
         containerRegistry.Register(Of ManageFilesViewModel)()
+        containerRegistry.RegisterForNavigation(Of ReportsView)("ReportsView")
+        containerRegistry.Register(Of ReportsViewModel)()
+        containerRegistry.RegisterForNavigation(Of ReportDetailsView)("ReportDetailsView")
+        containerRegistry.Register(Of ReportDetailsViewModel)()
         containerRegistry.RegisterForNavigation(Of DownloadsView)("DownloadsView")
         containerRegistry.Register(Of DownloadsViewModel)()
+        containerRegistry.RegisterForNavigation(Of UploadsView)("UploadsView")
+        containerRegistry.Register(Of UploadsViewModel)()
         containerRegistry.RegisterForNavigation(Of ActivitiesView)("ActivitiesView")
         containerRegistry.Register(Of ActivitiesViewModel)()
         containerRegistry.RegisterForNavigation(Of AccountView)("AccountView")
         containerRegistry.Register(Of AccountViewModel)()
-
-
     End Sub
 
     ''' <summary>
@@ -156,6 +179,7 @@ Public Class Bootstrapper
         Dim userService = Container.Resolve(Of IUserService)()
         Dim sessionManager = Container.Resolve(Of ISessionManager)()
         Dim navigation = Container.Resolve(Of INavigationService)()
+        Dim uploadProcessingService = Container.Resolve(Of IUploadProcessingService)()
 
         sessionManager.LoadSession()
         ConfigurationModule.GetSettings()

@@ -9,6 +9,11 @@
     xmlns:prism="http://prismlibrary.com/"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -139,34 +144,44 @@
                             Style="{DynamicResource SubTitleText}"
                             Text="Recent Activities" />
                         <Border Grid.Row="1">
-                            <DataGrid
-                                local:ScrollHelper.BubbleScroll="True"
-                                AutoGenerateColumns="False"
-                                ItemsSource="{Binding DataGridActivities}"
-                                SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
-                                Style="{DynamicResource DefaultDataGrid}">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="*" IsReadOnly="True">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Vertical">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Action}" />
-                                                        <TextBlock Text=" " />
-                                                        <TextBlock
-                                                            MaxWidth="250"
-                                                            FontFamily="{DynamicResource InterMedium}"
-                                                            Text="{Binding Name}"
-                                                            TextTrimming="CharacterEllipsis"
-                                                            ToolTip="{Binding Name}" />
+                            <Grid>
+                                <DataGrid
+                                    local:ScrollHelper.BubbleScroll="True"
+                                    AutoGenerateColumns="False"
+                                    ItemsSource="{Binding DataGridActivities}"
+                                    SelectedItem="{Binding SelectedActivity, Mode=TwoWay}"
+                                    Style="{DynamicResource DefaultDataGrid}">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="*" IsReadOnly="True">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Vertical">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Action}" />
+                                                            <TextBlock Text=" " />
+                                                            <TextBlock
+                                                                MaxWidth="250"
+                                                                FontFamily="{DynamicResource InterMedium}"
+                                                                Text="{Binding Name}"
+                                                                TextTrimming="CharacterEllipsis"
+                                                                ToolTip="{Binding Name}" />
+                                                        </StackPanel>
+                                                        <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text="{Binding ActionAt}" />
                                                     </StackPanel>
-                                                    <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text="{Binding ActionAt}" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Border VerticalAlignment="Top" Visibility="{Binding DataGridActivities, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <Border
+                                        Padding="{DynamicResource Space-16}"
+                                        VerticalAlignment="Top"
+                                        Style="{DynamicResource DefaultBorder}">
+                                        <TextBlock Style="{DynamicResource BodyText}" Text="No records found" />
+                                    </Border>
+                                </Border>
+                            </Grid>
                         </Border>
                     </Grid>
                 </Grid>

@@ -1,4 +1,7 @@
-﻿Public Class Activities
+﻿''' <summary>
+''' Represents Activities Table
+''' </summary>
+Public Class Activities
     Public Property Id As Integer? = Nothing
     Public Property Action As String
     Public Property ActionIn As String

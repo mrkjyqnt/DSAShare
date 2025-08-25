@@ -12,13 +12,13 @@ End Enum
 Module ThemeHelper
 
     Private ReadOnly ThemePaths As New Dictionary(Of AppTheme, String) From {
-        {AppTheme.Light, "/Components/Theme/LightTheme.xaml"},
-        {AppTheme.Dark, "/Components/Theme/DarkTheme.xaml"}
+        {AppTheme.Light, "/Resources/Theme/LightTheme.xaml"},
+        {AppTheme.Dark, "/Resources/Theme/DarkTheme.xaml"}
     }
 
     Private ReadOnly IconPaths As New Dictionary(Of AppTheme, String) From {
-        {AppTheme.Light, "/Components/Theme/LightIcons.xaml"},
-        {AppTheme.Dark, "/Components/Theme/DarkIcons.xaml"}
+        {AppTheme.Light, "/Resources/Theme/LightIcons.xaml"},
+        {AppTheme.Dark, "/Resources/Theme/DarkIcons.xaml"}
     }
 
     ' Track the current theme

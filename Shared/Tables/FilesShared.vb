@@ -1,10 +1,13 @@
 ﻿Imports System
 Imports System.Collections.Generic
+Imports System.ComponentModel
 
 ''' <summary>
 ''' Represents the FilesShared table.
 ''' </summary>
 Public Class FilesShared
+    Implements INotifyPropertyChanged
+
     Public Property Id As Integer? = Nothing
     Public Property Name As String
     Public Property FileName As String
@@ -22,34 +25,32 @@ Public Class FilesShared
     Public Property CreatedAt As DateTime? = Nothing
     Public Property UpdatedAt As DateTime? = Nothing
 
-    ''' <summary>
-    ''' Validates the table data before saving to the database.
-    ''' </summary>
-    ''' <returns>True if the data is valid; otherwise, False.</returns>
-    Public Function Validate() As Boolean
-        ' Validate required fields
-        Return Not String.IsNullOrEmpty(FileName) AndAlso
-               Not String.IsNullOrEmpty(FilePath) AndAlso
-               UploadedBy > 0 AndAlso
-               Not String.IsNullOrEmpty(ShareType) AndAlso
-               Not String.IsNullOrEmpty(Privacy)
-    End Function
+    Private _progress As Integer
+    Public Property Progress As Integer
+        Get
+            Return _progress
+        End Get
+        Set(value As Integer)
+            If _progress <> value Then
+                _progress = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(NameOf(Progress)))
+            End If
+        End Set
+    End Property
 
-    ''' <summary>
-    ''' Converts the table data to a dictionary for database operations.
-    ''' </summary>
-    ''' <returns>A dictionary of column names and values.</returns>
-    Public Function ToDictionary() As Dictionary(Of String, Object)
-        Return New Dictionary(Of String, Object) From {
-            {"file_name", FileName},
-            {"file_path", FilePath},
-            {"uploaded_by", UploadedBy},
-            {"share_type", ShareType},
-            {"share_code", ShareValue},
-            {"expiry_date", ExpiryDate},
-            {"privacy", Privacy},
-            {"download_count", DownloadCount},
-            {"created_at", CreatedAt}
-        }
-    End Function
+    Private _status As String
+
+    Public Property Status As String
+        Get
+            Return _status
+        End Get
+        Set(value As String)
+            If _status <> value Then
+                _status = value
+                RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(NameOf(Status)))
+            End If
+        End Set
+    End Property
+
+    Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 End Class

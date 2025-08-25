@@ -279,9 +279,6 @@ Public Class AccessedFilesViewModel
 
     Private Async Sub OnViewCommand(fileId As Integer?)
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
-
             If Not Await Fallback.CheckConnection() Then
                 Return
             End If
@@ -300,7 +297,6 @@ Public Class AccessedFilesViewModel
 
             _navigationService.Go("PageRegion", "FileDetailsView", "Accessed Files", parameters)
         Catch ex As Exception
-
         End Try
     End Sub
 

@@ -356,7 +356,17 @@ Public Class ActivitiesViewModel
                 parameters.Add("fileId", selectedActivity.FileId)
 
                 If fileSharedInfo Is Nothing Then
-                    Await PopUp.Information("Failed", "Referenced file access was removed")
+                    PopUp.Information("Failed", "Referenced file was been removed")
+                    Return
+                End If
+
+                If fileSharedInfo.Privacy = "Deleted" Then
+                    PopUp.Information("Failed", "Referenced file was been removed")
+                    Return
+                End If
+
+                If fileSharedInfo.Privacy = "Blocked" Then
+                    PopUp.Information("Failed", "Referenced file was been blocked by an admin")
                     Return
                 End If
 
@@ -391,6 +401,8 @@ Public Class ActivitiesViewModel
         Catch ex As Exception
             Debug.WriteLine($"[UserActivitiesViewModel] Activity selection failed: {ex.Message}")
             PopUp.Information("Error", "An unexpected error occurred while processing your request.")
+        Finally
+            Loading.Hide()
         End Try
     End Sub
 

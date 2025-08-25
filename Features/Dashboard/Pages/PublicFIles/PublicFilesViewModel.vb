@@ -229,7 +229,7 @@ Public Class PublicFilesViewModel
 
     Public Property SearchCommand As DelegateCommand
     Public Property ShareFileCommand As DelegateCommand
-    Public Property ViewCommand As AsyncDelegateCommand(Of Integer?)
+    Public Property ViewCommand As DelegateCommand(Of Integer?)
 
     Public Sub New(fileDataService As IFileDataService,
                    navigationService As INavigationService,
@@ -244,16 +244,13 @@ Public Class PublicFilesViewModel
 
         DataGridFiles = New ObservableCollection(Of FilesShared)
         SearchCommand = New DelegateCommand(AddressOf OnSearchCommand)
-        ViewCommand = New AsyncDelegateCommand(Of Integer?)(AddressOf OnViewCommand)
+        ViewCommand = New DelegateCommand(Of Integer?)(AddressOf OnViewCommand)
 
         LoadData()
     End Sub
 
-    Private Async Function OnViewCommand(fileId As Integer?) As Task
+    Private Async Sub OnViewCommand(fileId As Integer?)
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
-
             If Not Await Fallback.CheckConnection() Then
                 Return
             End If
@@ -294,10 +291,8 @@ Public Class PublicFilesViewModel
             _navigationService.Go("PageRegion", "FileDetailsView", "Public Files", parameters)
         Catch ex As Exception
             Debug.WriteLine($"[PublicFilesView] OnViewCommand Error: {ex.Message}")
-        Finally
-            Loading.Hide()
         End Try
-    End Function
+    End Sub
 
     Private Sub OnSearchCommand()
         ApplyFilters()

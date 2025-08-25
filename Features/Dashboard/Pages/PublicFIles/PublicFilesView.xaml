@@ -220,8 +220,7 @@
                             EnableRowVirtualization="True"
                             IsReadOnly="True"
                             ItemsSource="{Binding DataGridFiles}"
-                            Style="{DynamicResource DefaultDataGrid}"
-                            VerticalScrollBarVisibility="Hidden">
+                            Style="{DynamicResource DefaultDataGrid}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn
                                     Width="*"

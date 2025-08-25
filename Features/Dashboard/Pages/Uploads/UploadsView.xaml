@@ -1,0 +1,112 @@
+﻿<UserControl
+    x:Class="UploadsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DSAShare"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <local:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
+        <local:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border
+            Grid.Row="0"
+            Padding="{DynamicResource Space-32}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="0,0,0,1">
+            <TextBlock
+                HorizontalAlignment="Left"
+                Style="{DynamicResource TitleText}"
+                Text="Uploads List" />
+        </Border>
+
+
+        <Grid Grid.Row="1" Margin="0,32">
+            <ListView
+                Padding="32,0"
+                HorizontalAlignment="Stretch"
+                Background="Transparent"
+                BorderThickness="0"
+                ItemsSource="{Binding UploadQueue, UpdateSourceTrigger=PropertyChanged}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border HorizontalAlignment="Stretch" Style="{DynamicResource DefaultBorder}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  File Info  -->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock FontWeight="Bold" Text="{Binding FileName}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text="{Binding FileSize}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text=" | " />
+                                        <TextBlock Foreground="{DynamicResource SecondaryBrush}" Text="{Binding Status}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!--  Progress Bar  -->
+                                <ProgressBar
+                                    Grid.Column="1"
+                                    Height="16"
+                                    Margin="16,0"
+                                    Maximum="100"
+                                    Minimum="0"
+                                    Value="{Binding Progress}" />
+
+                                <!--  Cancel Button  -->
+                                <StackPanel
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                                    <Button
+                                        Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Content="Cancel"
+                                        Style="{DynamicResource DefaultButton}"
+                                        ToolTip="Cancel the upload" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Border
+                Padding="32,0"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                Visibility="{Binding UploadQueue.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
+                <Border
+                    Padding="{DynamicResource Space-16}"
+                    VerticalAlignment="Top"
+                    Style="{DynamicResource DefaultBorder}">
+                    <TextBlock Style="{DynamicResource BodyText}" Text="No uploads found" />
+                </Border>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

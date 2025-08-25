@@ -29,18 +29,30 @@ DSAShare (Datamex Saint Adeline Share) is a local file-sharing system designed t
    cd DSAShare
    dotnet restore
 
-3. **Configuration**: Create file named config.ini:
+3. **Configuration**: Open the ConfiguationModule.vb, the following is the default IP, make sure to replace depending on your setup:
     ```powershell
-    [Database]
-    DB_SERVER=(Server IP)\SQLEXPRESS
-    DB_NAME=dsa_share_database
-    DB_USER=(Server Database Username)
-    DB_PASSWORD=(Server Database Password)
-    
-    [Network]
-    FOLDER_PATH=\\(Server IP)\ServerStorage\
-    NET_USER=(Server Windows Username)
-    NET_PASSWORD=(Server Windows Password)
+    Private Sub InitializeDefaultConfig()
+        If DefaultConfig IsNot Nothing Then Return
+
+        Dim ipBase As String = GetLocalIpBase()
+        If String.IsNullOrEmpty(ipBase) Then
+            ipBase = "192.168.8"
+        End If
+
+        DefaultConfig = New AppSettings With {
+            .Database = New DatabaseSettings With {
+                .Server = $"{ipBase}.10\SQLEXPRESS",
+                .Name = "dsa_share_database",
+                .Username = "member",
+                .Password = "member"
+            },
+            .Network = New NetworkSettings With {
+                .FolderPath = $"\\{ipBase}.10\ServerStorage",
+                .Username = "member",
+                .Password = "member"
+            }
+        }
+    End Sub
     ```
     - Copy the file to the Debug Folder under your project path
     

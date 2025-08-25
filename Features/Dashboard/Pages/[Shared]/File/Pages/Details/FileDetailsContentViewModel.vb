@@ -23,6 +23,8 @@ Public Class FileDetailsContentViewModel
 
     Private ReadOnly _fileDataService As IFileDataService
     Private ReadOnly _fileService As IFileService
+    Private ReadOnly _fileBlockService As IFileBlockService
+    Private ReadOnly _reportsService As IReportsService
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _navigationService As INavigationService
@@ -30,6 +32,7 @@ Public Class FileDetailsContentViewModel
 
     Private _openedFrom As String
     Private _fileShared As FilesShared
+    Private _reports As Reports
     Private _fileAccessed As FilesAccessed
     Private _dataGridFileDetails As FileDetailsContentModel
     Private _descriptionText As String
@@ -46,6 +49,8 @@ Public Class FileDetailsContentViewModel
     Private _removeAccessButtonVisibility As Visibility = Visibility.Collapsed
     Private _saveAccessButtonVisibility As Visibility = Visibility.Collapsed
     Private _encryptionSectionVisibility As Visibility = Visibility.Collapsed
+    Private _reportButtonVisibility As Visibility = Visibility.Collapsed
+    Private _reportedButtonVisibility As Visibility = Visibility.Collapsed
 
     Public Property DescriptionText As String
         Get
@@ -145,6 +150,22 @@ Public Class FileDetailsContentViewModel
             SetProperty(_encryptionSectionVisibility, value)
         End Set
     End Property
+    Public Property ReportButtonVisibility As Visibility
+        Get
+            Return _reportButtonVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_reportButtonVisibility, value)
+        End Set
+    End Property
+    Public Property ReportedButtonVisibility As Visibility
+        Get
+            Return _reportedButtonVisibility
+        End Get
+        Set(value As Visibility)
+            SetProperty(_reportedButtonVisibility, value)
+        End Set
+    End Property
 
     Public ReadOnly Property DataGridFileDetails As ObservableCollection(Of KeyValuePair(Of String, String))
         Get
@@ -165,29 +186,35 @@ Public Class FileDetailsContentViewModel
     Public ReadOnly Property DownloadCommand As AsyncDelegateCommand
     Public ReadOnly Property SaveAccessCommand As AsyncDelegateCommand
     Public ReadOnly Property RemoveAccessCommand As AsyncDelegateCommand
+    Public ReadOnly Property ReportCommand As AsyncDelegateCommand
 
     Public Sub New(fileDataService As IFileDataService,
                    fileService As IFileService,
+                   fileBlockService As IFileBlockService,
+                   reportsService As IReportsService,
                    sessionManager As ISessionManager,
                    activityService As IActivityService,
                    navigationService As INavigationService,
                    userService As IUserService)
         _fileDataService = fileDataService
         _fileService = fileService
+        _reportsService = reportsService
         _sessionManager = sessionManager
         _dataGridFileDetails = New FileDetailsContentModel()
         _activityService = activityService
         _navigationService = navigationService
         _userService = userService
+        _fileBlockService = fileBlockService
 
         DownloadCommand = New AsyncDelegateCommand(AddressOf OnDownload)
         SaveAccessCommand = New AsyncDelegateCommand(AddressOf OnSaveAccess)
         RemoveAccessCommand = New AsyncDelegateCommand(AddressOf OnRemoveAccess)
+        ReportCommand = New AsyncDelegateCommand(AddressOf OnReport)
     End Sub
 
     Private Async Sub Load()
         Try
-            Dim author = Await Task.Run(Function() _userService.GetUserById(New Users With {.Id = _fileShared.UploadedBy})).ConfigureAwait(True)
+            Dim author = Await Task.Run(Function() _userService.GetUserById(New Users With {.Id = _fileShared.UploadedBy})).ConfigureAwait(False)
 
             _dataGridFileDetails.Author = If(author?.Name, "Unknown")
             _dataGridFileDetails.FileName = If(_fileShared?.FileName, "Unknown")
@@ -213,6 +240,25 @@ Public Class FileDetailsContentViewModel
 
     Private Async Function LoadPreviewAsync() As Task
         Try
+            If String.IsNullOrEmpty(_filePath) Then
+                Debug.WriteLine("Error: _filePath is empty")
+                CurrentPreviewType = PreviewTypes.Unsupported
+                Return
+            End If
+
+            If String.IsNullOrEmpty(_folderPath) Then
+                Debug.WriteLine("Error: _folderPath is empty")
+                CurrentPreviewType = PreviewTypes.Unsupported
+                Return
+            End If
+
+            Dim fullPath = Path.Combine(_folderPath, _filePath)
+            If Not File.Exists(fullPath) Then
+                Debug.WriteLine($"Error: File not found at {fullPath}")
+                CurrentPreviewType = PreviewTypes.Unsupported
+                Return
+            End If
+
             Dim extension = Path.GetExtension(_filePath).ToLower()
             Dim previewType = GetPreviewTypeForExtension(extension)
 
@@ -231,15 +277,15 @@ Public Class FileDetailsContentViewModel
                                                     img.EndInit()
                                                     If img.CanFreeze Then img.Freeze()
                                                     Return img
-                                                End Function).ConfigureAwait(True)
+                                                End Function).ConfigureAwait(False)
                     PreviewContent = bitmap
 
                 Case PreviewTypes.Document
-                    Dim imageSource = Await DocumentToImageHelper.ConvertFirstPageToImageAsync(Path.Combine(_folderPath, _filePath)).ConfigureAwait(True)
+                    Dim imageSource = Await DocumentToImageHelper.ConvertFirstPageToImageAsync(Path.Combine(_folderPath, _filePath)).ConfigureAwait(False)
                     PreviewContent = imageSource
 
                 Case PreviewTypes.Text
-                    Dim text = Await Task.Run(Function() File.ReadAllText(Path.Combine(_folderPath, _filePath))).ConfigureAwait(True)
+                    Dim text = Await Task.Run(Function() File.ReadAllText(Path.Combine(_folderPath, _filePath))).ConfigureAwait(False)
                     PreviewContent = text
                 Case PreviewTypes.Unsupported
                     PreviewContent = "Unsupported file format."
@@ -269,8 +315,7 @@ Public Class FileDetailsContentViewModel
 
     Public Async Function OnDownload() As Task
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
+            Loading.Show()
 
             If Not Await Fallback.CheckConnection() Then
                 Return
@@ -288,17 +333,28 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
 
+            Dim isBlockResult = Await Task.Run(Function() _fileBlockService.IsBlocked($"{ConfigurationModule.GetSettings().Network.FolderPath}\{_fileShared.FilePath}")).ConfigureAwait(True)
+
+            If isBlockResult Then
+                Await PopUp.Information("Warning", "This file is miscellanous, download failed.").ConfigureAwait(True)
+
+                Await Task.Run(Function() _fileService.DeleteFile(_fileShared)).ConfigureAwait(True)
+
+                _navigationService.GoBack()
+                Exit Try
+            End If
+
             Dim result = Await Task.Run(Function() _fileService.DownloadFile(_fileShared)).ConfigureAwait(True)
 
             If result.Success Then
-                Await PopUp.Information("Success", result.Message).ConfigureAwait(True)
+                PopUp.Information("Success", result.Message)
                 Load()
             Else
-                Await PopUp.Information("Failed", result.Message).ConfigureAwait(True)
+                PopUp.Information("Failed", result.Message)
                 Return
             End If
         Catch ex As Exception
-            Debug.WriteLine($"[FileDetailsContentViewModel] OnDownload Error: {ex.Message}")
+            Debug.WriteLine($"[FileDetailsContentViewModel] OnDownload Error: {ex.ToString}")
         Finally
             Loading.Hide()
         End Try
@@ -306,8 +362,8 @@ Public Class FileDetailsContentViewModel
 
     Public Async Function OnSaveAccess() As Task
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
+            Await RunOnUiAsync(Sub() Loading.Show())
+            Await Task.Delay(100)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
@@ -315,13 +371,15 @@ Public Class FileDetailsContentViewModel
 
             If Not _userService.CheckStatus Then
                 _sessionManager.Logout()
-                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
-                RestartApplication()
+                Await RunOnUiAsync(Async Function()
+                                       Await PopUp.Information("Warning", "Your account has been banned.")
+                                       RestartApplication()
+                                   End Function)
                 Return
             End If
 
             If Not Await CheckFileAvailability() Then
-                _navigationService.GoBack()
+                Await RunOnUiAsync(Sub() _navigationService.GoBack())
                 Return
             End If
 
@@ -331,11 +389,11 @@ Public Class FileDetailsContentViewModel
                 .AccessedAt = Date.Now
             }
 
-            Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile)).ConfigureAwait(True)
+            Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile))
 
             If _accessedFiles Is Nothing Then
-                If Not Await Task.Run(Function() _fileDataService.AddAccessFile(accessedFile)).ConfigureAwait(True) Then
-                    PopUp.Information("Failed", "Theres a problem while accessing the file")
+                If Not Await Task.Run(Function() _fileDataService.AddAccessFile(accessedFile)) Then
+                    Await RunOnUiAsync(Sub() PopUp.Information("Failed", "Theres a problem while accessing the file"))
                     Return
                 End If
 
@@ -348,11 +406,13 @@ Public Class FileDetailsContentViewModel
                     .UserId = _sessionManager.CurrentUser.Id
                 }
 
-                Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
+                Await Task.Run(Function() _activityService.AddActivity(activity))
 
-                Await PopUp.Information("Success", "File has been added to your Accessed Files")
-                _fileAccessed = New FilesAccessed With {.FileId = _fileShared.Id}
-                ChangeVisibility()
+                Await RunOnUiAsync(Async Function()
+                                       Await PopUp.Information("Success", "File has been added to your Accessed Files")
+                                       _fileAccessed = New FilesAccessed With {.FileId = _fileShared.Id}
+                                       ChangeVisibility()
+                                   End Function)
             End If
 
         Catch ex As Exception
@@ -364,8 +424,74 @@ Public Class FileDetailsContentViewModel
 
     Public Async Function OnRemoveAccess() As Task
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
-            Await Task.Delay(50)
+            Await RunOnUiAsync(Sub() Loading.Show())
+            Await Task.Delay(100)
+
+            If Not Await Fallback.CheckConnection() Then Return
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await RunOnUiAsync(Async Function()
+                                       Await PopUp.Information("Warning", "Your account has been banned.")
+                                       RestartApplication()
+                                   End Function)
+                Return
+            End If
+
+            If Not Await CheckFileAvailability() Then
+                Await RunOnUiAsync(Sub() _navigationService.GoBack())
+                Return
+            End If
+
+            Dim accessedFile = New FilesAccessed With {
+                .UserId = _sessionManager.CurrentUser.Id,
+                .FileId = _fileShared.Id,
+                .AccessedAt = Date.Now
+            }
+
+            Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile))
+
+            If _accessedFiles IsNot Nothing Then
+                Dim result = Await Task.Run(Function() _fileDataService.RemoveAccessedFile(_accessedFiles))
+
+                If result Then
+                    ' Clear the file accessed reference
+                    _fileAccessed = Nothing
+
+                    Dim activity = New Activities With {
+                        .Action = "Removed Access a file",
+                        .ActionIn = "Public Files",
+                        .ActionAt = Date.Now,
+                        .FileId = _fileShared.Id,
+                        .Name = $"{_fileShared.FileName}{_fileShared.FileType}",
+                        .UserId = _sessionManager.CurrentUser.Id
+                    }
+
+                    Await Task.Run(Function() _activityService.AddActivity(activity))
+
+                    Await RunOnUiAsync(Async Function()
+                                           Await PopUp.Information("Success", "Access successfully removed")
+                                           ChangeVisibility()
+                                       End Function)
+                    Return
+                End If
+            End If
+
+            Await RunOnUiAsync(Async Function()
+                                   Await PopUp.Information("Failed", "Access was already removed")
+                               End Function)
+        Catch ex As Exception
+            Debug.WriteLine($"[FileDetailsContentViewModel] OnRemoveAccess Error: {ex.Message}")
+        Finally
+            ChangeVisibility()
+            Loading.Hide()
+        End Try
+    End Function
+
+    Public Async Function OnReport() As Task
+        Try
+            Loading.Show()
+            Await Task.Delay(100)
 
             If Not Await Fallback.CheckConnection() Then
                 Return
@@ -383,100 +509,103 @@ Public Class FileDetailsContentViewModel
                 Return
             End If
 
-            Dim accessedFile = New FilesAccessed With {
-                .UserId = _sessionManager.CurrentUser.Id,
-                .FileId = _fileShared.Id,
-                .AccessedAt = Date.Now
-            }
+            Dim popUpResult As PopupResult = Await PopUp.Description()
 
-            Dim accessedFilesList = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
+            If popUpResult Is Nothing Then
+                Await PopUp.Information("Cancelled", "Report was cancelled.").ConfigureAwait(True)
+                Exit Function
+            Else
+                Dim description = popUpResult.GetValue(Of String)("Input")
 
-            If accessedFilesList.Count > 0 Then
+                _reports = New Reports With {
+                    .FileId = _fileShared.Id,
+                    .ReporterId = _sessionManager.CurrentUser.Id,
+                    .ReporterDescription = description,
+                    .Status = "Pending",
+                    .ReportedAt = Date.Now
+                }
 
-                Dim _accessedFiles = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(accessedFile)).ConfigureAwait(True)
+                Dim reportResult = Await Task.Run(Function() _reportsService.CreateReport(_reports)).ConfigureAwait(True)
 
-                If _accessedFiles IsNot Nothing Then
-                    Dim result = Await Task.Run(Function() _fileDataService.RemoveAccessedFile(_accessedFiles)).ConfigureAwait(True)
-
-                    If result Then
-
-                        Dim activity = New Activities With {
-                            .Action = "Removed Access a file",
-                            .ActionIn = "Public Files",
-                            .ActionAt = Date.Now,
-                            .FileId = _fileShared.Id,
-                            .Name = $"{_fileShared.FileName}{_fileShared.FileType}",
-                            .UserId = _sessionManager.CurrentUser.Id
-                        }
-
-                        Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True)
-                        Await PopUp.Information("Success", "Access successfully removed")
-                        _navigationService.GoBack()
-                        Return
-                    End If
-
-                    Await PopUp.Information("Failed", "Access was already removed")
-                    Return
+                If reportResult Then
+                    Await PopUp.Information("Success", "File successfully reported")
+                Else
+                    Await PopUp.Information("Failed", "File is already reported")
                 End If
-
-                Await PopUp.Information("Failed", "Access was already removed")
-                Return
             End If
-
-
-            Await PopUp.Information("Failed", "You dont have recent access files")
-            Return
         Catch ex As Exception
             Debug.WriteLine($"[FileDetailsContentViewModel] OnRemoveAccess Error: {ex.Message}")
         Finally
+            ChangeVisibility()
             Loading.Hide()
         End Try
     End Function
 
+
     Private Sub ChangeVisibility()
         Try
-            If _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
-                DownloadButtonVisibility = Visibility.Visible
+            Application.Current.Dispatcher.Invoke(Sub()
+                                                      If _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
+                                                          DownloadButtonVisibility = Visibility.Visible
+                                                          AccessButtonVisibility = Visibility.Collapsed
+                                                          SaveAccessButtonVisibility = Visibility.Collapsed
+                                                          RemoveAccessButtonVisibility = Visibility.Collapsed
 
-                If _fileShared?.Privacy = "Private" Then
-                    EncryptionSectionVisibility = Visibility.Visible
-                End If
+                                                          If _fileShared?.Privacy = "Private" Then
+                                                              EncryptionSectionVisibility = Visibility.Visible
+                                                          Else
+                                                              EncryptionSectionVisibility = Visibility.Collapsed
+                                                          End If
 
-                Return
-            End If
+                                                          Return
+                                                      End If
 
-            If _sessionManager.CurrentUser.Role = "Guest" Then
-                DownloadButtonVisibility = Visibility.Visible
-                Return
-            End If
+                                                      If _sessionManager.CurrentUser.Role = "Guest" Then
+                                                          DownloadButtonVisibility = Visibility.Visible
+                                                          AccessButtonVisibility = Visibility.Collapsed
+                                                          SaveAccessButtonVisibility = Visibility.Collapsed
+                                                          RemoveAccessButtonVisibility = Visibility.Collapsed
+                                                          Return
+                                                      End If
 
-            If Not _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
-                AccessButtonVisibility = Visibility.Visible
+                                                      If Not _sessionManager.CurrentUser.Id = _fileShared.UploadedBy Then
+                                                          AccessButtonVisibility = Visibility.Visible
 
-                If _fileAccessed Is Nothing Then
-                    SaveAccessButtonVisibility = Visibility.Visible
-                    Return
-                End If
+                                                          If _fileAccessed Is Nothing Then
+                                                              SaveAccessButtonVisibility = Visibility.Visible
+                                                              RemoveAccessButtonVisibility = Visibility.Collapsed
+                                                          Else
+                                                              RemoveAccessButtonVisibility = Visibility.Visible
+                                                              SaveAccessButtonVisibility = Visibility.Collapsed
+                                                          End If
 
-                If _fileAccessed.FileId = _fileShared.Id Then
-                    RemoveAccessButtonVisibility = Visibility.Visible
-                    Return
-                End If
-
-                Return
-            End If
+                                                          If Not _sessionManager.CurrentUser.Role = "Admin" Then
+                                                              If _reports?.ReporterId = _sessionManager.CurrentUser.Id Then
+                                                                  ReportButtonVisibility = Visibility.Collapsed
+                                                                  ReportedButtonVisibility = Visibility.Visible
+                                                              Else
+                                                                  ReportButtonVisibility = Visibility.Visible
+                                                                  ReportedButtonVisibility = Visibility.Collapsed
+                                                              End If
+                                                          End If
+                                                      End If
+                                                  End Sub)
         Catch ex As Exception
             Debug.WriteLine($"[DEBUG] Error changing button visibility: {ex.Message}")
         Finally
+            ' Explicitly raise property changed notifications
             RaisePropertyChanged(NameOf(DownloadButtonVisibility))
             RaisePropertyChanged(NameOf(AccessButtonVisibility))
             RaisePropertyChanged(NameOf(SaveAccessButtonVisibility))
             RaisePropertyChanged(NameOf(RemoveAccessButtonVisibility))
+            RaisePropertyChanged(NameOf(ReportButtonVisibility))
+            RaisePropertyChanged(NameOf(ReportedButtonVisibility))
+            RaisePropertyChanged(NameOf(EncryptionSectionVisibility))
         End Try
     End Sub
 
     Private Async Function CheckFileAvailability() As Task(Of Boolean)
-        Dim fileShared = Await Task.Run(Function() _fileDataService.GetSharedFileById(_fileShared)).ConfigureAwait(True)
+        Dim fileShared = Await Task.Run(Function() _fileDataService.GetSharedFileById(_fileShared)).ConfigureAwait(False)
 
         If fileShared.Availability = "Available" Then
             Return True
@@ -488,29 +617,30 @@ Public Class FileDetailsContentViewModel
 
     Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements INavigationAware.OnNavigatedTo
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
+            Loading.Show()
+            Await Task.Delay(100)
 
             If Not Await Fallback.CheckConnection() Then
-                Return
+                Exit Try
             End If
 
             If Not _userService.CheckStatus Then
                 _sessionManager.Logout()
                 Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
                 RestartApplication()
-                Return
+                Exit Try
             End If
 
             If Not navigationContext.Parameters.ContainsKey("fileId") Then
-                Await PopUp.Information("Failed", "File was empty")
+                Await PopUp.Information("Failed", "File was empty").ConfigureAwait(True)
                 _navigationService.GoBack()
-                Return
+                Exit Try
             End If
 
             If Not navigationContext.Parameters.ContainsKey("openedFrom") Then
-                Await PopUp.Information("Failed", $"Navigation history is empty {navigationContext.Parameters.GetValue(Of String)("openedFrom")}")
+                Await PopUp.Information("Failed", $"Navigation history is empty {navigationContext.Parameters.GetValue(Of String)("openedFrom")}").ConfigureAwait(True)
                 _navigationService.GoBack()
-                Return
+                Exit Try
             End If
 
             If navigationContext.Parameters.ContainsKey("fileId") AndAlso navigationContext.Parameters.ContainsKey("openedFrom") Then
@@ -523,19 +653,25 @@ Public Class FileDetailsContentViewModel
                     .FileId = fileShared.Id
                 }
 
+                Dim report = New Reports With {
+                    .ReporterId = _sessionManager.CurrentUser.Id,
+                    .FileId = fileShared.Id
+                }
+
                 _openedFrom = navigationContext.Parameters.GetValue(Of String)("openedFrom")
 
-                _fileShared = Await Task.Run(Function() _fileDataService.GetSharedFileById(fileShared)).ConfigureAwait(True)
+                _fileShared = Await Task.Run(Function() _fileDataService?.GetSharedFileById(fileShared)).ConfigureAwait(False)
+                _reports = Await Task.Run(Function() _reportsService?.GetReportByIdByUser(report)).ConfigureAwait(False)
 
                 If String.IsNullOrEmpty(_fileShared?.FileName) Then
                     Await PopUp.Information("Error", "Shared File not found").ConfigureAwait(True)
-                    Return
+                    Exit Try
                 End If
 
-                _fileAccessed = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(True)
+                _fileAccessed = Await Task.Run(Function() _fileDataService.GetAccessedFileByUserFile(fileAccessed)).ConfigureAwait(False)
 
                 _filePath = _fileShared.FilePath
-                Await Application.Current.Dispatcher.InvokeAsync(Sub() Load())
+                Await Application.Current.Dispatcher.InvokeAsync(Sub() Load()).Task.ConfigureAwait(False)
             End If
         Catch ex As Exception
             Debug.WriteLine($"[Debug] Error navigating to FileDetailsContentModel: {ex.Message}")

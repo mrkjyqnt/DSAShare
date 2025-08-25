@@ -9,96 +9,231 @@
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
     <Grid>
-        <Border
-            Width="330"
-            Padding="{DynamicResource Space-32}"
-            Style="{DynamicResource DefaultBorder}">
-            <Grid>
-                <Grid.InputBindings>
-                    <KeyBinding Key="Enter" Command="{Binding SignUpCommand}" />
-                </Grid.InputBindings>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="16" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="16" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="16" />
-                    <RowDefinition />
-                    <RowDefinition Height="16" />
-                    <RowDefinition Height="auto" />
-                </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0">
-                    <TextBlock
-                        Style="{DynamicResource LogoText}"
-                        Text="Register"
-                        TextAlignment="Center" />
-                    <TextBlock
-                        Style="{DynamicResource BodyText}"
-                        Text="Start sharing today"
-                        TextAlignment="Center" />
-                </StackPanel>
-                <Grid Grid.Row="2" KeyboardNavigation.TabNavigation="Cycle">
+        <StackPanel Orientation="Horizontal">
+            <Border
+                Width="330"
+                MaxHeight="490"
+                Padding="{DynamicResource Space-32}"
+                Style="{DynamicResource DefaultBorder}"
+                Visibility="{Binding StepOneSectionVisibility}">
+                <Grid>
+                    <Grid.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SignUpCommand}" />
+                    </Grid.InputBindings>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
-                        <RowDefinition Height="8" />
+                        <RowDefinition Height="16" />
                         <RowDefinition Height="auto" />
-                        <RowDefinition Height="8" />
+                        <RowDefinition Height="16" />
                         <RowDefinition Height="auto" />
-                        <RowDefinition Height="8" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition />
+                        <RowDefinition Height="16" />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
-                    <TextBox
-                        Grid.Row="0"
-                        Style="{DynamicResource DefaultTextbox}"
-                        TabIndex="0"
-                        Tag="Full Name"
-                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox
-                        Grid.Row="2"
-                        Style="{DynamicResource DefaultTextbox}"
-                        TabIndex="1"
-                        Tag="Username"
-                        Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
-                    <PasswordBox
-                        Grid.Row="4"
-                        local:PasswordBoxHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{DynamicResource DefaultPasswordBox}"
-                        TabIndex="2"
-                        Tag="Password" />
-                    <PasswordBox
-                        Grid.Row="6"
-                        local:PasswordBoxHelper.Password="{Binding RePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{DynamicResource DefaultPasswordBox}"
-                        TabIndex="3"
-                        Tag="Re-Password" />
-                </Grid>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock
+                            Style="{DynamicResource LogoText}"
+                            Text="Step 1"
+                            TextAlignment="Center" />
+                        <TextBlock
+                            Style="{DynamicResource BodyText}"
+                            Text="User and Security"
+                            TextAlignment="Center" />
+                    </StackPanel>
+                    <Grid Grid.Row="2" KeyboardNavigation.TabNavigation="Cycle">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <TextBox
+                            Grid.Row="0"
+                            Style="{DynamicResource DefaultTextbox}"
+                            TabIndex="0"
+                            Tag="Full Name"
+                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox
+                            Grid.Row="2"
+                            Style="{DynamicResource DefaultTextbox}"
+                            TabIndex="1"
+                            Tag="Username"
+                            Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+                        <PasswordBox
+                            Grid.Row="4"
+                            local:PasswordBoxHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Style="{DynamicResource DefaultPasswordBox}"
+                            TabIndex="2"
+                            Tag="Password" />
+                        <PasswordBox
+                            Grid.Row="6"
+                            local:PasswordBoxHelper.Password="{Binding RePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Style="{DynamicResource DefaultPasswordBox}"
+                            TabIndex="3"
+                            Tag="Re-Password" />
+                    </Grid>
 
-                <Button
-                    Grid.Row="4"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding SignUpCommand}"
-                    Content="Sign Up"
-                    Style="{DynamicResource PrimaryButton}" />
-                <Rectangle
-                    Grid.Row="6"
-                    VerticalAlignment="Center"
-                    Stroke="{DynamicResource SecondaryBrush}" />
-                <Grid Grid.Row="8" HorizontalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="8" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Have an account?" />
                     <Button
-                        Grid.Column="2"
-                        Command="{Binding SignInCommand}"
-                        Content="Sign In"
-                        Style="{DynamicResource EmptyButton}" />
+                        Grid.Row="4"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding NextCommand}"
+                        Content="Next"
+                        Style="{DynamicResource DefaultButton}" />
+                    <Rectangle
+                        Grid.Row="6"
+                        VerticalAlignment="Center"
+                        Stroke="{DynamicResource SecondaryBrush}" />
+                    <Grid Grid.Row="8" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Have an account?" />
+                        <Button
+                            Grid.Column="2"
+                            Command="{Binding SignInCommand}"
+                            Content="Sign In"
+                            Style="{DynamicResource EmptyButton}" />
+                    </Grid>
                 </Grid>
-            </Grid>
-        </Border>
+            </Border>
+            <Border
+                Width="330"
+                Padding="{DynamicResource Space-32}"
+                Style="{DynamicResource DefaultBorder}"
+                Visibility="{Binding StepTwoSectionVisibility}">
+                <Grid>
+                    <Grid.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SignUpCommand}" />
+                    </Grid.InputBindings>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition />
+                        <RowDefinition Height="16" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock
+                            Style="{DynamicResource LogoText}"
+                            Text="Step 2"
+                            TextAlignment="Center" />
+                        <TextBlock
+                            Style="{DynamicResource BodyText}"
+                            Text="Incase you forgot your password"
+                            TextAlignment="Center" />
+                    </StackPanel>
+                    <Grid Grid.Row="2" KeyboardNavigation.TabNavigation="Cycle">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+
+                        <!--  First Question  -->
+                        <ComboBox
+                            Grid.Row="0"
+                            DisplayMemberPath="."
+                            ItemsSource="{Binding FilteredQuestions1}"
+                            SelectedItem="{Binding SelectedQuestion1}"
+                            Style="{DynamicResource DefaultComboBox}"
+                            Tag="Choose Question 1" />
+
+                        <TextBox
+                            Grid.Row="2"
+                            Style="{DynamicResource DefaultTextbox}"
+                            TabIndex="1"
+                            Tag="Answer"
+                            Text="{Binding AnswerOneText, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <!--  Second Question  -->
+                        <ComboBox
+                            Grid.Row="4"
+                            DisplayMemberPath="."
+                            ItemsSource="{Binding FilteredQuestions2}"
+                            SelectedItem="{Binding SelectedQuestion2}"
+                            Style="{DynamicResource DefaultComboBox}"
+                            Tag="Choose Question 2" />
+
+                        <TextBox
+                            Grid.Row="6"
+                            Style="{DynamicResource DefaultTextbox}"
+                            TabIndex="1"
+                            Tag="Answer"
+                            Text="{Binding AnswerTwoText, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <!--  Third Question  -->
+                        <ComboBox
+                            Grid.Row="8"
+                            DisplayMemberPath="."
+                            ItemsSource="{Binding FilteredQuestions3}"
+                            SelectedItem="{Binding SelectedQuestion3}"
+                            Style="{DynamicResource DefaultComboBox}"
+                            Tag="Choose Question 3" />
+
+                        <TextBox
+                            Grid.Row="10"
+                            Style="{DynamicResource DefaultTextbox}"
+                            TabIndex="1"
+                            Tag="Answer"
+                            Text="{Binding AnswerThreeText, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+
+                    <Grid Grid.Row="4" local:GridHelper.ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding BackCommand}"
+                            Content="Back"
+                            Style="{DynamicResource DefaultButton}" />
+                        <Button
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding SignUpCommand}"
+                            Content="Sign Up"
+                            Style="{DynamicResource PrimaryButton}" />
+                    </Grid>
+                    <Rectangle
+                        Grid.Row="6"
+                        VerticalAlignment="Center"
+                        Stroke="{DynamicResource SecondaryBrush}" />
+                    <Grid Grid.Row="8" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Have an account?" />
+                        <Button
+                            Grid.Column="2"
+                            Command="{Binding SignInCommand}"
+                            Content="Sign In"
+                            Style="{DynamicResource EmptyButton}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </StackPanel>
 
     </Grid>
 </UserControl>

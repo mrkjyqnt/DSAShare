@@ -43,7 +43,7 @@
                     Grid.Column="4"
                     Command="{Binding PublishFileCommand}"
                     Content="Publish"
-                    Style="{DynamicResource DefaultButton}" />
+                    Style="{DynamicResource PrimaryButton}" />
             </Grid>
         </Border>
         <Border Padding="{DynamicResource Space-32}" HorizontalAlignment="Stretch">

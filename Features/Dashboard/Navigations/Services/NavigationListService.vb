@@ -47,11 +47,17 @@
             New NavigationItemModel("Manage Users", "ManageUsersView",
                                    "manage-users",
                                    "manage-users-filled"),
+            New NavigationItemModel("Reports", "ReportsView",
+                                   "reports",
+                                   "reports-filled"),
             New NavigationItemModel("Activities", "ActivitiesView",
                                    "activities",
                                    "activities-filled"),
             New NavigationItemModel("Downloads", "DownloadsView",
-                                   "downloads", 
+                                   "downloads",
+                                   "downloads-filled"),
+            New NavigationItemModel("Uploads", "UploadsView",
+                                   "downloads",
                                    "downloads-filled")
         }
     End Function
@@ -75,7 +81,10 @@
                                  "activities-filled"),
             New NavigationItemModel("Downloads", "DownloadsView",
                                  "downloads",
-                                 "downloads-filled")
+                                 "downloads-filled"),
+            New NavigationItemModel("Uploads", "UploadsView",
+                                   "downloads", 
+                                   "downloads-filled")
         }
     End Function
 

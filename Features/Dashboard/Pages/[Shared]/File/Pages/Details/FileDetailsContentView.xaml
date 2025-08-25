@@ -13,7 +13,6 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <!--  Add the converter  -->
         <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
         <DataTemplate x:Key="ImagePreviewTemplate">
@@ -103,7 +102,11 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Grid.Column="0">
                                     <Button
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding SaveAccessCommand}"
@@ -120,12 +123,31 @@
                                         Visibility="{Binding RemoveAccessButtonVisibility}" />
                                 </Grid>
                                 <Button
+                                    Grid.Row="0"
                                     Grid.Column="1"
                                     HorizontalAlignment="Stretch"
                                     Command="{Binding DownloadCommand}"
                                     Content="Download"
                                     Style="{DynamicResource DefaultButton}"
                                     ToolTip="Download the file" />
+                                <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                                    <Button
+                                        Margin="0,16,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        Command="{Binding ReportCommand}"
+                                        Content="Report"
+                                        Style="{DynamicResource DangerButton}"
+                                        ToolTip="Report file"
+                                        Visibility="{Binding ReportButtonVisibility}" />
+                                    <Button
+                                        Margin="0,16,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        Content="Reported"
+                                        IsEnabled="False"
+                                        Style="{DynamicResource DefaultButton}"
+                                        ToolTip="Remove your access"
+                                        Visibility="{Binding ReportedButtonVisibility}" />
+                                </Grid>
                             </Grid>
                             <Button
                                 Grid.Column="1"
@@ -177,7 +199,7 @@
                             </Grid>
                         </Border>
                     </Grid>
-                    <StackPanel local:StackPanelHelper.Spacing="8" Orientation="Vertical">
+                    <StackPanel local:StackPanelHelper.Spacing="12" Orientation="Vertical">
                         <TextBlock FontFamily="{DynamicResource InterMedium}" Text="Description" />
                         <TextBlock
                             Style="{DynamicResource BodyText}"

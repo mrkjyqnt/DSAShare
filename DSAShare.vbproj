@@ -32,34 +32,35 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Components\FontFamily\Inter-Black.ttf" />
-    <None Remove="Components\FontFamily\Inter-BlackItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-Bold.ttf" />
-    <None Remove="Components\FontFamily\Inter-BoldItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-ExtraBold.ttf" />
-    <None Remove="Components\FontFamily\Inter-ExtraBoldItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-ExtraLight.ttf" />
-    <None Remove="Components\FontFamily\Inter-ExtraLightItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-italic.ttf" />
-    <None Remove="Components\FontFamily\Inter-Light.ttf" />
-    <None Remove="Components\FontFamily\Inter-LightItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-Medium.ttf" />
-    <None Remove="Components\FontFamily\Inter-MediumItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-Regular.ttf" />
-    <None Remove="Components\FontFamily\Inter-roman.ttf" />
-    <None Remove="Components\FontFamily\Inter-SemiBold.ttf" />
-    <None Remove="Components\FontFamily\Inter-SemiBoldItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-Thin.ttf" />
-    <None Remove="Components\FontFamily\Inter-ThinItalic.ttf" />
-    <None Remove="Components\FontFamily\Inter-V.ttf" />
-    <None Remove="Components\FontFamily\Inter.ttf" />
+    <None Remove="App\logo.png" />
+    <None Remove="Resources\FontFamily\Inter-Black.ttf" />
+    <None Remove="Resources\FontFamily\Inter-BlackItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-Bold.ttf" />
+    <None Remove="Resources\FontFamily\Inter-BoldItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-ExtraBold.ttf" />
+    <None Remove="Resources\FontFamily\Inter-ExtraBoldItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-ExtraLight.ttf" />
+    <None Remove="Resources\FontFamily\Inter-ExtraLightItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-italic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-Light.ttf" />
+    <None Remove="Resources\FontFamily\Inter-LightItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-Medium.ttf" />
+    <None Remove="Resources\FontFamily\Inter-MediumItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-Regular.ttf" />
+    <None Remove="Resources\FontFamily\Inter-roman.ttf" />
+    <None Remove="Resources\FontFamily\Inter-SemiBold.ttf" />
+    <None Remove="Resources\FontFamily\Inter-SemiBoldItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-Thin.ttf" />
+    <None Remove="Resources\FontFamily\Inter-ThinItalic.ttf" />
+    <None Remove="Resources\FontFamily\Inter-V.ttf" />
+    <None Remove="Resources\FontFamily\Inter.ttf" />
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="Components\DefaultStyle.xaml" />
-    <Page Remove="Components\TextblockStyle.xaml" />
-    <Page Remove="Components\UI\ButtonStyle.xaml" />
-    <Page Remove="Components\UI\TextboxStyle.xaml" />
+    <Page Remove="Resources\DefaultStyle.xaml" />
+    <Page Remove="Resources\TextblockStyle.xaml" />
+    <Page Remove="Resources\UI\ButtonStyle.xaml" />
+    <Page Remove="Resources\UI\TextboxStyle.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -91,35 +92,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Components\UI\TextblockStyle.xaml" />
-    <Resource Include="Components\DefaultStyle.xaml" />
-    <Resource Include="Components\FontFamily\Inter-Black.ttf" />
-    <Resource Include="Components\FontFamily\Inter-BlackItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-Bold.ttf" />
-    <Resource Include="Components\FontFamily\Inter-BoldItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-ExtraBold.ttf" />
-    <Resource Include="Components\FontFamily\Inter-ExtraBoldItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-ExtraLight.ttf" />
-    <Resource Include="Components\FontFamily\Inter-ExtraLightItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-italic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-Light.ttf" />
-    <Resource Include="Components\FontFamily\Inter-LightItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-Medium.ttf" />
-    <Resource Include="Components\FontFamily\Inter-MediumItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-Regular.ttf" />
-    <Resource Include="Components\FontFamily\Inter-roman.ttf" />
-    <Resource Include="Components\FontFamily\Inter-SemiBold.ttf" />
-    <Resource Include="Components\FontFamily\Inter-SemiBoldItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-Thin.ttf" />
-    <Resource Include="Components\FontFamily\Inter-ThinItalic.ttf" />
-    <Resource Include="Components\FontFamily\Inter-V.ttf" />
-    <Resource Include="Components\FontFamily\Inter.ttf" />
-    <Resource Include="Components\UI\ButtonStyle.xaml" />
-    <Resource Include="Components\UI\TextboxStyle.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Images\" />
+    <Resource Include="App\logo.png" />
+    <Resource Include="Resources\UI\TextblockStyle.xaml" />
+    <Resource Include="Resources\DefaultStyle.xaml" />
+    <Resource Include="Resources\FontFamily\Inter-Black.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-BlackItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-Bold.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-BoldItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-ExtraBold.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-ExtraBoldItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-ExtraLight.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-ExtraLightItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-italic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-Light.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-LightItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-Medium.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-MediumItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-Regular.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-roman.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-SemiBold.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-SemiBoldItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-Thin.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-ThinItalic.ttf" />
+    <Resource Include="Resources\FontFamily\Inter-V.ttf" />
+    <Resource Include="Resources\FontFamily\Inter.ttf" />
+    <Resource Include="Resources\UI\ButtonStyle.xaml" />
+    <Resource Include="Resources\UI\TextboxStyle.xaml" />
   </ItemGroup>
 
 </Project>

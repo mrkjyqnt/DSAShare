@@ -14,17 +14,15 @@ Public Class FallbackViewModel
 
     Private Async Function OnRetryCommand() As Task
         Try
-            Await Application.Current.Dispatcher.InvokeAsync(Sub()
-                                                                 Loading.Show()
-                                                             End Sub)
+            Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
             Await Task.Run(Sub()
                                ConfigurationModule.GetSettings()
                                Fallback.Retry()
                            End Sub).ConfigureAwait(True)
 
-            Loading.Hide()
         Catch ex As Exception
         Finally
+            Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Hide())
         End Try
     End Function
 End Class

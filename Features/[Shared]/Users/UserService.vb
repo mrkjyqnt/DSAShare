@@ -37,12 +37,16 @@
         End Try
     End Function
 
+    ''' <summary>
+    ''' Check if the user is banned or not
+    ''' </summary>
+    ''' <returns></returns>
     Public Function CheckStatus() As Boolean Implements IUserService.CheckStatus
         Try
             If _sessionManager.CurrentUser.Role = "Guest" Then
                 Return True
             End If
-            
+
             Dim user = _userRepository.GetByUsername(_sessionManager.CurrentUser)
             If user IsNot Nothing Then
                 If user?.Status = "Active" Then
@@ -55,6 +59,23 @@
             Return False
         Catch ex As Exception
             Debug.WriteLine($"[UserService] Error checking status: {ex.Message}")
+            Return False
+        End Try
+    End Function
+
+    Public Function CheckSecurityAnswers(user As Users) As Boolean Implements IUserService.CheckSecurityAnswers
+        Try
+            Dim userFound = _userRepository.GetByUsername(user)
+            If userFound IsNot Nothing Then
+                If userFound.SecurityAnswer1 = LCase(user.SecurityAnswer1) AndAlso
+                   userFound.SecurityAnswer2 = LCase(user.SecurityAnswer2) AndAlso
+                   userFound.SecurityAnswer3 = LCase(user.SecurityAnswer3) Then
+                    Return True
+                End If
+            End If
+            Return False
+        Catch ex As Exception
+            Debug.WriteLine($"[UserService] Error checking security answers: {ex.Message}")
             Return False
         End Try
     End Function

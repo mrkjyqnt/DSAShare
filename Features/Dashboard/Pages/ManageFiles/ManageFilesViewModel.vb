@@ -276,6 +276,17 @@ Public Class ManageFilesViewModel
 
     Private Async Sub OnViewCommand(fileId As Integer?)
         Try
+            If Not Await Fallback.CheckConnection() Then
+                Return
+            End If
+
+            If Not _userService.CheckStatus Then
+                _sessionManager.Logout()
+                Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
+                RestartApplication()
+                Return
+            End If
+
             If Not fileId.HasValue Then
                 Debug.WriteLine("[WARN] Tried to view a file with NULL ID")
                 Return
@@ -417,19 +428,21 @@ Public Class ManageFilesViewModel
         If IsExeSelected Then typeConditions.Add("EXE")
         If IsTextSelected Then typeConditions.Add("TEXT")
 
-        If Not IsAllTypesSelected Then
-            ResultCount = 0
-            DataGridFiles = New ObservableCollection(Of FilesShared)()
-            RaisePropertyChanged(NameOf(DataGridFiles))
-            RaisePropertyChanged(NameOf(ResultCount))
-            Return
-        End If
-
-        If typeConditions.Count > 0 Then
-            filtered = filtered.Where(Function(f)
-                                          Return typeConditions.Contains(FileTypeModel.GetCategoryByExtension(f.FileType))
-                                      End Function)
-            filtered = filtered.Where(Function(f) f.UploadedBy <> _sessionManager.CurrentUser.Id)
+        If IsAllTypesSelected Then
+            ' Placeholder for all types
+        Else
+            If typeConditions.Count > 0 Then
+                filtered = filtered.Where(Function(f)
+                                              Dim category = FileTypeModel.GetCategoryByExtension(f.FileType)
+                                              Return typeConditions.Contains(category)
+                                          End Function)
+            Else
+                ResultCount = 0
+                DataGridFiles = New ObservableCollection(Of FilesShared)()
+                RaisePropertyChanged(NameOf(DataGridFiles))
+                RaisePropertyChanged(NameOf(ResultCount))
+                Return
+            End If
         End If
 
         ResultCount = filtered.Count

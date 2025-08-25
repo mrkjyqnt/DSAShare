@@ -6,4 +6,5 @@
     Function GetAllUsers() As List(Of Users)
     Function CheckStatus() As Boolean
     Function GetUserByUsername(user As Users) As Users
+    Function CheckSecurityAnswers(user As Users) As Boolean
 End Interface

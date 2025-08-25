@@ -5,8 +5,8 @@ Public Class SecurityService
     Implements ISecurityService
 
     Private ReadOnly _securityRepository As SecurityRepository
-    Private Const MaxAttempts As Integer = 3
-    Private Const LockMinutes As Integer = 10
+    Private Const MaxAttempts As Integer = 5
+    Private Const LockMinutes As Integer = 1
 
     Public Sub New(repository As SecurityRepository)
         _securityRepository = repository

@@ -12,6 +12,7 @@
     prism:ViewModelLocator.AutoWireViewModel="True"
     Background="{DynamicResource SecondaryBackgroundBrush}"
     BorderBrush="{DynamicResource BorderBrush}"
+    Icon="/App/logo.png"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">

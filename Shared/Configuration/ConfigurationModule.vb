@@ -65,8 +65,8 @@ Module ConfigurationModule
             },
             .Network = New NetworkSettings With {
                 .FolderPath = $"\\{ipBase}.10\ServerStorage",
-                .Username = "user",
-                .Password = "user"
+                .Username = "member",
+                .Password = "member"
             }
         }
     End Sub

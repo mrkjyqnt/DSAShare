@@ -30,7 +30,7 @@
                     Text="Danger Zone" />
                 <TextBlock
                     Grid.Row="2"
-                    Text="Please read carfully before doing an action"
+                    Text="Please read carefully before doing an action"
                     TextWrapping="Wrap" />
             </Grid>
             <Grid Grid.Column="2" local:GridHelper.RowSpacing="16">
@@ -40,38 +40,54 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <TextBlock
-                    Grid.Row="0"
-                    Style="{DynamicResource TitleBodyText}"
-                    Text="{Binding AvailabilityText}" />
-                <Button
+                <StackPanel Grid.Row="0" local:StackPanelHelper.Spacing="16">
+                    <TextBlock Style="{DynamicResource TitleBodyText}" Text="{Binding AvailabilityText}" />
+                    <Grid>
+                        <Button
+                            Grid.Row="1"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding DisableFileCommand}"
+                            Content="Disable"
+                            Style="{DynamicResource DangerButton}"
+                            ToolTip="Temporarily disable the file"
+                            Visibility="{Binding DisableButtonVisibility}" />
+                        <Button
+                            Grid.Row="1"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding EnableFileCommand}"
+                            Content="Enable"
+                            Style="{DynamicResource DefaultButton}"
+                            ToolTip="Enable the file"
+                            Visibility="{Binding EnableButtonVisibility}" />
+                    </Grid>
+                </StackPanel>
+                <StackPanel
                     Grid.Row="1"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding DisableFileCommand}"
-                    Content="Disable"
-                    Style="{DynamicResource DefaultButton}"
-                    ToolTip="Temporarily disable the file"
-                    Visibility="{Binding DisableButtonVisibility}" />
-                <Button
-                    Grid.Row="1"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding EnableFileCommand}"
-                    Content="Enable"
-                    Style="{DynamicResource DefaultButton}"
-                    ToolTip="Enable the file"
-                    Visibility="{Binding EnableButtonVisibility}" />
-                <TextBlock
-                    Grid.Row="2"
-                    Style="{DynamicResource TitleBodyText}"
-                    Text="Permanently Delete File"
-                    TextWrapping="Wrap" />
-                <Button
-                    Grid.Row="3"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding DeleteFileCommand}"
-                    Content="Delete File"
-                    Style="{DynamicResource DangerButton}"
-                    ToolTip="WARNING: This will delete the file permanently" />
+                    local:StackPanelHelper.Spacing="16"
+                    Visibility="{Binding BlockFileSectionVisibility}">
+                    <TextBlock
+                        Style="{DynamicResource TitleBodyText}"
+                        Text="Permanently Block File"
+                        TextWrapping="Wrap" />
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding BlockFileCommand}"
+                        Content="Block File"
+                        Style="{DynamicResource DangerButton}"
+                        ToolTip="WARNING: This will block the file permanently" />
+                </StackPanel>
+                <StackPanel Grid.Row="2" local:StackPanelHelper.Spacing="16">
+                    <TextBlock
+                        Style="{DynamicResource TitleBodyText}"
+                        Text="Permanently Delete File"
+                        TextWrapping="Wrap" />
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding DeleteFileCommand}"
+                        Content="Delete File"
+                        Style="{DynamicResource DangerButton}"
+                        ToolTip="WARNING: This will delete the file permanently" />
+                </StackPanel>
             </Grid>
         </Grid>
     </ScrollViewer>

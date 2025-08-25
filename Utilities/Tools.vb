@@ -122,4 +122,26 @@ Module Tools
         Process.Start("DSAShare")
         Application.Current.Shutdown()
     End Sub
+
+    ''' <summary>
+    ''' Compute the SHA256 hash of a file
+    ''' </summary>
+    ''' <param name="filePath"></param>
+    ''' <returns></returns>
+    Public Function ComputeSHA256(filePath As String) As String
+        Using sha256 As SHA256 = SHA256.Create()
+            Using stream As FileStream = File.OpenRead(filePath)
+                Dim hash As Byte() = sha256.ComputeHash(stream)
+                Return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()
+            End Using
+        End Using
+    End Function
+
+    Public Async Function RunOnUiAsync(action As Action) As Task
+        Await Application.Current.Dispatcher.InvokeAsync(action).Task
+    End Function
+
+    Public Async Function RunOnUiAsync(Of T)(func As Func(Of T)) As Task(Of T)
+        Return Await Application.Current.Dispatcher.InvokeAsync(func).Task
+    End Function
 End Module

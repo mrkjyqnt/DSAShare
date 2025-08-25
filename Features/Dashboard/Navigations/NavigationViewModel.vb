@@ -5,6 +5,7 @@ Imports Prism.Events
 
 Public Class NavigationViewModel
     Inherits BindableBase
+    Implements INavigationAware
 
     Private ReadOnly _regionManager As IRegionManager
     Private ReadOnly _navigationListService As INavigationListService
@@ -45,25 +46,12 @@ Public Class NavigationViewModel
         _navigationListService = navigationService
         _eventAggregator = eventAggregator
 
-        NavSelectionCommand = New DelegateCommand(Of NavigationItemModel)(AddressOf OnNavigationSelection)
+        MenuItems = New List(Of NavigationItemModel)()
 
-        Load()
+        NavSelectionCommand = New DelegateCommand(Of NavigationItemModel)(AddressOf OnNavigationSelection)
 
         _eventAggregator.GetEvent(Of NavigationSelectionEvent)().Subscribe(AddressOf SetSelection)
         _eventAggregator.GetEvent(Of ThemeChangedEvent)().Subscribe(AddressOf OnThemeChanged)
-    End Sub
-
-    Private Async Sub Load()
-        Try
-            Await Task.Run(Sub() MenuItems = _navigationListService.GetNavigationItems()).ConfigureAwait(False)
-            Await Task.Run(Sub() LastMenuItem = _navigationListService.GetLastNavigationItem()).ConfigureAwait(False)
-
-            If MenuItems IsNot Nothing AndAlso MenuItems.Count > 0 Then
-                MenuItems(0).IsSelected = True
-            End If
-        Catch ex As Exception
-            Debug.WriteLine(ex.Message)
-        End Try
     End Sub
 
     Private Sub OnNavigationSelection(selectedItem As NavigationItemModel)
@@ -89,6 +77,12 @@ Public Class NavigationViewModel
 
 
     Public Sub SetSelection(itemTitle As String)
+        ' Guard against null references
+        If MenuItems Is Nothing OrElse LastMenuItem Is Nothing Then
+            Debug.WriteLine("[NavigationViewModel] MenuItems or LastMenuItem not loaded yet")
+            Return
+        End If
+
         ' Deselect all items first
         For Each item In MenuItems
             item.IsSelected = False
@@ -105,10 +99,6 @@ Public Class NavigationViewModel
                 selectedItem.IsSelected = True
             End If
         End If
-
-        ' Notify UI of property changes
-        RaisePropertyChanged(NameOf(MenuItems))
-        RaisePropertyChanged(NameOf(LastMenuItem))
     End Sub
 
     Private Sub OnThemeChanged(theme As AppTheme)
@@ -119,5 +109,25 @@ Public Class NavigationViewModel
         Next
 
         RaisePropertyChanged(NameOf(MenuItems))
+    End Sub
+
+    Public Async Sub OnNavigatedTo(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedTo
+        Try
+            Await Task.Run(Sub() MenuItems = _navigationListService.GetNavigationItems()).ConfigureAwait(True)
+            Await Task.Run(Sub() LastMenuItem = _navigationListService.GetLastNavigationItem()).ConfigureAwait(True)
+
+            If MenuItems IsNot Nothing AndAlso MenuItems.Count > 0 Then
+                MenuItems(0).IsSelected = True
+            End If
+        Catch ex As Exception
+            Debug.WriteLine(ex.Message)
+        End Try
+    End Sub
+
+    Public Function IsNavigationTarget(navigationContext As NavigationContext) As Boolean Implements IRegionAware.IsNavigationTarget
+        Return True
+    End Function
+
+    Public Sub OnNavigatedFrom(navigationContext As NavigationContext) Implements IRegionAware.OnNavigatedFrom
     End Sub
 End Class

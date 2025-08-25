@@ -142,21 +142,19 @@ Public Class HomeViewModel
             Dim ShareCount = Await Task.Run(Function() _fileDataService.GetSharedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
             Dim AccessCount = Await Task.Run(Function() _fileDataService.GetAccessedFiles(_sessionManager.CurrentUser)).ConfigureAwait(True)
 
-            SharedText = ShareCount.Count
-            AccessedText = AccessCount.Count
+            SharedText = ShareCount?.Where(Function(f) f.Privacy <> "Deleted" AndAlso f.Privacy <> "Blocked").ToList.Count
+            AccessedText = AccessCount?.Count
 
-            DataGridActivities = New ObservableCollection(Of Activities)(
-                Await Task.Run(Function() _activityService.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
-            )
+            Dim activities = Await Task.Run(Function() _activityService?.GetUserActivity().Take(5).ToList).ConfigureAwait(True)
 
-            Loading.Hide()
+            If activities IsNot Nothing Then
+                DataGridActivities = New ObservableCollection(Of Activities)(activities)
+            End If
+
         Catch ex As Exception
-            Debug.WriteLine($"[HomeViewModel] Error loading data: {ex.Message}")
+            Debug.WriteLine($"[HomeViewModel] Error loading data: {ex.StackTrace}")
         Finally
-
-            RaisePropertyChanged(NameOf(SharedText))
-            RaisePropertyChanged(NameOf(AccessedText))
-            RaisePropertyChanged(NameOf(DataGridActivities))
+            Loading.Hide()
         End Try
     End Sub
 
@@ -326,14 +324,23 @@ Public Class HomeViewModel
             If selectedActivity.Action = "Shared a file" OrElse
                 selectedActivity.Action = "Enabled a file" OrElse
                 selectedActivity.Action = "Disabled a file" OrElse
+                selectedActivity.Action = "Blocked a file" OrElse
                 selectedActivity.Action = "Updated a file" Then
                 parameters = New NavigationParameters()
                 parameters.Add("fileId", selectedActivity.FileId)
 
-
-
                 If fileSharedInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
+                    PopUp.Information("Failed", "Referenced file was been removed")
+                    Return
+                End If
+
+                If fileSharedInfo.Privacy = "Deleted" Then
+                    PopUp.Information("Failed", "Referenced file was been removed")
+                    Return
+                End If
+
+                If fileSharedInfo.Privacy = "Blocked" Then
+                    PopUp.Information("Failed", "Referenced file was been blocked by an admin")
                     Return
                 End If
 
@@ -346,7 +353,8 @@ Public Class HomeViewModel
                 End If
             End If
 
-            If selectedActivity.Action = "Save Access a file" Then
+            If selectedActivity.Action = "Save Access a file" OrElse
+                selectedActivity.Action = "Remove Access a file" Then
                 parameters = New NavigationParameters()
                 parameters.Add("fileId", selectedActivity.FileId)
 
@@ -355,13 +363,23 @@ Public Class HomeViewModel
                     Return
                 End If
 
-                If fileSharedInfo Is Nothing Then
-                    PopUp.Information("Failed", "Referenced file access was removed")
+                parameters.Add("openedFrom", "HomeView")
+                _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+
+                Return
+            End If
+
+            If selectedActivity.Action = "Resolved a report" Then
+                parameters = New NavigationParameters()
+                parameters.Add("reportId", selectedActivity.FileId)
+
+                If fileAccessedInfo Is Nothing Then
+                    PopUp.Information("Failed", "Referenced report was removed")
                     Return
                 End If
 
                 parameters.Add("openedFrom", "HomeView")
-                _navigationService.Go("PageRegion", "FileDetailsView", "Shared Files", parameters)
+                _navigationService.Go("PageRegion", "ReportDetailsView", "Reports", parameters)
 
                 Return
             End If

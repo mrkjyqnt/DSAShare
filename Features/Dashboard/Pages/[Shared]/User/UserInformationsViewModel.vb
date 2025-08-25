@@ -182,6 +182,7 @@ Public Class UserInformationsViewModel
 
                     If _sessionManager.CurrentUser.Role = "Guest" Then
                         AppearanceButtonVisibility = Visibility.Collapsed
+                        DangerZoneButtonVisibility = Visibility.Collapsed
                     End If
 
                 End If

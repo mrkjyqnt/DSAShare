@@ -52,7 +52,7 @@
                         HorizontalAlignment="Stretch"
                         Command="{Binding DeactivateAccountCommand}"
                         Content="Deactivate Account"
-                        Style="{DynamicResource DefaultButton}"
+                        Style="{DynamicResource DangerButton}"
                         ToolTip="WARNING: This will delete the account permanently" />
                 </StackPanel>
                 <StackPanel
@@ -66,14 +66,14 @@
                             HorizontalAlignment="Stretch"
                             Command="{Binding BanAccountCommand}"
                             Content="Ban Account"
-                            Style="{DynamicResource DefaultButton}"
+                            Style="{DynamicResource DangerButton}"
                             ToolTip="Temporarily disable the file"
                             Visibility="{Binding BanAccountButtonVisibility}" />
                         <Button
                             HorizontalAlignment="Stretch"
                             Command="{Binding UnBanAccountCommand}"
                             Content="Unban Account"
-                            Style="{DynamicResource DefaultButton}"
+                            Style="{DynamicResource DangerButton}"
                             ToolTip="Temporarily disable the file"
                             Visibility="{Binding UnBanAccountButtonVisibility}" />
                     </StackPanel>
@@ -90,7 +90,7 @@
                         HorizontalAlignment="Stretch"
                         Command="{Binding DeleteAccountCommand}"
                         Content="Delete Account"
-                        Style="{DynamicResource DefaultButton}"
+                        Style="{DynamicResource DangerButton}"
                         ToolTip="WARNING: This will delete the account permanently" />
                 </StackPanel>
             </Grid>

@@ -7,27 +7,30 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!--  Global  -->
-                <ResourceDictionary Source="/Components/DefaultStyle.xaml" />
+                <ResourceDictionary Source="/Resources/DefaultStyle.xaml" />
 
                 <!--  Theme  -->
-                <ResourceDictionary Source="/Components/Theme/LightTheme.xaml" />
-                <ResourceDictionary Source="/Components/Theme/LightIcons.xaml" />
+                <ResourceDictionary Source="/Resources/Theme/LightTheme.xaml" />
+                <ResourceDictionary Source="/Resources/Theme/LightIcons.xaml" />
 
                 <!--  UI  -->
-                <ResourceDictionary Source="/Components/UI/ButtonStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/TextblockStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/TextBoxStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/PasswordboxStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/ProgressBarStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/RadioButtonStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/CheckBoxStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/BorderStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/CalendarPickerStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/GridStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/DataGridStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/ToggleButtonStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/NavigationStyle.xaml" />
-                <ResourceDictionary Source="/Components/UI/ItemsControlStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/ButtonStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/TextblockStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/TextBoxStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/PasswordboxStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/ProgressBarStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/RadioButtonStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/CheckBoxStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/BorderStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/CalendarPickerStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/GridStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/DataGridStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/ToggleButtonStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/NavigationStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/ItemsControlStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/ComboBoxStyle.xaml" />
+                <ResourceDictionary Source="/Resources/UI/ToolTipStyle.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

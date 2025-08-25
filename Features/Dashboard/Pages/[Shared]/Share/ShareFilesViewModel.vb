@@ -16,6 +16,8 @@ Public Class ShareFilesViewModel
     Private ReadOnly _sessionManager As ISessionManager
     Private ReadOnly _activityService As IActivityService
     Private ReadOnly _userService As IUserService
+    Private ReadOnly _fileBlockService As IFileBlockService
+    Private ReadOnly _uploadQueueService As IUploadQueueService
 
     Private _encryptionInput As String
     Private _nameInput As String
@@ -232,7 +234,9 @@ Public Class ShareFilesViewModel
                    fileUploadService As IFileService,
                    activityService As IActivityService,
                    sessionManager As ISessionManager,
-                   userService As UserService)
+                   userService As IUserService,
+                   fileBlockService As IFileBlockService,
+                   uploadQueueService As IUploadQueueService)
         _navigationService = navigationService
         _fileInfoService = fileInfoService
         _fileUploadService = fileUploadService
@@ -240,6 +244,8 @@ Public Class ShareFilesViewModel
         _sessionManager = sessionManager
         _fileDataService = fileDataService
         _userService = userService
+        _fileBlockService = fileBlockService
+        _uploadQueueService = uploadQueueService
 
         SelectedOption = "Code"
         EncryptionInput = ""
@@ -261,10 +267,8 @@ Public Class ShareFilesViewModel
         Try
             Await Application.Current.Dispatcher.InvokeAsync(Sub() Loading.Show())
 
-            If Not Await Fallback.CheckConnection() Then
-                Return
-            End If
-
+            ' All your existing validation checks remain the same
+            If Not Await Fallback.CheckConnection() Then Return
             If Not _userService.CheckStatus Then
                 _sessionManager.Logout()
                 Await PopUp.Information("Warning", "Your account has been banned.").ConfigureAwait(True)
@@ -272,102 +276,86 @@ Public Class ShareFilesViewModel
                 Return
             End If
 
-            If NameInput = "" OrElse NameInput Is Nothing Then
+            If String.IsNullOrEmpty(NameInput) Then
                 Await PopUp.Information("Failed", "Please add a name").ConfigureAwait(True)
                 Return
             End If
 
-            If DescriptionInput = "" OrElse DescriptionInput Is Nothing Then
+            If String.IsNullOrEmpty(DescriptionInput) Then
                 Await PopUp.Information("Failed", "Please add a description").ConfigureAwait(True)
                 Return
             End If
 
-            If FilePath = "" OrElse FilePath Is Nothing Then
+            If String.IsNullOrEmpty(FilePath) Then
                 Await PopUp.Information("Failed", "Please add a file").ConfigureAwait(True)
                 Return
             End If
 
-            If Privacy = "Private" Then
-                If EncryptionInput = "" OrElse EncryptionInput Is Nothing Then
-                    Await PopUp.Information("Failed", "Please add an encryption").ConfigureAwait(True)
-                    Return
-                End If
+            If Not File.Exists(FilePath) Then
+                Await PopUp.Information("Failed", "The file no longer exists at the specified path.").ConfigureAwait(True)
+                Return
+            End If
+
+            If Await Task.Run(Function() _fileBlockService.IsBlocked(FilePath)) Then
+                Await PopUp.Information("Warning", "The file you added has been blocked within the server, please ask administrator for assistance").ConfigureAwait(True)
+                Return
+            End If
+
+            If Privacy = "Private" AndAlso String.IsNullOrEmpty(EncryptionInput) Then
+                Await PopUp.Information("Failed", "Please add an encryption").ConfigureAwait(True)
+                Return
             End If
 
             If IsExpirationEnabled Then
                 If SelectedDate Is Nothing Then
-                    Await PopUp.Information("Failed", "Please add an encryption").ConfigureAwait(True)
+                    Await PopUp.Information("Failed", "Please select an expiration date").ConfigureAwait(True)
+                    Return
+                End If
+                If SelectedDate <= Date.Now Then
+                    Await PopUp.Information("Failed", "Expiry date must be in the future").ConfigureAwait(True)
                     Return
                 End If
             End If
 
-            If IsExpirationEnabled AndAlso SelectedDate <= Date.Now Then
-                Await PopUp.Information("Failed", "Expiry date must be in the future").ConfigureAwait(True)
-                Return
-            End If
+            _fileInfoService.Extract(FilePath)
 
-            Dim file = New FilesShared With {
-                .Name = If(NameInput, ""),
-                .FileName = If(FileName, ""),
+            ' Create a new FilesShared and populate all your fields
+            Dim fileShared = New FilesShared With {
+                .Name = If(NameInput, String.Empty),
+                .FileName = If(_fileInfoService.Name, String.Empty),
                 .FileDescription = DescriptionInput,
-                .FilePath = If(FilePath, ""),
-                .FileSize = If(FileSize, ""),
-                .FileType = If(_fileInfoService.Type, ""),
+                .FilePath = FilePath,
+                .FileSize = If(_fileInfoService.Size, String.Empty),
+                .FileType = If(_fileInfoService.Type, String.Empty),
                 .UploadedBy = _sessionManager.CurrentUser.Id,
-                .ShareType = If(SelectedOption, ""),
-                .ShareValue = If(EncryptionInput, ""),
-                .ExpiryDate = SelectedDate,
-                .Privacy = If(Privacy, ""),
+                .ShareType = If(SelectedOption, String.Empty),
+                .ShareValue = If(EncryptionInput, String.Empty),
+                .ExpiryDate = If(IsExpirationEnabled, SelectedDate, Nothing),
+                .Privacy = If(Privacy, String.Empty),
                 .DownloadCount = 0,
                 .Availability = "Available",
                 .CreatedAt = Date.Now,
                 .UpdatedAt = Date.Now
             }
 
-            If Not IsExpirationEnabled Then file.ExpiryDate = Nothing
-            If Not IsPrivateSelected Then
-                file.ShareValue = Nothing
-                file.ShareType = Nothing
-            End If
+            ' Hand off to the queue
+            _uploadQueueService.Enqueue(fileShared)
 
-            Dim shareTypeExist = Await Task.Run(Function() _fileDataService.GetSharedFileByPrivate(file)).ConfigureAwait(True)
-
-            If shareTypeExist IsNot Nothing Then
-                Await PopUp.Information("Failed", "Code is already taken, please create another one or change selection").ConfigureAwait(True)
-                Return
-            End If
-
-            Dim result = Await Task.Run(Function() _fileUploadService.UploadFile(file)).ConfigureAwait(True)
-
-            If result.Success Then
-                Await PopUp.Information("Success", result.Message).ConfigureAwait(True)
-            Else
-                Await PopUp.Information("Failed", result.Message).ConfigureAwait(True)
-                Return
-            End If
-
-            file.Id = Await Task.Run(Function() _fileDataService.GetSharedFileInfo(file)?.Id).ConfigureAwait(True)
-
-            Dim activity = New Activities With {
-                .Action = "Shared a file",
-                .ActionIn = "Shared Files",
-                .ActionAt = Date.Now,
-                .FileId = file.Id,
-                .Name = $"{file.FileName}{file.FileType}",
-                .UserId = _sessionManager.CurrentUser.Id
-            }
-
-            If Await Task.Run(Function() _activityService.AddActivity(activity)).ConfigureAwait(True) Then
-                _navigationService.GoBack()
-            End If
+            ' Confirm & navigate
+            Await PopUp.Information("Success", "File has been queued for upload").ConfigureAwait(True)
+            _navigationService.Go("PageRegion", "UploadsView", "Uploads")
 
         Catch ex As Exception
-            Debug.WriteLine($"[DEBUG] Error uploading file: {ex.Message}")
+            Debug.WriteLine($"[DEBUG] Error in publishing: {ex.Message}")
             Debug.WriteLine($"[DEBUG] Stack Trace: {ex.StackTrace}")
+            PopUp.Information("Error", $"An error occurred: {ex.Message}").ConfigureAwait(True)
+
         Finally
+            ' hide spinner
             Loading.Hide()
         End Try
     End Function
+
     Private Sub OnBack()
         _navigationService.GoBack()
     End Sub

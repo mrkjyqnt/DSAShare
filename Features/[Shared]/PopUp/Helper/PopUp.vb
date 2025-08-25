@@ -30,6 +30,22 @@ Public Class PopUp
     End Function
 
     ''' <summary>
+    ''' Shows the description pop up.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Async Function Description() As Task(Of PopupResult)
+        Dim tcs As New TaskCompletionSource(Of PopupResult)()
+        Dim infoPopupViewModel As New DescriptionPopUpViewModel()
+
+        _popupService.ShowPopUp(New DescriptionPopUpView(), infoPopupViewModel,
+                               Sub(result)
+                                   tcs.TrySetResult(result)
+                               End Sub)
+
+        Return Await tcs.Task
+    End Function
+
+    ''' <summary>
     ''' Shows the selection pop up.
     ''' </summary>
     ''' <returns></returns>
